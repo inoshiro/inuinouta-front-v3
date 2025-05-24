@@ -1,14 +1,15 @@
 <script setup lang="ts">
-  import { ref } from "vue";
+import { ref } from "vue";
+import PlayerQueuePanel from "~/components/PlayerQueuePanel.vue";
 
-  const isSidebarOpen = ref(false);
-  const toggleSidebar = () => {
-    isSidebarOpen.value = !isSidebarOpen.value;
-  };
+const isSidebarOpen = ref(false);
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
 
-  const closeSidebar = () => {
-    isSidebarOpen.value = false;
-  };
+const closeSidebar = () => {
+  isSidebarOpen.value = false;
+};
 </script>
 
 <template>
@@ -19,6 +20,9 @@
       <main class="flex-1 w-full p-4 bg-white overflow-y-auto pb-20">
         <slot />
       </main>
+      <div class="w-full md:w-96">
+        <PlayerQueuePanel />
+      </div>
     </div>
     <LayoutFooter />
   </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  const emit = defineEmits(["toggleSidebar"]);
+const emit = defineEmits(["toggleSidebar"]);
 </script>
 
 <template>
@@ -15,7 +15,7 @@
         <span aria-hidden="true">&#9776;</span>
       </button>
       <img src="/favicon.ico" alt="ロゴ" class="w-8 h-8 rounded" />
-      <span class="font-bold text-lg">レスポンシブ音楽プレイヤー</span>
+      <span class="font-bold text-lg">いぬいのうた</span>
     </div>
     <div class="flex items-center gap-3">
       <button aria-label="設定" class="hover:bg-gray-700 p-2 rounded">
