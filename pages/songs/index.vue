@@ -14,7 +14,7 @@
             placeholder="楽曲名、アーティスト名で検索..."
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             @input="debouncedSearch"
-          >
+          />
         </div>
 
         <!-- フィルター -->
@@ -69,7 +69,9 @@
 
     <!-- ローディング状態 -->
     <div v-if="loading" class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+      />
     </div>
 
     <!-- エラー状態 -->
@@ -123,112 +125,112 @@
 </template>
 
 <script setup>
-// Meta設定
-definePageMeta({
-  title: "楽曲一覧",
-  description:
-    "いぬいのうたの楽曲一覧ページです。お気に入りの楽曲を見つけてプレイリストに追加しましょう。",
-});
+  // Meta設定
+  definePageMeta({
+    title: "楽曲一覧",
+    description:
+      "いぬいのうたの楽曲一覧ページです。お気に入りの楽曲を見つけてプレイリストに追加しましょう。",
+  });
 
-// Composables
-const { songs, loading, error, fetchSongs, fetchRandomSong } = useSongs();
-const { addToQueue } = usePlayerQueue();
+  // Composables
+  const { songs, loading, error, fetchSongs, fetchRandomSong } = useSongs();
+  const { addToQueue } = usePlayerQueue();
 
-// リアクティブデータ
-const searchQuery = ref("");
-const selectedArtist = ref("");
-const selectedType = ref("");
-const sortOrder = ref("");
-const loadingMore = ref(false);
-const allSongs = ref([]);
-const totalSongs = ref(0);
+  // リアクティブデータ
+  const searchQuery = ref("");
+  const selectedArtist = ref("");
+  const selectedType = ref("");
+  const sortOrder = ref("");
+  const loadingMore = ref(false);
+  const allSongs = ref([]);
+  const totalSongs = ref(0);
 
-// 計算プロパティ
-const displayedSongs = computed(() => {
-  return songs.value || [];
-});
+  // 計算プロパティ
+  const displayedSongs = computed(() => {
+    return songs.value || [];
+  });
 
-const uniqueArtists = computed(() => {
-  const artists = new Set(allSongs.value.map((song) => song.artist));
-  return Array.from(artists).sort();
-});
+  const uniqueArtists = computed(() => {
+    const artists = new Set(allSongs.value.map((song) => song.artist));
+    return Array.from(artists).sort();
+  });
 
-// 検索のデバウンス処理
-let searchTimeout = null;
-const debouncedSearch = () => {
-  if (searchTimeout) {
-    clearTimeout(searchTimeout);
-  }
-  searchTimeout = setTimeout(() => {
-    handleFilterChange();
-  }, 300);
-};
-
-// メソッド
-const loadSongs = async () => {
-  const query = {};
-
-  if (searchQuery.value) query.search = searchQuery.value;
-  if (selectedArtist.value) query.artist = selectedArtist.value;
-  if (selectedType.value === "original") query.is_original = true;
-  if (selectedType.value === "cover") query.is_original = false;
-  if (sortOrder.value) query.ordering = sortOrder.value;
-
-  const result = await fetchSongs(query);
-  if (result.length > 0) {
-    // 初回読み込み時にすべての楽曲を保存（フィルター用）
-    if (
-      allSongs.value.length === 0 &&
-      !searchQuery.value &&
-      !selectedArtist.value &&
-      !selectedType.value
-    ) {
-      allSongs.value = result;
+  // 検索のデバウンス処理
+  let searchTimeout = null;
+  const debouncedSearch = () => {
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
     }
-  }
-};
+    searchTimeout = setTimeout(() => {
+      handleFilterChange();
+    }, 300);
+  };
 
-const handleFilterChange = () => {
-  loadSongs();
-};
+  // メソッド
+  const loadSongs = async () => {
+    const query = {};
 
-const clearFilters = () => {
-  searchQuery.value = "";
-  selectedArtist.value = "";
-  selectedType.value = "";
-  sortOrder.value = "";
-  loadSongs();
-};
+    if (searchQuery.value) query.search = searchQuery.value;
+    if (selectedArtist.value) query.artist = selectedArtist.value;
+    if (selectedType.value === "original") query.is_original = true;
+    if (selectedType.value === "cover") query.is_original = false;
+    if (sortOrder.value) query.ordering = sortOrder.value;
 
-const getRandomSong = async () => {
-  const randomSong = await fetchRandomSong();
-  if (randomSong) {
-    handlePlayNow(randomSong);
-  }
-};
+    const result = await fetchSongs(query);
+    if (result.length > 0) {
+      // 初回読み込み時にすべての楽曲を保存（フィルター用）
+      if (
+        allSongs.value.length === 0 &&
+        !searchQuery.value &&
+        !selectedArtist.value &&
+        !selectedType.value
+      ) {
+        allSongs.value = result;
+      }
+    }
+  };
 
-const loadMoreSongs = async () => {
-  // TODO: ページネーション実装
-  loadingMore.value = true;
-  // 実装予定
-  loadingMore.value = false;
-};
+  const handleFilterChange = () => {
+    loadSongs();
+  };
 
-const handleAddToQueue = (song) => {
-  addToQueue(song);
-  // TODO: トースト通知の実装
-  console.log(`楽曲「${song.title}」をキューに追加しました`);
-};
+  const clearFilters = () => {
+    searchQuery.value = "";
+    selectedArtist.value = "";
+    selectedType.value = "";
+    sortOrder.value = "";
+    loadSongs();
+  };
 
-const handlePlayNow = (song) => {
-  // キューをクリアして新しい楽曲を再生
-  addToQueue(song);
-  // TODO: トースト通知の実装
-  console.log(`楽曲「${song.title}」を再生開始しました`);
-};
+  const getRandomSong = async () => {
+    const randomSong = await fetchRandomSong();
+    if (randomSong) {
+      handlePlayNow(randomSong);
+    }
+  };
 
-// ライフサイクル
-onMounted(() => {
-  loadSongs();
-});
+  const loadMoreSongs = async () => {
+    // TODO: ページネーション実装
+    loadingMore.value = true;
+    // 実装予定
+    loadingMore.value = false;
+  };
+
+  const handleAddToQueue = (song) => {
+    addToQueue(song);
+    // TODO: トースト通知の実装
+    console.log(`楽曲「${song.title}」をキューに追加しました`);
+  };
+
+  const handlePlayNow = (song) => {
+    // キューをクリアして新しい楽曲を再生
+    addToQueue(song);
+    // TODO: トースト通知の実装
+    console.log(`楽曲「${song.title}」を再生開始しました`);
+  };
+
+  // ライフサイクル
+  onMounted(() => {
+    loadSongs();
+  });
 </script>

@@ -1,24 +1,24 @@
 export interface ApiResponse<T> {
-  data: T
-  status: number
-  message?: string
+  data: T;
+  status: number;
+  message?: string;
 }
 
 export interface ApiError {
-  status: number
-  message: string
-  details?: Record<string, any>
+  status: number;
+  message: string;
+  details?: Record<string, any>;
 }
 
 export class ApiException extends Error {
-  public status: number
-  public details?: Record<string, any>
+  public status: number;
+  public details?: Record<string, any>;
 
   constructor(status: number, message: string, details?: Record<string, any>) {
-    super(message)
-    this.name = 'ApiException'
-    this.status = status
-    this.details = details
+    super(message);
+    this.name = "ApiException";
+    this.status = status;
+    this.details = details;
   }
 }
 
@@ -28,22 +28,22 @@ export class ApiException extends Error {
 export async function fetchDjangoApi<T>(
   endpoint: string,
   options: {
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
-    body?: Record<string, any>
-    query?: Record<string, any>
+    method?: "GET" | "POST" | "PUT" | "DELETE";
+    body?: Record<string, any>;
+    query?: Record<string, any>;
   } = {}
 ): Promise<T> {
-  const config = useRuntimeConfig()
-  const { method = 'GET', body, query } = options
+  const config = useRuntimeConfig();
+  const { method = "GET", body, query } = options;
 
   // URLにクエリパラメータを追加
-  const url = new URL(`${config.djangoApiUrl}${endpoint}`)
+  const url = new URL(`${config.djangoApiUrl}${endpoint}`);
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        url.searchParams.append(key, String(value))
+        url.searchParams.append(key, String(value));
       }
-    })
+    });
   }
 
   try {
@@ -51,18 +51,19 @@ export async function fetchDjangoApi<T>(
       method,
       body,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-    })
+    });
 
-    return response
+    return response;
   } catch (error: any) {
-    console.error(`Django API Error (${endpoint}):`, error)
-    
+    console.error(`Django API Error (${endpoint}):`, error);
+
     // $fetchのエラーオブジェクトから情報を抽出
-    const status = error.response?.status || error.statusCode || 500
-    const message = error.response?._data?.detail || error.message || 'API Error'
-    
-    throw new ApiException(status, message, error.response?._data)
+    const status = error.response?.status || error.statusCode || 500;
+    const message =
+      error.response?._data?.detail || error.message || "API Error";
+
+    throw new ApiException(status, message, error.response?._data);
   }
 }
