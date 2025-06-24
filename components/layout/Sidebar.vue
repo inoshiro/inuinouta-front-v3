@@ -45,27 +45,29 @@
           </li>
           <li>
             <NuxtLink
-              to="/playlist"
+              to="/songs"
+              class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1"
+            >
+              <span aria-hidden="true">🎶</span> 楽曲一覧
+            </NuxtLink>
+          </li>
+          <li>
+            <NuxtLink
+              to="/playlists"
               class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1"
             >
               <span aria-hidden="true">🎵</span> プレイリスト
             </NuxtLink>
           </li>
           <li>
-            <NuxtLink
-              to="/favorites"
-              class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1"
-            >
-              <span aria-hidden="true">⭐</span> お気に入り
-            </NuxtLink>
+            <span class="flex items-center gap-2 text-gray-400 px-2 py-1 cursor-not-allowed">
+              <span aria-hidden="true">⭐</span> お気に入り (準備中)
+            </span>
           </li>
           <li>
-            <NuxtLink
-              to="/settings"
-              class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1"
-            >
-              <span aria-hidden="true">⚙️</span> 設定
-            </NuxtLink>
+            <span class="flex items-center gap-2 text-gray-400 px-2 py-1 cursor-not-allowed">
+              <span aria-hidden="true">⚙️</span> 設定 (準備中)
+            </span>
           </li>
         </ul>
       </nav>
