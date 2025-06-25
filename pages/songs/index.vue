@@ -5,9 +5,9 @@
       <h1 class="text-3xl font-bold text-gray-900 mb-4">楽曲一覧</h1>
 
       <!-- 検索・フィルター -->
-      <div class="flex flex-col md:flex-row gap-4 mb-6">
+      <div class="space-y-4 mb-6">
         <!-- 検索ボックス -->
-        <div class="flex-1">
+        <div class="w-full">
           <input
             v-model="searchQuery"
             type="text"
@@ -17,8 +17,8 @@
           />
         </div>
 
-        <!-- フィルター -->
-        <div class="flex gap-2">
+        <!-- フィルター（モバイル対応） -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
           <select
             v-model="selectedArtist"
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -54,16 +54,16 @@
             <option value="artist">アーティスト順</option>
             <option value="-id">新着順</option>
           </select>
-        </div>
 
-        <!-- ランダム楽曲ボタン -->
-        <button
-          :disabled="loading"
-          class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 whitespace-nowrap"
-          @click="getRandomSong"
-        >
-          ランダム選択
-        </button>
+          <!-- ランダム楽曲ボタン -->
+          <button
+            :disabled="loading"
+            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 whitespace-nowrap"
+            @click="getRandomSong"
+          >
+            🎲 ランダム
+          </button>
+        </div>
       </div>
     </div>
 

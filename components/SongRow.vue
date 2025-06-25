@@ -2,7 +2,89 @@
   <div
     class="song-row bg-white hover:bg-gray-50 border-b border-gray-200 transition-colors duration-150"
   >
-    <div class="flex items-center p-4">
+    <!-- モバイル表示 -->
+    <div class="block md:hidden p-3">
+      <div class="flex items-start space-x-3">
+        <!-- サムネイル（モバイル） -->
+        <div class="flex-shrink-0 w-12 h-9">
+          <div
+            class="w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center overflow-hidden"
+          >
+            <img
+              v-if="song.video.thumbnail_path"
+              :src="song.video.thumbnail_path"
+              :alt="song.title"
+              class="w-full h-full object-cover"
+              loading="lazy"
+              @error="handleImageError"
+            />
+            <span v-else class="text-xs text-gray-400">🎵</span>
+          </div>
+        </div>
+
+        <!-- 楽曲情報（モバイル） -->
+        <div class="flex-1 min-w-0">
+          <h3 class="text-sm font-medium text-gray-900 truncate mb-1">
+            {{ song.title }}
+          </h3>
+          <p class="text-xs text-gray-500 truncate mb-1">
+            {{ song.artist }}
+          </p>
+          <!-- バッジとアクション（モバイル） -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span
+                v-if="song.is_original"
+                class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
+              >
+                オリジナル
+              </span>
+              <span class="text-xs text-gray-400">
+                {{ formatDuration(song.start_at, song.end_at) }}
+              </span>
+            </div>
+            <!-- モバイル用アクション -->
+            <div class="flex items-center space-x-1">
+              <button
+                title="再生"
+                class="p-1.5 text-gray-400 hover:text-blue-600 rounded-full"
+                @click="$emit('play-now', song)"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+              <button
+                title="キューに追加"
+                class="p-1.5 text-gray-400 hover:text-green-600 rounded-full"
+                @click="$emit('add-to-queue', song)"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- デスクトップ表示 -->
+    <div class="hidden md:flex items-center p-4">
       <!-- サムネイル -->
       <div class="flex-shrink-0 w-16 h-12 mr-4">
         <div

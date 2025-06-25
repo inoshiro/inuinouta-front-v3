@@ -6,9 +6,9 @@
       <p class="text-gray-600">ライブ配信での歌枠をご覧いただけます</p>
 
       <!-- 検索・フィルター -->
-      <div class="flex flex-col md:flex-row gap-4 mb-6 mt-6">
+      <div class="space-y-4 mb-6 mt-6">
         <!-- 検索ボックス -->
-        <div class="flex-1">
+        <div class="w-full">
           <input
             v-model="searchQuery"
             type="text"
@@ -18,8 +18,8 @@
           />
         </div>
 
-        <!-- フィルター -->
-        <div class="flex gap-2">
+        <!-- フィルター（モバイル対応） -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           <select
             v-model="selectedFilter"
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -40,16 +40,16 @@
             <option value="published_at">古い順</option>
             <option value="title">タイトル順</option>
           </select>
-        </div>
 
-        <!-- ランダム取得ボタン -->
-        <button
-          :disabled="loading"
-          class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors whitespace-nowrap"
-          @click="fetchRandomStream"
-        >
-          🎲 ランダム
-        </button>
+          <!-- ランダム取得ボタン -->
+          <button
+            :disabled="loading"
+            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors whitespace-nowrap"
+            @click="fetchRandomStream"
+          >
+            🎲 ランダム
+          </button>
+        </div>
       </div>
     </div>
 
