@@ -5,12 +5,19 @@
     <div class="flex items-center p-4">
       <!-- サムネイル -->
       <div class="flex-shrink-0 w-16 h-12 mr-4">
-        <img
-          :src="song.video.thumbnail_path"
-          :alt="song.title"
-          class="w-full h-full object-cover rounded border border-gray-300"
-          loading="lazy"
-        />
+        <div
+          class="w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center overflow-hidden"
+        >
+          <img
+            v-if="song.video.thumbnail_path"
+            :src="song.video.thumbnail_path"
+            :alt="song.title"
+            class="w-full h-full object-cover"
+            loading="lazy"
+            @error="handleImageError"
+          />
+          <span v-else class="text-xs text-gray-400">🎵</span>
+        </div>
       </div>
 
       <!-- 楽曲情報 -->
@@ -148,6 +155,11 @@
       return `開始 - ${formatTime(endAt)}`;
     }
 
-    return "全編";
+    return "時間不明";
+  };
+
+  // 画像読み込みエラーハンドリング
+  const handleImageError = (event) => {
+    event.target.style.display = "none";
   };
 </script>

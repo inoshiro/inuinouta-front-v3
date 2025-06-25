@@ -53,6 +53,14 @@
           </li>
           <li>
             <NuxtLink
+              to="/streams"
+              class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1"
+            >
+              <span aria-hidden="true">🎤</span> 歌枠一覧
+            </NuxtLink>
+          </li>
+          <li>
+            <NuxtLink
               to="/playlists"
               class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1"
             >
@@ -60,12 +68,16 @@
             </NuxtLink>
           </li>
           <li>
-            <span class="flex items-center gap-2 text-gray-400 px-2 py-1 cursor-not-allowed">
+            <span
+              class="flex items-center gap-2 text-gray-400 px-2 py-1 cursor-not-allowed"
+            >
               <span aria-hidden="true">⭐</span> お気に入り (準備中)
             </span>
           </li>
           <li>
-            <span class="flex items-center gap-2 text-gray-400 px-2 py-1 cursor-not-allowed">
+            <span
+              class="flex items-center gap-2 text-gray-400 px-2 py-1 cursor-not-allowed"
+            >
               <span aria-hidden="true">⚙️</span> 設定 (準備中)
             </span>
           </li>
