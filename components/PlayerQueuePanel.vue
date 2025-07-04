@@ -2,6 +2,9 @@
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
 
   const playerQueue = usePlayerQueue();
+
+  // Emits（モバイル用の閉じる機能）
+  const emit = defineEmits(["close"]);
 </script>
 
 <template>
@@ -10,7 +13,29 @@
   >
     <!-- ヘッダー -->
     <div class="flex-shrink-0 p-4 border-b border-gray-200 bg-white">
-      <h2 class="text-lg font-bold text-gray-800">再生キュー</h2>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold text-gray-800">再生キュー</h2>
+        <!-- モバイル用閉じるボタン -->
+        <button
+          class="lg:hidden p-1 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+          title="閉じる"
+          @click="emit('close')"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- スクロール可能なコンテンツエリア -->
@@ -175,6 +200,17 @@
 
     .queue-content {
       padding-bottom: calc(var(--player-height-desktop) + 120px) !important;
+    }
+  }
+
+  /* モバイルオーバーレイ時の調整 */
+  @media (max-width: 1023px) {
+    .queue-content {
+      padding-bottom: calc(var(--player-height-mobile) + 120px);
+    }
+
+    .queue-footer {
+      bottom: var(--player-height-mobile);
     }
   }
 </style>
