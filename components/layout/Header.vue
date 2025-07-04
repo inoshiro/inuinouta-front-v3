@@ -21,7 +21,7 @@
 </script>
 
 <template>
-  <header class="bg-gray-800 text-white relative z-50 shrink-0">
+  <header class="bg-gray-800 text-white relative z-60 shrink-0">
     <div class="px-4 py-3">
       <div class="flex items-center justify-between">
         <!-- 左側: ロゴ -->
@@ -118,42 +118,60 @@
       </div>
     </div>
 
-    <!-- オーバーレイ（モバイルメニューが開いているとき） -->
-    <div
-      v-if="isMenuOpen"
-      class="md:hidden fixed inset-0 bg-opacity-30 z-40"
-      @click="closeMenu"
-    />
+    <!-- モバイルメニューオーバーレイ（モバイルメニューが開いているとき） -->
+    <Transition
+      enter-active-class="transition-opacity ease-out duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity ease-in duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="isMenuOpen"
+        class="md:hidden fixed inset-0 bg-gradient-to-b from-black/40 to-black/20 z-50"
+        @click="closeMenu"
+      />
+    </Transition>
 
     <!-- モバイルメニュー（プルダウン） -->
-    <div
-      v-if="isMenuOpen"
-      class="md:hidden absolute top-full left-0 right-0 bg-gray-800 border-t border-gray-700 z-50 shadow-lg"
+    <Transition
+      enter-active-class="transition-all ease-out duration-300"
+      enter-from-class="opacity-0 -translate-y-2"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition-all ease-in duration-200"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-2"
     >
-      <nav class="px-4 py-3">
-        <ul class="space-y-1">
-          <li v-for="item in navItems" :key="item.to">
-            <NuxtLink
-              :to="item.to"
-              class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-700"
-              :class="{ 'bg-gray-700 text-white': $route.path === item.to }"
-              @click="closeMenu"
-            >
-              <span class="text-base">{{ item.icon }}</span>
-              {{ item.label }}
-            </NuxtLink>
-          </li>
-          <!-- モバイル専用設定項目 -->
-          <li class="pt-2 border-t border-gray-700 mt-2">
-            <button
-              class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-700 w-full text-left"
-            >
-              <span class="text-base">⚙️</span>
-              設定 (準備中)
-            </button>
-          </li>
-        </ul>
-      </nav>
-    </div>
+      <div
+        v-if="isMenuOpen"
+        class="md:hidden absolute top-full left-0 right-0 bg-gray-800 border-t border-gray-700 z-60 shadow-lg"
+      >
+        <nav class="px-4 py-3">
+          <ul class="space-y-1">
+            <li v-for="item in navItems" :key="item.to">
+              <NuxtLink
+                :to="item.to"
+                class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-700"
+                :class="{ 'bg-gray-700 text-white': $route.path === item.to }"
+                @click="closeMenu"
+              >
+                <span class="text-base">{{ item.icon }}</span>
+                {{ item.label }}
+              </NuxtLink>
+            </li>
+            <!-- モバイル専用設定項目 -->
+            <li class="pt-2 border-t border-gray-700 mt-2">
+              <button
+                class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-700 w-full text-left"
+              >
+                <span class="text-base">⚙️</span>
+                設定 (準備中)
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </Transition>
   </header>
 </template>
