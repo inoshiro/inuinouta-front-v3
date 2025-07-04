@@ -1,15 +1,37 @@
 <script setup lang="ts">
-  import { ref, computed } from "vue";
+  import { ref, computed, watch } from "vue";
   import PlayerQueuePanel from "~/components/PlayerQueuePanel.vue";
   import GlobalYouTubePlayer from "~/components/GlobalYouTubePlayer.vue";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
 
   const isQueuePanelOpen = ref(false);
+  const isQueueButtonAnimating = ref(false);
   const queue = usePlayerQueue();
 
   const toggleQueue = () => {
     isQueuePanelOpen.value = !isQueuePanelOpen.value;
   };
+
+  // キュー追加アニメーションをトリガー
+  const triggerQueueAnimation = () => {
+    isQueueButtonAnimating.value = true;
+    setTimeout(() => {
+      isQueueButtonAnimating.value = false;
+    }, 600);
+  };
+
+  // キューの長さを監視してアニメーションをトリガー
+  const previousQueueLength = ref(queue.queue.length);
+  watch(
+    () => queue.queue.length,
+    (newLength, oldLength) => {
+      if (newLength > (oldLength || 0)) {
+        triggerQueueAnimation();
+      }
+      previousQueueLength.value = newLength;
+    },
+    { immediate: true }
+  );
 
   // 現在の楽曲があるかどうか
   const hasCurrentTrack = computed(() => !!queue.nowPlaying);
@@ -45,25 +67,46 @@
 
     <!-- キューパネル（モバイル用ボタン） -->
     <div class="lg:hidden fixed bottom-24 right-4 z-40">
-      <button
-        class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
-        title="再生キューを表示"
-        @click="toggleQueue"
-      >
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+      <div class="relative">
+        <button
+          class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300"
+          :class="{
+            'animate-bounce bg-green-600 scale-110 shadow-xl':
+              isQueueButtonAnimating,
+            'hover:bg-green-700': isQueueButtonAnimating,
+          }"
+          title="再生キューを表示"
+          @click="toggleQueue"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-          />
-        </svg>
-      </button>
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <!-- リスト部分（4本線） -->
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 6h18M3 10h18M3 14h8M3 18h8"
+            />
+            <!-- 再生ボタン部分（右下の三角形・大きめ） -->
+            <polygon fill="currentColor" points="15,14 21,17 15,20" />
+          </svg>
+        </button>
+
+        <!-- キュー数バッジ -->
+        <div
+          v-if="queue.queue.length > 0"
+          class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg"
+          :class="{
+            'animate-pulse bg-green-500': isQueueButtonAnimating,
+          }"
+        >
+          {{ queue.queue.length }}
+        </div>
+      </div>
     </div>
 
     <!-- モバイル用キューパネルオーバーレイ -->

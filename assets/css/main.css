@@ -4,15 +4,41 @@
 :root {
   --player-height-mobile: 100px;
   --player-height-desktop: 80px;
+  --progress-safe-area: 8px; /* プログレスバー保護領域 */
 }
 
 /* プレイヤーが表示されている時のメインコンテンツ調整 */
 .has-player main > div {
-  padding-bottom: var(--player-height-mobile);
+  padding-bottom: calc(var(--player-height-mobile) + var(--progress-safe-area));
+}
+
+/* メインコンテンツがプログレスバーエリアに重ならないようにする */
+.has-player main {
+  position: relative;
+  z-index: 10; /* プログレスバーより低いz-index */
+}
+
+/* プログレスバーエリアの保護 */
+.has-player main::after {
+  content: "";
+  position: fixed;
+  bottom: var(--player-height-mobile);
+  left: 0;
+  right: 0;
+  height: var(--progress-safe-area);
+  background: transparent;
+  pointer-events: none;
+  z-index: 45;
 }
 
 @media (min-width: 1024px) {
   .has-player main > div {
-    padding-bottom: var(--player-height-desktop);
+    padding-bottom: calc(
+      var(--player-height-desktop) + var(--progress-safe-area)
+    );
+  }
+
+  .has-player main::after {
+    bottom: var(--player-height-desktop);
   }
 }

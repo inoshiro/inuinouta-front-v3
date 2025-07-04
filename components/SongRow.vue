@@ -4,7 +4,10 @@
     <div class="block md:hidden p-3 min-h-[88px]">
       <div class="flex items-start space-x-3">
         <!-- サムネイル（モバイル） -->
-        <div class="flex-shrink-0 w-12 h-9">
+        <div
+          class="flex-shrink-0 w-12 h-9 relative cursor-pointer"
+          @click="clickSong"
+        >
           <div
             class="w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center overflow-hidden"
           >
@@ -18,10 +21,37 @@
             />
             <span v-else class="text-xs text-gray-400">🎵</span>
           </div>
+          <!-- 再生状態インジケーター -->
+          <div
+            v-if="isActivelyPlaying"
+            class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded"
+          >
+            <div class="playing-indicator">
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+            </div>
+          </div>
+          <div
+            v-else-if="isPaused"
+            class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded"
+          >
+            <svg
+              class="w-4 h-4 text-white"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
         </div>
 
         <!-- 楽曲情報（モバイル） -->
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 cursor-pointer" @click="clickSong">
           <h3 class="text-sm font-medium text-gray-900 truncate mb-1">
             {{ song.title }}
           </h3>
@@ -39,11 +69,11 @@
               </span>
             </div>
             <!-- モバイル用アクション -->
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2" @click.stop>
               <button
                 title="再生"
                 class="p-3 text-gray-400 hover:text-blue-600 rounded-full"
-                @click="playNow"
+                @click.stop="playNow"
               >
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -56,7 +86,7 @@
               <button
                 title="キューに追加"
                 class="p-3 text-gray-400 hover:text-green-600 rounded-full"
-                @click="addToQueue"
+                @click.stop="addToQueue"
               >
                 <svg
                   class="w-6 h-6"
@@ -78,6 +108,7 @@
                 rel="noopener noreferrer"
                 title="YouTubeで開く"
                 class="p-3 text-gray-400 hover:text-red-600 rounded-full"
+                @click.stop
               >
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path
@@ -94,7 +125,10 @@
     <!-- デスクトップ表示 -->
     <div class="hidden md:flex items-center p-4 min-h-[80px]">
       <!-- サムネイル -->
-      <div class="flex-shrink-0 w-16 h-12 mr-4">
+      <div
+        class="flex-shrink-0 w-16 h-12 mr-4 relative cursor-pointer"
+        @click="clickSong"
+      >
         <div
           class="w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center overflow-hidden"
         >
@@ -108,10 +142,37 @@
           />
           <span v-else class="text-xs text-gray-400">🎵</span>
         </div>
+        <!-- 再生状態インジケーター -->
+        <div
+          v-if="isActivelyPlaying"
+          class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded"
+        >
+          <div class="playing-indicator">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
+        <div
+          v-else-if="isPaused"
+          class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded"
+        >
+          <svg
+            class="w-5 h-5 text-white"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
       </div>
 
       <!-- 楽曲情報 -->
-      <div class="flex-1 min-w-0">
+      <div class="flex-1 min-w-0 cursor-pointer" @click="clickSong">
         <div class="flex items-center space-x-2 mb-1">
           <h3 class="text-sm font-medium text-gray-900 truncate">
             {{ song.title }}
@@ -132,6 +193,7 @@
             target="_blank"
             rel="noopener noreferrer"
             class="text-xs text-blue-600 hover:text-blue-800"
+            @click.stop
           >
             YouTube で開く
           </a>
@@ -139,12 +201,12 @@
       </div>
 
       <!-- アクションボタン -->
-      <div class="flex-shrink-0 flex items-center space-x-3">
+      <div class="flex-shrink-0 flex items-center space-x-3" @click.stop>
         <!-- 今すぐ再生ボタン -->
         <button
           title="今すぐ再生"
           class="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors duration-150"
-          @click="playNow"
+          @click.stop="playNow"
         >
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -159,7 +221,7 @@
         <button
           title="キューに追加"
           class="p-3 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors duration-150"
-          @click="addToQueue"
+          @click.stop="addToQueue"
         >
           <svg
             class="w-6 h-6"
@@ -180,7 +242,7 @@
         <button
           title="プレイリストに追加"
           class="p-3 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors duration-150"
-          @click="$emit('add-to-playlist', song)"
+          @click.stop="$emit('add-to-playlist', song)"
         >
           <svg
             class="w-6 h-6"
@@ -221,23 +283,54 @@
   // Emits（外部との互換性を保持）
   const emit = defineEmits(["play-now", "add-to-queue", "add-to-playlist"]);
 
-  // 直接再生
+  // 直接再生（前プロジェクトのclickSongを参考）
   const playNow = () => {
+    // ユーザーインタラクション記録（モバイル対応強化）
+    player.setUserInteracted(true);
+
     // 新しいキューとして設定して即座に再生
     queue.setQueue([props.song]);
     queue.play(0);
     emit("play-now", props.song);
+
+    // 再生コマンドを確実に実行（旧プロジェクトの手法）
+    setTimeout(() => {
+      if (player.ytPlayer && player.isPlayerReady) {
+        player.play();
+      }
+    }, 100);
+  };
+
+  // サムネイル・曲情報クリック時の再生（前プロジェクトスタイル）
+  const clickSong = () => {
+    console.log("Song clicked:", props.song.title);
+    playNow();
   };
 
   // キューに追加
   const addToQueue = () => {
+    console.log("Adding to queue:", props.song.title);
     queue.addToQueue(props.song);
     emit("add-to-queue", props.song);
   };
 
-  // 現在再生中の楽曲かどうか（メモ化）
+  // 現在再生中の楽曲かどうか（シンプルな判定）
   const isCurrentlyPlaying = computed(() => {
-    return queue.nowPlaying?.id === props.song.id && player.isPlaying;
+    return queue.nowPlaying?.id === props.song.id;
+  });
+
+  // 再生中且つ実際に音楽が流れているかどうか
+  const isActivelyPlaying = computed(() => {
+    return isCurrentlyPlaying.value && player.isPlaying;
+  });
+
+  // 一時停止中かどうか
+  const isPaused = computed(() => {
+    return (
+      isCurrentlyPlaying.value &&
+      !player.isPlaying &&
+      player.playerState === "PAUSED"
+    );
   });
 
   // 計算プロパティ（メモ化）
@@ -251,11 +344,11 @@
     return base + params.toString();
   });
 
-  // CSS動的クラス（メモ化）
+  // CSS動的クラス（前プロジェクトのようにシンプルに）
   const rowClasses = computed(() => [
     "song-row border-b border-gray-200 transition-colors duration-150",
     isCurrentlyPlaying.value
-      ? "bg-blue-50 hover:bg-blue-100"
+      ? "bg-blue-50 hover:bg-blue-100 -active"
       : "bg-white hover:bg-gray-50",
   ]);
 
@@ -273,6 +366,49 @@
     contain: layout style paint;
     /* 高さを明示的に設定してレイアウトシフトを防ぐ */
     min-height: 80px; /* デスクトップ */
+  }
+
+  /* 前プロジェクトのようなアクティブ状態の強調 */
+  .song-row.-active {
+    background-color: rgb(239 246 255) !important; /* bg-blue-50 */
+    border-color: rgb(147 197 253); /* border-blue-300 */
+  }
+
+  /* 再生中インジケーター（前プロジェクトスタイル） */
+  .playing-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+  }
+
+  .playing-indicator .bar {
+    width: 2px;
+    height: 8px;
+    background: white;
+    animation: playing-animation 1s ease-in-out infinite;
+  }
+
+  .playing-indicator .bar:nth-child(1) {
+    animation-delay: 0s;
+  }
+
+  .playing-indicator .bar:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .playing-indicator .bar:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes playing-animation {
+    0%,
+    100% {
+      height: 4px;
+    }
+    50% {
+      height: 12px;
+    }
   }
 
   /* 画像の最適化 */
