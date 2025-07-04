@@ -24,6 +24,16 @@
       </div>
     </div>
 
+    <!-- 上部ページネーション -->
+    <div v-if="totalPages > 1" class="mb-4">
+      <BasePagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        :visible-pages="visiblePages"
+        @go-to-page="goToPage"
+      />
+    </div>
+
     <!-- 楽曲リスト -->
     <div
       v-if="currentPageSongs.length > 0"
@@ -39,83 +49,14 @@
       />
     </div>
 
-    <!-- ページネーション -->
-    <div
-      v-if="totalPages > 1"
-      class="mt-6 flex items-center justify-center space-x-2"
-    >
-      <!-- 最初のページ -->
-      <button
-        :disabled="currentPage === 1"
-        :class="[
-          'px-3 py-2 text-sm border rounded-md transition-colors',
-          currentPage === 1
-            ? 'border-gray-300 text-gray-400 cursor-not-allowed'
-            : 'border-gray-300 text-gray-700 hover:bg-gray-50',
-        ]"
-        @click="goToPage(1)"
-      >
-        «
-      </button>
-
-      <!-- 前のページ -->
-      <button
-        :disabled="currentPage === 1"
-        :class="[
-          'px-3 py-2 text-sm border rounded-md transition-colors',
-          currentPage === 1
-            ? 'border-gray-300 text-gray-400 cursor-not-allowed'
-            : 'border-gray-300 text-gray-700 hover:bg-gray-50',
-        ]"
-        @click="goToPage(currentPage - 1)"
-      >
-        ‹
-      </button>
-
-      <!-- ページ番号 -->
-      <template v-for="page in visiblePages" :key="page">
-        <button
-          v-if="page !== '...'"
-          :class="[
-            'px-3 py-2 text-sm border rounded-md transition-colors',
-            page === currentPage
-              ? 'border-blue-500 bg-blue-500 text-white'
-              : 'border-gray-300 text-gray-700 hover:bg-gray-50',
-          ]"
-          @click="goToPage(page)"
-        >
-          {{ page }}
-        </button>
-        <span v-else class="px-2 py-2 text-sm text-gray-500">...</span>
-      </template>
-
-      <!-- 次のページ -->
-      <button
-        :disabled="currentPage === totalPages"
-        :class="[
-          'px-3 py-2 text-sm border rounded-md transition-colors',
-          currentPage === totalPages
-            ? 'border-gray-300 text-gray-400 cursor-not-allowed'
-            : 'border-gray-300 text-gray-700 hover:bg-gray-50',
-        ]"
-        @click="goToPage(currentPage + 1)"
-      >
-        ›
-      </button>
-
-      <!-- 最後のページ -->
-      <button
-        :disabled="currentPage === totalPages"
-        :class="[
-          'px-3 py-2 text-sm border rounded-md transition-colors',
-          currentPage === totalPages
-            ? 'border-gray-300 text-gray-400 cursor-not-allowed'
-            : 'border-gray-300 text-gray-700 hover:bg-gray-50',
-        ]"
-        @click="goToPage(totalPages)"
-      >
-        »
-      </button>
+    <!-- 下部ページネーション -->
+    <div v-if="totalPages > 1" class="mt-8 mb-8">
+      <BasePagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        :visible-pages="visiblePages"
+        @go-to-page="goToPage"
+      />
     </div>
 
     <!-- 楽曲が0件の場合 -->

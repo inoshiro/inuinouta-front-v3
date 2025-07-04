@@ -1,17 +1,25 @@
 <script setup lang="ts">
-  import { ref } from "vue";
+  import { ref, computed } from "vue";
   import PlayerQueuePanel from "~/components/PlayerQueuePanel.vue";
   import GlobalYouTubePlayer from "~/components/GlobalYouTubePlayer.vue";
+  import { usePlayerQueue } from "~/stores/usePlayerQueue";
 
   const isQueuePanelOpen = ref(false);
+  const queue = usePlayerQueue();
 
   const toggleQueue = () => {
     isQueuePanelOpen.value = !isQueuePanelOpen.value;
   };
+
+  // 現在の楽曲があるかどうか
+  const hasCurrentTrack = computed(() => !!queue.nowPlaying);
 </script>
 
 <template>
-  <div class="h-screen flex flex-col">
+  <div
+    class="h-screen flex flex-col"
+    :class="{ 'has-player': hasCurrentTrack }"
+  >
     <!-- グローバルYouTubeプレイヤー（非表示・音声のみ） -->
     <GlobalYouTubePlayer />
 
@@ -24,7 +32,7 @@
     <div class="flex-1 flex overflow-hidden">
       <!-- 中央メインコンテンツ（スクロール可能） -->
       <main class="flex-1 overflow-y-auto bg-white">
-        <div class="p-2 sm:p-4 pb-24">
+        <div class="p-2 sm:p-4">
           <slot />
         </div>
       </main>

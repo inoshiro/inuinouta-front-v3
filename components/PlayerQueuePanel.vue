@@ -6,7 +6,7 @@
 
 <template>
   <div
-    class="h-full bg-gray-50 border-l border-gray-200 overflow-hidden flex flex-col"
+    class="h-full bg-gray-50 border-l border-gray-200 overflow-hidden flex flex-col relative"
   >
     <!-- ヘッダー -->
     <div class="flex-shrink-0 p-4 border-b border-gray-200 bg-white">
@@ -15,7 +15,10 @@
 
     <!-- スクロール可能なコンテンツエリア -->
     <div class="flex-1 overflow-y-auto">
-      <div class="p-4">
+      <div
+        class="p-4 queue-content"
+        style="padding-bottom: calc(var(--player-height-mobile) + 120px)"
+      >
         <!-- 空のキューメッセージ -->
         <div v-if="playerQueue.queue.length === 0" class="text-center py-8">
           <div class="text-gray-400 mb-2">
@@ -105,7 +108,8 @@
     <!-- フッター（コントロールボタン） -->
     <div
       v-if="playerQueue.queue.length > 0"
-      class="flex-shrink-0 p-4 border-t border-gray-200 bg-white"
+      class="absolute left-0 right-0 p-4 border-t border-gray-200 bg-white queue-footer"
+      style="bottom: var(--player-height-mobile)"
     >
       <div class="flex flex-wrap gap-2">
         <button
@@ -161,3 +165,16 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+  /* レスポンシブ対応 */
+  @media (min-width: 1024px) {
+    .queue-footer {
+      bottom: var(--player-height-desktop) !important;
+    }
+
+    .queue-content {
+      padding-bottom: calc(var(--player-height-desktop) + 120px) !important;
+    }
+  }
+</style>
