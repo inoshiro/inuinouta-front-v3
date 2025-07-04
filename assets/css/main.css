@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+/* プレイヤーコントロールの高さ定義 */
+:root {
+  --player-height-mobile: 100px;
+  --player-height-desktop: 80px;
+}
+
+/* プレイヤーが表示されている時のメインコンテンツ調整 */
+.has-player main > div {
+  padding-bottom: var(--player-height-mobile);
+}
+
+@media (min-width: 1024px) {
+  .has-player main > div {
+    padding-bottom: var(--player-height-desktop);
+  }
+}
