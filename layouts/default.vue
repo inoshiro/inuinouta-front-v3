@@ -66,6 +66,41 @@
       </button>
     </div>
 
+    <!-- モバイル用キューパネルオーバーレイ -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      leave-active-class="transition-all duration-300 ease-in"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="isQueuePanelOpen" class="lg:hidden fixed inset-0 z-50">
+        <!-- オーバーレイ背景 -->
+        <div
+          class="absolute inset-0 bg-gradient-to-r from-black/40 to-black/20"
+          @click="toggleQueue"
+        />
+
+        <!-- キューパネル -->
+        <Transition
+          enter-active-class="transition-transform duration-300 ease-out"
+          leave-active-class="transition-transform duration-300 ease-in"
+          enter-from-class="translate-x-full"
+          enter-to-class="translate-x-0"
+          leave-from-class="translate-x-0"
+          leave-to-class="translate-x-full"
+        >
+          <div
+            v-if="isQueuePanelOpen"
+            class="absolute right-0 top-0 h-full w-80 bg-white shadow-xl"
+          >
+            <PlayerQueuePanel @close="toggleQueue" />
+          </div>
+        </Transition>
+      </div>
+    </Transition>
+
     <!-- フッター（固定） -->
     <div class="flex-shrink-0">
       <LayoutFooter />
