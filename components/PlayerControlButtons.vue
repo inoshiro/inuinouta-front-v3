@@ -22,6 +22,9 @@
 
   // 再生/一時停止の切り替え
   const togglePlayPause = () => {
+    // ユーザーインタラクション記録（モバイル対応強化）
+    playerStore.setUserInteracted(true);
+
     if (playerStore.isPlaying) {
       playerStore.pause();
     } else {
@@ -31,11 +34,15 @@
 
   // 前の曲
   const playPrevious = () => {
+    // ユーザーインタラクション記録
+    playerStore.setUserInteracted(true);
     queueStore.previous();
   };
 
   // 次の曲
   const playNext = () => {
+    // ユーザーインタラクション記録
+    playerStore.setUserInteracted(true);
     queueStore.next();
   };
 </script>

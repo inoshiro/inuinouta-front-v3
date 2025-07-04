@@ -20,6 +20,16 @@ export const usePlayerStore = defineStore("player", {
     isMuted: false,
     isPlayerReady: false,
     ytPlayer: null as any, // YouTube Player インスタンス
+    shouldAutoPlay: false, // 自動再生フラグ
+    hasUserInteracted: false, // ユーザーインタラクションフラグ
+    transitionReason: null as
+      | "manual"
+      | "auto-jump"
+      | "auto-end"
+      | "error"
+      | null, // 遷移理由
+    retryCount: 0, // リトライ回数
+    maxRetries: 3, // 最大リトライ回数
   }),
   getters: {
     // 現在の楽曲の進行率（0-100）
@@ -60,13 +70,44 @@ export const usePlayerStore = defineStore("player", {
     },
     play() {
       if (this.ytPlayer && this.isPlayerReady) {
-        this.ytPlayer.playVideo();
+        try {
+          this.shouldAutoPlay = true; // 自動再生フラグを設定
+          this.hasUserInteracted = true; // ユーザーインタラクションを記録
+          this.ytPlayer.playVideo();
+          console.log("Play command executed");
+        } catch (error) {
+          console.warn("Play failed:", error);
+        }
+      } else {
+        console.warn("Player not ready for play command");
       }
     },
     pause() {
       if (this.ytPlayer && this.isPlayerReady) {
+        this.shouldAutoPlay = false; // 自動再生フラグをクリア
+        this.hasUserInteracted = true; // ユーザーインタラクションを記録
         this.ytPlayer.pauseVideo();
       }
+    },
+    setShouldAutoPlay(value: boolean) {
+      this.shouldAutoPlay = value;
+    },
+    setUserInteracted(value: boolean) {
+      this.hasUserInteracted = value;
+    },
+    setTransitionReason(
+      reason: "manual" | "auto-jump" | "auto-end" | "error" | null
+    ) {
+      this.transitionReason = reason;
+    },
+    incrementRetryCount() {
+      this.retryCount++;
+    },
+    resetRetryCount() {
+      this.retryCount = 0;
+    },
+    canRetry(): boolean {
+      return this.retryCount < this.maxRetries;
     },
     seek(time: number) {
       if (this.ytPlayer && this.isPlayerReady) {
