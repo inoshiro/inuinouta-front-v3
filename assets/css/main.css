@@ -2,8 +2,8 @@
 
 /* プレイヤーコントロールの高さ定義 */
 :root {
-  --player-height-mobile: 100px;
-  --player-height-desktop: 80px;
+  --player-height-mobile: 56px; /* h-12 + pt-2 + pb-3 = 48px + 8px + 0px（コンパクト化） */
+  --player-height-desktop: 68px; /* h-14 + pt-2 + pb-3 = 56px + 8px + 12px - プログレスバー高さ(4px) */
   --progress-safe-area: 8px; /* プログレスバー保護領域 */
 }
 

@@ -5,49 +5,52 @@
 
 <template>
   <!-- YouTube Music風プレイヤーコントロール -->
-  <div
-    class="player-controls bg-gray-900 text-white border-t border-gray-700 relative"
-  >
-    <!-- プログレスバー（最上部ライン） -->
-    <PlayerProgressBar />
+  <div class="player-controls bg-gray-900 text-white border-t border-gray-700">
+    <!-- プログレスバー（コントロールエリアに統合） -->
+    <div class="relative">
+      <!-- プログレスバー -->
+      <div class="absolute top-0 left-0 right-0 h-1 bg-gray-700 z-10">
+        <PlayerProgressBar />
+      </div>
 
-    <!-- デスクトップ版 -->
-    <div class="hidden lg:block">
-      <div class="px-4 py-3 pt-4">
-        <div class="flex items-center gap-4">
-          <!-- 左側: 楽曲情報エリア (固定幅) -->
-          <PlayerTrackInfo />
+      <!-- デスクトップ版コントロール -->
+      <div class="hidden lg:block px-4 pt-2 pb-3">
+        <div class="flex items-center gap-4 h-14">
+          <!-- 左側: 楽曲情報エリア -->
+          <div class="flex-shrink-0 w-80">
+            <PlayerTrackInfo />
+          </div>
 
           <!-- 中央: 再生コントロール -->
-          <div
-            class="flex-1 flex items-center justify-center gap-4 max-w-2xl mx-auto"
-          >
-            <!-- コントロールボタン -->
+          <div class="flex-1 flex items-center justify-center gap-4">
             <PlayerControlButtons />
-
-            <!-- 時間表示 -->
             <PlayerTimeDisplay />
           </div>
 
-          <!-- 右側: 追加コントロール (固定幅) -->
-          <PlayerExtraControls />
+          <!-- 右側: 追加コントロール -->
+          <div class="flex-shrink-0 w-80 flex justify-end">
+            <PlayerExtraControls />
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- モバイル版 -->
-    <div class="block lg:hidden">
-      <!-- メインコントロール -->
-      <div class="px-4 py-3 pt-4">
-        <div class="flex items-center gap-3">
-          <!-- 楽曲情報 -->
-          <PlayerTrackInfo :is-mobile="true" />
+      <!-- モバイル版コントロール -->
+      <div class="block lg:hidden px-3 pt-2 pb-3">
+        <div class="flex items-center gap-2 h-12">
+          <!-- 楽曲情報（広いエリア） -->
+          <div class="flex-1 min-w-0 pr-2">
+            <PlayerTrackInfo :is-mobile="true" />
+          </div>
 
-          <!-- 再生コントロール -->
-          <PlayerControlButtons :is-mobile="true" />
+          <!-- 再生コントロール（コンパクト） -->
+          <div class="flex-shrink-0">
+            <PlayerControlButtons :is-mobile="true" />
+          </div>
 
-          <!-- 時間表示 -->
-          <PlayerTimeDisplay />
+          <!-- 時間表示（コンパクト） -->
+          <div class="flex-shrink-0 text-xs">
+            <PlayerTimeDisplay />
+          </div>
         </div>
       </div>
     </div>
@@ -55,31 +58,14 @@
 </template>
 
 <style scoped>
-  /* プレイヤーコントロールの高さ定義 */
+  /* プレイヤーコントロールの基本スタイル */
   .player-controls {
-    /* CSS変数を使用してグローバルな高さ設定と統一 */
-    min-height: var(--player-height-mobile);
     transform: translateZ(0);
     will-change: transform;
   }
 
-  /* デスクトップ版での高さ調整 */
-  @media (min-width: 1024px) {
-    .player-controls {
-      min-height: var(--player-height-desktop);
-    }
-
-    .w-80 {
-      width: auto;
-      min-width: 0;
-    }
-  }
-
+  /* レスポンシブ調整 */
   @media (max-width: 768px) {
-    .max-w-2xl {
-      max-width: none;
-    }
-
     .gap-4 {
       gap: 0.75rem;
     }
