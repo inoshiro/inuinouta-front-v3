@@ -1,17 +1,9 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import PlayerQueuePanel from "~/components/PlayerQueuePanel.vue";
+  import GlobalYouTubePlayer from "~/components/GlobalYouTubePlayer.vue";
 
-  const isSidebarOpen = ref(false);
   const isQueuePanelOpen = ref(false);
-
-  const toggleSidebar = () => {
-    isSidebarOpen.value = !isSidebarOpen.value;
-  };
-
-  const closeSidebar = () => {
-    isSidebarOpen.value = false;
-  };
 
   const toggleQueue = () => {
     isQueuePanelOpen.value = !isQueuePanelOpen.value;
@@ -19,21 +11,32 @@
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen overflow-x-hidden">
-    <LayoutHeader @toggle-sidebar="toggleSidebar" />
-    <div class="flex">
-      <LayoutSidebar :is-open="isSidebarOpen" @close-sidebar="closeSidebar" />
-      <!-- メインコンテンツエリア -->
-      <main class="flex-1 w-full p-2 sm:p-4 bg-white overflow-y-auto pb-20">
-        <slot />
+  <div class="h-screen flex flex-col">
+    <!-- グローバルYouTubeプレイヤー（非表示・音声のみ） -->
+    <GlobalYouTubePlayer />
+
+    <!-- ヘッダー（固定・ナビゲーション付き） -->
+    <div class="flex-shrink-0">
+      <LayoutHeader />
+    </div>
+
+    <!-- メインコンテンツエリア（ヘッダーとフッターの間を埋める） -->
+    <div class="flex-1 flex overflow-hidden">
+      <!-- 中央メインコンテンツ（スクロール可能） -->
+      <main class="flex-1 overflow-y-auto bg-white">
+        <div class="p-2 sm:p-4 pb-24">
+          <slot />
+        </div>
       </main>
-      <!-- キューパネル（デスクトップのみ） -->
-      <div class="hidden lg:block w-96">
+
+      <!-- キューパネル（デスクトップのみ・固定） -->
+      <div class="hidden lg:block w-96 flex-shrink-0">
         <PlayerQueuePanel />
       </div>
     </div>
+
     <!-- キューパネル（モバイル用ボタン） -->
-    <div class="lg:hidden fixed bottom-20 right-4 z-40">
+    <div class="lg:hidden fixed bottom-24 right-4 z-40">
       <button
         class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
         title="再生キューを表示"
@@ -54,6 +57,10 @@
         </svg>
       </button>
     </div>
-    <LayoutFooter />
+
+    <!-- フッター（固定） -->
+    <div class="flex-shrink-0">
+      <LayoutFooter />
+    </div>
   </div>
 </template>

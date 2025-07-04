@@ -134,7 +134,8 @@
 
   // Composables
   const { songs, loading, error, fetchSongs, fetchRandomSong } = useSongs();
-  const { addToQueue } = usePlayerQueue();
+  // Stores（表示情報のみ必要）
+  // const { addToQueue } = usePlayerQueue();
 
   // リアクティブデータ
   const searchQuery = ref("");
@@ -216,17 +217,14 @@
     loadingMore.value = false;
   };
 
-  const handleAddToQueue = (song) => {
-    addToQueue(song);
-    // TODO: トースト通知の実装
-    console.log(`楽曲「${song.title}」をキューに追加しました`);
+  const handleAddToQueue = () => {
+    // SongRowコンポーネント内で直接キューに追加されているため
+    // ここでは追加処理のみを行う（将来的にはトースト通知など）
   };
 
-  const handlePlayNow = (song) => {
-    // キューをクリアして新しい楽曲を再生
-    addToQueue(song);
-    // TODO: トースト通知の実装
-    console.log(`楽曲「${song.title}」を再生開始しました`);
+  const handlePlayNow = () => {
+    // SongRowコンポーネント内で直接プレイヤーと統合されているため
+    // ここでは追加処理のみを行う（将来的にはトースト通知など）
   };
 
   // ライフサイクル
