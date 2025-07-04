@@ -37,18 +37,15 @@
               >
                 オリジナル
               </span>
-              <span class="text-xs text-gray-400">
-                {{ formattedDuration }}
-              </span>
             </div>
             <!-- モバイル用アクション -->
-            <div class="flex items-center space-x-1">
+            <div class="flex items-center space-x-2">
               <button
                 title="再生"
-                class="p-1.5 text-gray-400 hover:text-blue-600 rounded-full"
+                class="p-3 text-gray-400 hover:text-blue-600 rounded-full"
                 @click="playNow"
               >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fill-rule="evenodd"
                     d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
@@ -58,11 +55,11 @@
               </button>
               <button
                 title="キューに追加"
-                class="p-1.5 text-gray-400 hover:text-green-600 rounded-full"
+                class="p-3 text-gray-400 hover:text-green-600 rounded-full"
                 @click="addToQueue"
               >
                 <svg
-                  class="w-4 h-4"
+                  class="w-6 h-6"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -75,6 +72,19 @@
                   />
                 </svg>
               </button>
+              <a
+                :href="youtubeUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="YouTubeで開く"
+                class="p-3 text-gray-400 hover:text-red-600 rounded-full"
+              >
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+                  />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -117,9 +127,6 @@
           {{ song.artist }}
         </p>
         <div class="flex items-center space-x-4 mt-1">
-          <span class="text-xs text-gray-400">
-            再生時間: {{ formattedDuration }}
-          </span>
           <a
             :href="youtubeUrl"
             target="_blank"
@@ -132,14 +139,14 @@
       </div>
 
       <!-- アクションボタン -->
-      <div class="flex-shrink-0 flex items-center space-x-2">
+      <div class="flex-shrink-0 flex items-center space-x-3">
         <!-- 今すぐ再生ボタン -->
         <button
           title="今すぐ再生"
-          class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors duration-150"
+          class="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors duration-150"
           @click="playNow"
         >
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
             <path
               fill-rule="evenodd"
               d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
@@ -151,11 +158,11 @@
         <!-- キューに追加ボタン -->
         <button
           title="キューに追加"
-          class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors duration-150"
+          class="p-3 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors duration-150"
           @click="addToQueue"
         >
           <svg
-            class="w-5 h-5"
+            class="w-6 h-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -172,11 +179,11 @@
         <!-- プレイリストに追加ボタン -->
         <button
           title="プレイリストに追加"
-          class="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors duration-150"
+          class="p-3 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors duration-150"
           @click="$emit('add-to-playlist', song)"
         >
           <svg
-            class="w-5 h-5"
+            class="w-6 h-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -244,11 +251,6 @@
     return base + params.toString();
   });
 
-  // 期間表示の計算（メモ化）
-  const formattedDuration = computed(() => {
-    return formatDuration(props.song.start_at, props.song.end_at);
-  });
-
   // CSS動的クラス（メモ化）
   const rowClasses = computed(() => [
     "song-row border-b border-gray-200 transition-colors duration-150",
@@ -256,27 +258,6 @@
       ? "bg-blue-50 hover:bg-blue-100"
       : "bg-white hover:bg-gray-50",
   ]);
-
-  // メソッド
-  const formatDuration = (startAt, endAt) => {
-    if (!startAt && !endAt) return "全編";
-
-    const formatTime = (seconds) => {
-      const minutes = Math.floor(seconds / 60);
-      const remainingSeconds = seconds % 60;
-      return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-    };
-
-    if (startAt && endAt) {
-      return `${formatTime(startAt)} - ${formatTime(endAt)}`;
-    } else if (startAt) {
-      return `${formatTime(startAt)} から`;
-    } else if (endAt) {
-      return `開始 - ${formatTime(endAt)}`;
-    }
-
-    return "時間不明";
-  };
 
   // 画像読み込みエラーハンドリング
   const handleImageError = (event) => {
@@ -315,8 +296,8 @@
     }
 
     .song-row button {
-      min-height: 44px;
-      min-width: 44px;
+      min-height: 52px;
+      min-width: 52px;
     }
   }
 
