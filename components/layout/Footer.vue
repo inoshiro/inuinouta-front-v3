@@ -1,6 +1,7 @@
 <script setup>
   import { computed } from "vue";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
+  import PlayerControls from "~/components/PlayerControls.vue";
 
   const queue = usePlayerQueue();
 

@@ -84,6 +84,7 @@
 
 <script setup>
   import { ref, computed, watch } from "vue";
+  import BasePagination from "~/components/BasePagination.vue";
 
   // Props
   const props = defineProps({
