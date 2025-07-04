@@ -53,10 +53,22 @@
     playerStore.seek(seekTime);
   };
 
-  // ドラッグ開始時（再生制御）
-  const onProgressDragStart = (event: Event) => {
-    if (!currentTrack.value) return;
+  // ドラッグ終了処理
+  const handleDragEnd = () => {
+    if (!isDragging.value) return;
 
+    isDragging.value = false;
+    if (wasPlayingBeforeDrag.value) {
+      playerStore.play();
+    }
+
+    // イベントリスナーを削除
+    document.removeEventListener("mouseup", handleDragEnd);
+    document.removeEventListener("touchend", handleDragEnd);
+  };
+
+  // ドラッグ開始時にグローバルイベントリスナーを追加
+  const onProgressDragStart = () => {
     isDragging.value = true;
     wasPlayingBeforeDrag.value = playerStore.isPlaying;
     dragProgressValue.value = trackProgress.value;
@@ -66,22 +78,6 @@
       playerStore.pause();
     }
 
-    // ドラッグ終了の検出
-    const handleDragEnd = () => {
-      isDragging.value = false;
-
-      // ドラッグ前に再生中だった場合は再生を再開
-      if (wasPlayingBeforeDrag.value) {
-        playerStore.play();
-      }
-
-      wasPlayingBeforeDrag.value = false;
-
-      // イベントリスナーを削除
-      document.removeEventListener("mouseup", handleDragEnd);
-      document.removeEventListener("touchend", handleDragEnd);
-    };
-
     // グローバルイベントリスナーを追加
     document.addEventListener("mouseup", handleDragEnd);
     document.addEventListener("touchend", handleDragEnd);
@@ -89,28 +85,28 @@
 </script>
 
 <template>
-  <!-- プログレスバー（コントロールエリア上端にぴったり配置） -->
-  <div class="absolute left-0 w-full h-1 group z-50" style="top: 0px">
-    <!-- プログレスバー専用保護領域 -->
-    <div
-      class="absolute -top-4 left-0 w-full h-8 md:h-6 bg-transparent pointer-events-auto z-50"
-    >
-      <!-- タッチ判定エリアを広くするための透明レイヤー -->
-      <div class="absolute -top-2 left-0 w-full h-6 md:h-4 cursor-pointer z-50">
-        <!-- レンジ入力（スタイリング済み） -->
-        <input
-          type="range"
-          min="0"
-          max="100"
-          :value="displayProgressValue"
-          class="progress-range-slider"
-          :style="{ '--progress': `${displayProgressValue}%` }"
-          :disabled="!currentTrack"
-          @input="onProgressChange"
-          @mousedown="onProgressDragStart"
-          @touchstart="onProgressDragStart"
-        />
-      </div>
+  <!-- プログレスバー（親要素内で相対配置） -->
+  <div class="w-full h-1 group">
+    <!-- プログレスバーの背景 -->
+    <div class="relative w-full h-1 bg-gray-700 rounded-none">
+      <!-- 進行状況バー -->
+      <div
+        class="absolute top-0 left-0 h-1 bg-red-500 rounded-none transition-all duration-100"
+        :style="{ width: `${displayProgressValue}%` }"
+      ></div>
+
+      <!-- レンジ入力（透明・オーバーレイ） -->
+      <input
+        type="range"
+        min="0"
+        max="100"
+        :value="displayProgressValue"
+        class="progress-range-slider"
+        :disabled="!currentTrack"
+        @input="onProgressChange"
+        @mousedown="onProgressDragStart"
+        @touchstart="onProgressDragStart"
+      />
     </div>
   </div>
 </template>
@@ -119,136 +115,74 @@
   /* プログレスバーのスタイル */
   .progress-range-slider {
     position: absolute;
-    top: 100%;
+    top: 0;
     left: 0;
     width: 100%;
-    height: 24px; /* モバイル用に高さを広く */
+    height: 100%;
     cursor: pointer;
     background: transparent;
     -webkit-appearance: none;
     appearance: none;
     outline: none;
     border: none;
-    transform: translateY(-50%);
-    touch-action: none; /* タッチアクションを制御 */
-    z-index: 60; /* さらに高いz-indexで確実にイベントを受け取る */
-    pointer-events: auto; /* 確実にポインターイベントを受け取る */
-    margin-top: 0; /* 中心位置での重なりを実現 */
-  }
-
-  /* デスクトップでは元の高さに戻す */
-  @media (min-width: 768px) {
-    .progress-range-slider {
-      height: 4px;
-    }
+    opacity: 0;
+    z-index: 10;
   }
 
   /* WebKit（Chrome、Safari）用のトラックスタイル */
   .progress-range-slider::-webkit-slider-track {
-    width: 100%;
-    height: 4px;
-    background: #374151; /* gray-700 */
+    background: transparent;
     border: none;
-    border-radius: 0;
-    margin-top: 0; /* コントロールエリアに密着 */
-  }
-
-  /* WebKit用のプログレス部分（進行済み領域） */
-  .progress-range-slider::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(
-      to right,
-      #ef4444 0%,
-      #ef4444 var(--progress, 0%),
-      #374151 var(--progress, 0%),
-      #374151 100%
-    );
-    border: none;
-    border-radius: 0;
-    margin-top: 0; /* コントロールエリアに密着 */
   }
 
   /* WebKit用のサムネイル */
   .progress-range-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    height: 20px; /* モバイル用に大きく */
-    width: 20px;
-    background: #ef4444; /* red-500 */
+    appearance: none;
+    height: 12px;
+    width: 12px;
+    background: #ef4444;
     border-radius: 50%;
     border: 2px solid #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     cursor: pointer;
-    margin-top: -8px; /* 調整 */
-    opacity: 0; /* デフォルトは非表示 */
-    transition: opacity 0.2s ease, transform 0.1s ease;
+    opacity: 0;
+    transition: opacity 0.2s ease;
   }
 
-  /* デスクトップでは元のサイズに戻す */
-  @media (min-width: 768px) {
-    .progress-range-slider::-webkit-slider-thumb {
-      height: 12px;
-      width: 12px;
-      margin-top: -4px;
-    }
-  }
-
-  /* Firefox用のトラックスタイル */
+  /* Firefox用のトラック */
   .progress-range-slider::-moz-range-track {
-    width: 100%;
-    height: 4px;
-    background: #374151;
+    background: transparent;
     border: none;
-    border-radius: 0;
-    margin-top: 0; /* コントロールエリアに密着 */
-  }
-
-  /* Firefox用のプログレス部分 */
-  .progress-range-slider::-moz-range-progress {
-    height: 4px;
-    background: #ef4444;
-    border: none;
-    border-radius: 0;
-    margin-top: 0; /* コントロールエリアに密着 */
   }
 
   /* Firefox用のサムネイル */
   .progress-range-slider::-moz-range-thumb {
-    height: 20px; /* モバイル用に大きく */
-    width: 20px;
+    height: 12px;
+    width: 12px;
     background: #ef4444;
     border-radius: 50%;
     border: 2px solid #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     cursor: pointer;
-    opacity: 0; /* デフォルトは非表示 */
-    transition: opacity 0.2s ease, transform 0.1s ease;
+    opacity: 0;
+    transition: opacity 0.2s ease;
   }
 
-  /* デスクトップでは元のサイズに戻す */
-  @media (min-width: 768px) {
-    .progress-range-slider::-moz-range-thumb {
-      height: 12px;
-      width: 12px;
-    }
-  }
-
-  /* ホバー時やドラッグ時のサムネイル表示 */
+  /* ホバー時のサムネイル表示 */
   .group:hover .progress-range-slider::-webkit-slider-thumb,
   .progress-range-slider:active::-webkit-slider-thumb {
     opacity: 1;
-    transform: scale(1.1);
   }
 
   .group:hover .progress-range-slider::-moz-range-thumb,
   .progress-range-slider:active::-moz-range-thumb {
     opacity: 1;
-    transform: scale(1.1);
   }
 
-  /* モバイルではホバーではなくアクティブ時のみ表示 */
+  /* モバイルではサムネイルを完全に非表示 */
   @media (max-width: 767px) {
-    /* ホバーでは表示しない */
+    /* ホバー時もサムネイルを表示しない */
     .group:hover .progress-range-slider::-webkit-slider-thumb {
       opacity: 0;
     }
@@ -257,15 +191,30 @@
       opacity: 0;
     }
 
-    /* ドラッグ中（アクティブ）のみ表示 */
+    /* アクティブ時（タッチ時）もサムネイルを表示しない */
     .progress-range-slider:active::-webkit-slider-thumb {
-      opacity: 1;
-      transform: scale(1.2);
+      opacity: 0;
     }
 
     .progress-range-slider:active::-moz-range-thumb {
-      opacity: 1;
-      transform: scale(1.2);
+      opacity: 0;
+    }
+
+    /* サムネイルのサイズ調整（非表示でも念のため） */
+    .progress-range-slider::-webkit-slider-thumb {
+      height: 0;
+      width: 0;
+    }
+
+    .progress-range-slider::-moz-range-thumb {
+      height: 0;
+      width: 0;
+    }
+
+    /* モバイルでのタッチエリア拡張 */
+    .progress-range-slider {
+      height: 20px; /* タッチしやすいように高さを拡張 */
+      top: -10px; /* 中央配置 */
     }
   }
 </style>
