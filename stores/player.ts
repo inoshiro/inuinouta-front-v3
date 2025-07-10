@@ -27,9 +27,13 @@ export const usePlayerStore = defineStore("player", {
       | "auto-jump"
       | "auto-end"
       | "error"
+      | "queue-navigation"
       | null, // 遷移理由
     retryCount: 0, // リトライ回数
     maxRetries: 3, // 最大リトライ回数
+    // 新機能：リピート・シャッフル機能
+    repeatMode: "none" as "none" | "once" | "all", // リピートモード
+    isShuffled: false, // シャッフル状態
   }),
   getters: {
     // 現在の楽曲の進行率（0-100）
@@ -89,6 +93,19 @@ export const usePlayerStore = defineStore("player", {
         this.ytPlayer.pauseVideo();
       }
     },
+    stop() {
+      if (this.ytPlayer && this.isPlayerReady) {
+        this.shouldAutoPlay = false;
+        this.hasUserInteracted = true;
+        this.ytPlayer.stopVideo();
+      }
+      // プレイヤー状態をリセット
+      this.currentTrack = null;
+      this.isPlaying = false;
+      this.playerState = "UNSTARTED";
+      this.currentTime = 0;
+      this.transitionReason = null;
+    },
     setShouldAutoPlay(value: boolean) {
       this.shouldAutoPlay = value;
     },
@@ -96,7 +113,13 @@ export const usePlayerStore = defineStore("player", {
       this.hasUserInteracted = value;
     },
     setTransitionReason(
-      reason: "manual" | "auto-jump" | "auto-end" | "error" | null
+      reason:
+        | "manual"
+        | "auto-jump"
+        | "auto-end"
+        | "error"
+        | "queue-navigation"
+        | null
     ) {
       this.transitionReason = reason;
     },
@@ -113,6 +136,24 @@ export const usePlayerStore = defineStore("player", {
       if (this.ytPlayer && this.isPlayerReady) {
         this.ytPlayer.seekTo(time, true);
       }
+    },
+    // 新機能：リピート・シャッフル制御
+    setRepeatMode(mode: "none" | "once" | "all") {
+      this.repeatMode = mode;
+      console.log(`リピートモード変更: ${mode}`);
+    },
+    cycleRepeatMode() {
+      const modes: ("none" | "once" | "all")[] = ["none", "once", "all"];
+      const currentIndex = modes.indexOf(this.repeatMode);
+      const nextIndex = (currentIndex + 1) % modes.length;
+      this.setRepeatMode(modes[nextIndex]);
+    },
+    setShuffled(enabled: boolean) {
+      this.isShuffled = enabled;
+      console.log(`シャッフル${enabled ? "有効" : "無効"}`);
+    },
+    toggleShuffle() {
+      this.setShuffled(!this.isShuffled);
     },
   },
 });

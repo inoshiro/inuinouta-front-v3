@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import type { Song } from "~/types/song";
+import { usePlayerStore } from "./player";
 
 export type QueueItem = Song & {
   addedFrom?: "search" | "playlist" | "history";
@@ -10,11 +11,36 @@ export const usePlayerQueue = defineStore("playerQueue", {
   state: () => ({
     queue: [] as QueueItem[],
     nowPlayingIndex: 0,
+    shouldStopPlayback: false, // 再生停止要求フラグ
+    originalQueue: [] as QueueItem[], // シャッフル前の元キュー保存用
   }),
   getters: {
     nowPlaying: (state) => state.queue[state.nowPlayingIndex] || null,
     hasNext: (state) => state.nowPlayingIndex < state.queue.length - 1,
     hasPrevious: (state) => state.nowPlayingIndex > 0,
+    shouldStop: (state) => state.shouldStopPlayback,
+    // 次の楽曲が同じ動画かつ同じ曲かどうかを判定
+    isNextSameSong: (state) => {
+      const current = state.queue[state.nowPlayingIndex];
+      const next = state.queue[state.nowPlayingIndex + 1];
+      return (
+        current &&
+        next &&
+        current.id === next.id &&
+        current.video?.id === next.video?.id
+      );
+    },
+    // 前の楽曲が同じ動画かつ同じ曲かどうかを判定
+    isPreviousSameSong: (state) => {
+      const current = state.queue[state.nowPlayingIndex];
+      const previous = state.queue[state.nowPlayingIndex - 1];
+      return (
+        current &&
+        previous &&
+        current.id === previous.id &&
+        current.video?.id === previous.video?.id
+      );
+    },
   },
   actions: {
     setQueue(songs: QueueItem[]) {
@@ -22,26 +48,213 @@ export const usePlayerQueue = defineStore("playerQueue", {
       this.nowPlayingIndex = 0;
     },
     addToQueue(song: QueueItem, toTop = false) {
+      console.log("Adding to queue:", {
+        song: { id: song.id, title: song.title },
+        toTop,
+        currentQueueLength: this.queue.length,
+      });
       if (toTop) {
         this.queue.splice(this.nowPlayingIndex + 1, 0, song);
       } else {
         this.queue.push(song);
       }
     },
+    removeFromQueue(index: number) {
+      if (index < 0 || index >= this.queue.length) return;
+
+      const wasCurrentlyPlaying = index === this.nowPlayingIndex;
+
+      // 現在再生中の曲を削除する場合
+      if (index === this.nowPlayingIndex) {
+        this.queue.splice(index, 1);
+        // キューが空になった場合
+        if (this.queue.length === 0) {
+          this.nowPlayingIndex = 0;
+          // 再生停止フラグを設定
+          console.log("Queue became empty - setting stop flag");
+          this.shouldStopPlayback = true;
+        } else if (this.nowPlayingIndex >= this.queue.length) {
+          // 最後の曲を削除した場合、インデックスを調整
+          this.nowPlayingIndex = this.queue.length - 1;
+        }
+        // インデックスはそのままで次の曲が自動で再生される
+      } else if (index < this.nowPlayingIndex) {
+        // 現在再生中より前の曲を削除した場合、インデックスを1つ減らす
+        this.queue.splice(index, 1);
+        this.nowPlayingIndex--;
+      } else {
+        // 現在再生中より後の曲を削除した場合、インデックスはそのまま
+        this.queue.splice(index, 1);
+      }
+    },
+    moveInQueue(fromIndex: number, toIndex: number) {
+      if (
+        fromIndex < 0 ||
+        fromIndex >= this.queue.length ||
+        toIndex < 0 ||
+        toIndex >= this.queue.length ||
+        fromIndex === toIndex
+      )
+        return;
+
+      const [movedItem] = this.queue.splice(fromIndex, 1);
+      this.queue.splice(toIndex, 0, movedItem);
+
+      // 現在再生中のインデックスを調整
+      if (fromIndex === this.nowPlayingIndex) {
+        this.nowPlayingIndex = toIndex;
+      } else if (
+        fromIndex < this.nowPlayingIndex &&
+        toIndex >= this.nowPlayingIndex
+      ) {
+        this.nowPlayingIndex--;
+      } else if (
+        fromIndex > this.nowPlayingIndex &&
+        toIndex <= this.nowPlayingIndex
+      ) {
+        this.nowPlayingIndex++;
+      }
+    },
     play(index: number) {
       if (index >= 0 && index < this.queue.length) {
+        const playerStore = usePlayerStore();
+        // 直接楽曲を選択する場合は常にmanual
+        playerStore.setTransitionReason("manual");
         this.nowPlayingIndex = index;
       }
     },
     next() {
-      if (this.hasNext) this.nowPlayingIndex++;
+      console.log("Queue next() called:", {
+        currentIndex: this.nowPlayingIndex,
+        hasNext: this.hasNext,
+        isNextSameSong: this.isNextSameSong,
+        nextSong: this.hasNext
+          ? {
+              id: this.queue[this.nowPlayingIndex + 1].id,
+              title: this.queue[this.nowPlayingIndex + 1].title,
+              videoId: this.queue[this.nowPlayingIndex + 1].video?.id,
+            }
+          : null,
+      });
+      if (this.hasNext) {
+        // 次の曲が同じ曲の場合はqueue-navigation、そうでなければmanual
+        const playerStore = usePlayerStore();
+        if (this.isNextSameSong) {
+          playerStore.setTransitionReason("queue-navigation");
+        } else {
+          playerStore.setTransitionReason("manual");
+        }
+        this.nowPlayingIndex++;
+      }
     },
     previous() {
-      if (this.hasPrevious) this.nowPlayingIndex--;
+      console.log("Queue previous() called:", {
+        currentIndex: this.nowPlayingIndex,
+        hasPrevious: this.hasPrevious,
+        isPreviousSameSong: this.isPreviousSameSong,
+        previousSong: this.hasPrevious
+          ? {
+              id: this.queue[this.nowPlayingIndex - 1].id,
+              title: this.queue[this.nowPlayingIndex - 1].title,
+              videoId: this.queue[this.nowPlayingIndex - 1].video?.id,
+            }
+          : null,
+      });
+
+      // 旧システムの5秒ルールを実装（5秒以上再生時は頭出し）
+      const playerStore = usePlayerStore();
+      const currentTrack = this.nowPlaying;
+
+      if (currentTrack && playerStore.currentTime && playerStore.ytPlayer) {
+        const startTime = currentTrack.start_at || 0;
+        const currentTime = Math.ceil(playerStore.currentTime);
+
+        // 5秒以上再生している場合は頭出し
+        if (currentTime > startTime + 5) {
+          console.log("5秒ルール適用: 現在の楽曲の頭出し");
+          // 同じ曲の先頭に戻る場合はqueue-navigationを設定
+          playerStore.setTransitionReason("queue-navigation");
+          playerStore.seek(startTime);
+          return;
+        }
+      }
+
+      // 5秒未満または条件を満たさない場合は前の曲へ
+      if (this.hasPrevious) {
+        // 前の曲が同じ曲の場合はqueue-navigation、そうでなければmanual
+        if (this.isPreviousSameSong) {
+          playerStore.setTransitionReason("queue-navigation");
+        } else {
+          playerStore.setTransitionReason("manual");
+        }
+        this.nowPlayingIndex--;
+      }
     },
     clear() {
+      // 再生停止フラグを設定
+      console.log("Queue clear requested - setting stop flag");
+      this.shouldStopPlayback = true;
       this.queue = [];
       this.nowPlayingIndex = 0;
+    },
+    // フラグをリセットするためのメソッド
+    resetStopFlag() {
+      console.log("Resetting stop flag");
+      this.shouldStopPlayback = false;
+    },
+    // シャッフル機能（Fisher-Yatesアルゴリズム）
+    shuffleQueue() {
+      const playerStore = usePlayerStore();
+
+      if (!playerStore.isShuffled) {
+        // 元のキューを保存
+        this.originalQueue = [...this.queue];
+
+        // Fisher-Yatesアルゴリズムでシャッフル
+        for (let i = this.queue.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]];
+        }
+
+        // 現在再生中の楽曲のインデックスを同期
+        this.syncCurrentTrackIndex();
+      } else {
+        // 元のキューに戻す
+        this.queue = [...this.originalQueue];
+        this.syncCurrentTrackIndex();
+      }
+    },
+    // 現在再生中の楽曲のインデックスを同期
+    syncCurrentTrackIndex() {
+      const playerStore = usePlayerStore();
+      if (playerStore.currentTrack) {
+        const index = this.queue.findIndex(
+          (item) => item.id === playerStore.currentTrack?.id
+        );
+        if (index !== -1) {
+          this.nowPlayingIndex = index;
+        }
+      }
+    },
+    // リピート対応の次の曲
+    nextWithRepeat() {
+      const playerStore = usePlayerStore();
+
+      if (this.hasNext) {
+        this.next();
+      } else if (playerStore.repeatMode === "all") {
+        this.nowPlayingIndex = 0; // 最初に戻る
+      } else if (playerStore.repeatMode === "once") {
+        // 現在の曲を再再生（インデックス変更なし）
+        const currentTrack = this.nowPlaying;
+        if (currentTrack) {
+          playerStore.seek(currentTrack.start_at || 0);
+          if (!playerStore.isPlaying) {
+            playerStore.play();
+          }
+        }
+      }
+      // repeatMode === 'none' の場合は何もしない（再生停止）
     },
   },
 });

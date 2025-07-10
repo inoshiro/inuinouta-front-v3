@@ -1,10 +1,62 @@
 <script setup lang="ts">
+  import { ref } from "vue";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
 
   const playerQueue = usePlayerQueue();
 
   // Emits（モバイル用の閉じる機能）
   const emit = defineEmits(["close"]);
+
+  // ドラッグ&ドロップの状態管理
+  const draggedIndex = ref<number | null>(null);
+  const dragOverIndex = ref<number | null>(null);
+
+  // ドラッグ開始
+  const onDragStart = (event: DragEvent, index: number) => {
+    draggedIndex.value = index;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", index.toString());
+    }
+  };
+
+  // ドラッグオーバー
+  const onDragOver = (event: DragEvent, index: number) => {
+    event.preventDefault();
+    dragOverIndex.value = index;
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = "move";
+    }
+  };
+
+  // ドラッグ終了
+  const onDragEnd = () => {
+    draggedIndex.value = null;
+    dragOverIndex.value = null;
+  };
+
+  // ドロップ処理
+  const onDrop = (event: DragEvent, toIndex: number) => {
+    event.preventDefault();
+    if (draggedIndex.value !== null && draggedIndex.value !== toIndex) {
+      playerQueue.moveInQueue(draggedIndex.value, toIndex);
+    }
+    onDragEnd();
+  };
+
+  // 個別削除処理
+  const removeItem = (index: number) => {
+    if (window.confirm("この楽曲をキューから削除しますか？")) {
+      playerQueue.removeFromQueue(index);
+    }
+  };
+
+  // 全削除処理
+  const clearQueue = () => {
+    if (window.confirm("キューを全て削除しますか？")) {
+      playerQueue.clear();
+    }
+  };
 </script>
 
 <template>
@@ -71,50 +123,73 @@
         <div v-else class="space-y-2">
           <div
             v-for="(song, i) in playerQueue.queue"
-            :key="song.id"
-            class="bg-white rounded-lg p-3 shadow-sm border hover:shadow-md transition-shadow"
+            :key="`${song.id}-${i}`"
+            draggable="true"
+            class="bg-white rounded-lg p-3 shadow-sm border hover:shadow-md transition-all duration-200 cursor-move"
             :class="{
               'ring-2 ring-blue-500 bg-blue-50':
                 i === playerQueue.nowPlayingIndex,
+              'opacity-50': draggedIndex === i,
+              'border-blue-300 shadow-lg':
+                dragOverIndex === i && draggedIndex !== i,
             }"
+            @dragstart="onDragStart($event, i)"
+            @dragover="onDragOver($event, i)"
+            @dragend="onDragEnd"
+            @drop="onDrop($event, i)"
           >
             <div class="flex items-start justify-between">
-              <div class="flex-1 min-w-0">
-                <h3
-                  class="font-medium text-sm truncate"
-                  :class="{
-                    'text-blue-600': i === playerQueue.nowPlayingIndex,
-                    'text-gray-900': i !== playerQueue.nowPlayingIndex,
-                  }"
+              <!-- ドラッグハンドル -->
+              <div class="flex items-start gap-3 flex-1 min-w-0">
+                <div
+                  class="flex-shrink-0 mt-1 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing"
                 >
-                  {{ song.title }}
-                </h3>
-                <p class="text-xs text-gray-500 mt-1 truncate">
-                  {{ song.artist }}
-                </p>
-                <div class="flex items-center mt-2">
-                  <span
-                    v-if="i === playerQueue.nowPlayingIndex"
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                    />
+                  </svg>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                  <h3
+                    class="font-medium text-sm truncate"
+                    :class="{
+                      'text-blue-600': i === playerQueue.nowPlayingIndex,
+                      'text-gray-900': i !== playerQueue.nowPlayingIndex,
+                    }"
                   >
-                    <svg
-                      class="w-3 h-3 mr-1"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
+                    {{ song.title }}
+                  </h3>
+                  <p class="text-xs text-gray-500 mt-1 truncate">
+                    {{ song.artist }}
+                  </p>
+                  <div class="flex items-center mt-2">
+                    <span
+                      v-if="i === playerQueue.nowPlayingIndex"
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                     >
-                      <path
-                        fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    再生中
-                  </span>
-                  <span v-else class="text-xs text-gray-400"
-                    >{{ i + 1 }}番目</span
-                  >
+                      <svg
+                        class="w-3 h-3 mr-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                      再生中
+                    </span>
+                    <span v-else class="text-xs text-gray-400"
+                      >{{ i + 1 }}番目</span
+                    >
+                  </div>
                 </div>
               </div>
+
+              <!-- アクションボタン -->
               <div class="flex flex-col gap-1 ml-2">
                 <button
                   v-if="i !== playerQueue.nowPlayingIndex"
@@ -122,6 +197,19 @@
                   @click="playerQueue.play(i)"
                 >
                   再生
+                </button>
+                <button
+                  class="text-red-500 hover:text-red-700 text-xs px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                  @click="removeItem(i)"
+                  title="キューから削除"
+                >
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -172,7 +260,7 @@
       </div>
       <button
         class="w-full bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded-md text-sm mt-2 transition-colors"
-        @click="playerQueue.clear"
+        @click="clearQueue"
       >
         <svg
           class="w-4 h-4 inline mr-1"
