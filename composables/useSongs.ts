@@ -23,9 +23,15 @@ export const useSongs = () => {
     loading.value = true
     error.value = null
 
+    // デフォルトのソート設定：動画の投稿日時降順、楽曲の開始時間昇順
+    const defaultQuery = {
+      ordering: "-video.published_at,start_at",
+      ...query
+    }
+
     try {
       const response = await $fetch<SongsResponse>('/api/songs', {
-        query,
+        query: defaultQuery,
       })
       songs.value = response.songs
       return response.songs

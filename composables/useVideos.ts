@@ -21,9 +21,15 @@ export const useVideos = () => {
     loading.value = true
     error.value = null
 
+    // デフォルトのソート設定：投稿日時降順
+    const defaultQuery = {
+      ordering: "-published_at",
+      ...query
+    }
+
     try {
       const response = await $fetch<VideosResponse>('/api/videos', {
-        query,
+        query: defaultQuery,
       })
       videos.value = response.videos
       return response.videos
