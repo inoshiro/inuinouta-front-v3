@@ -17,6 +17,8 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
   const playerContainer = ref<HTMLDivElement>();
   let updateInterval: NodeJS.Timeout | null = null;
   let playCurrentTrackDebounce: NodeJS.Timeout | null = null;
+  let previousVideoId: string | null = null; // 前の動画IDを保存
+  let previousSongId: number | null = null; // 前の楽曲IDを保存
 
   // プレイヤーの準備完了を待つヘルパー関数
   const waitForPlayerReady = (timeout = 5000): Promise<boolean> => {
@@ -50,6 +52,10 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
     if (playerStore.ytPlayer) {
       playerStore.ytPlayer.destroy();
     }
+
+    // 前の動画IDと楽曲IDをリセット
+    previousVideoId = null;
+    previousSongId = null;
 
     const player = new window.YT.Player(playerId, {
       height: "0",
@@ -111,19 +117,38 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
 
     // 現在時刻が終了時刻に達したか（旧プロジェクトと同じ判定）
     if (Math.ceil(currentTime) >= Math.ceil(endTime)) {
-      console.log("Track reached end time, auto-jumping to next track");
+      console.log("Track reached end time, auto-jumping with repeat logic");
 
-      if (queueStore.hasNext) {
-        // 一度再生を停止してから次の曲へ移行（旧プロジェクトの手法）
-        if (playerStore.ytPlayer && playerStore.isPlayerReady) {
-          playerStore.ytPlayer.pauseVideo();
+      // リピートモードを考慮した遷移処理
+      const repeatMode = playerStore.repeatMode;
+
+      if (repeatMode === "once") {
+        // 同じ曲をリピート（旧システムと同様）
+        console.log("Repeat once: restarting current track");
+        playerStore.seek(currentTrack.start_at || 0);
+        if (!playerStore.isPlaying) {
+          playerStore.play();
         }
-
-        // 遷移理由を設定してから次の曲へ
-        playerStore.setTransitionReason("auto-jump");
-        queueStore.next();
-        // watchで自動的にplayCurrentTrackが呼ばれる
+        return;
       }
+
+      // 一度再生を停止してから次の処理へ移行（旧プロジェクトの手法）
+      if (playerStore.ytPlayer && playerStore.isPlayerReady) {
+        playerStore.ytPlayer.pauseVideo();
+      }
+
+      // 遷移理由を設定してから次の処理へ
+      playerStore.setTransitionReason("auto-jump");
+
+      if (repeatMode === "all" && !queueStore.hasNext) {
+        // 全体リピート: 最後の曲なら最初に戻る
+        console.log("Repeat all: jumping to first track");
+        queueStore.play(0);
+      } else if (queueStore.hasNext) {
+        // 通常の次の曲へ
+        queueStore.next();
+      }
+      // repeatMode === 'none' かつ最後の曲の場合は何もしない（再生停止）
     }
   };
 
@@ -158,12 +183,32 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
     // ENDED状態での次曲自動再生（フォールバック機能）
     // autoJumpでカバーされない場合のみ実行
     if (newState === "ENDED" && playerStore.transitionReason !== "auto-jump") {
-      console.log("Video ended naturally, auto-jumping to next track");
-      if (queueStore.hasNext) {
+      console.log("Video ended naturally, handling with repeat logic");
+
+      const repeatMode = playerStore.repeatMode;
+
+      if (repeatMode === "once") {
+        // 同じ曲をリピート
+        console.log("Repeat once: restarting current track");
+        const currentTrack = queueStore.nowPlaying;
+        if (currentTrack) {
+          playerStore.seek(currentTrack.start_at || 0);
+          playerStore.play();
+        }
+        return;
+      }
+
+      if (repeatMode === "all" && !queueStore.hasNext) {
+        // 全体リピート: 最後の曲なら最初に戻る
+        console.log("Repeat all: jumping to first track");
+        playerStore.setTransitionReason("auto-end");
+        queueStore.play(0);
+      } else if (queueStore.hasNext) {
+        // 通常の次の曲へ
         playerStore.setTransitionReason("auto-end");
         queueStore.next();
-        // watchで自動的にplayCurrentTrackが呼ばれる
       }
+      // repeatMode === 'none' かつ最後の曲の場合は何もしない（再生停止）
     }
   };
 
@@ -261,13 +306,141 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
       return;
     }
 
-    console.log(
-      "Loading video:",
+    console.log("executePlayCurrentTrack - Analyzing transition:", {
       videoId,
-      "start:",
-      currentTrack.start_at,
-      "end:",
-      currentTrack.end_at
+      songId: currentTrack.id,
+      title: currentTrack.title,
+      start: currentTrack.start_at,
+      end: currentTrack.end_at,
+      previousVideoId,
+      previousSongId,
+      sameVideo: videoId === previousVideoId,
+      sameSong: currentTrack.id === previousSongId,
+      playerReady: playerStore.ytPlayer && playerStore.isPlayerReady,
+    });
+
+    // 同じ動画かつ同じ楽曲の場合の処理
+    if (
+      videoId === previousVideoId &&
+      currentTrack.id === previousSongId &&
+      playerStore.ytPlayer &&
+      playerStore.isPlayerReady
+    ) {
+      // キューの移動（手動、前/次）の場合は必ず先頭から再生
+      if (
+        playerStore.transitionReason === "manual" ||
+        playerStore.transitionReason === "queue-navigation"
+      ) {
+        console.log(
+          "✅ CONDITION: Same song via queue navigation, restarting from beginning"
+        );
+        console.log("Track transition:", {
+          videoId,
+          songId: currentTrack.id,
+          title: currentTrack.title,
+          startTime: currentTrack.start_at || 0,
+          endTime: currentTrack.end_at,
+          shouldAutoPlay,
+          reason: playerStore.transitionReason,
+        });
+
+        const startTime = currentTrack.start_at || 0;
+        console.log(
+          "🔍 DEBUG: Using loadVideoById for reliable restart at:",
+          startTime
+        );
+
+        // 確実に指定位置から開始するためloadVideoByIdを使用
+        playerStore.ytPlayer.loadVideoById({
+          videoId,
+          startSeconds: startTime,
+          endSeconds: currentTrack.end_at || undefined,
+        });
+
+        // 自動再生フラグを設定
+        playerStore.setShouldAutoPlay(true);
+
+        // 遷移理由をリセット
+        playerStore.setTransitionReason(null);
+
+        // 前の動画IDと楽曲IDを更新
+        previousVideoId = videoId;
+        previousSongId = currentTrack.id;
+        return;
+      }
+
+      // リピート再生の場合は従来通りの処理
+      console.log(
+        "✅ CONDITION: Same song via repeat, seeking to start and restart playback"
+      );
+      console.log("Track transition:", {
+        videoId,
+        songId: currentTrack.id,
+        title: currentTrack.title,
+        startTime: currentTrack.start_at || 0,
+        endTime: currentTrack.end_at,
+        shouldAutoPlay,
+        reason: playerStore.transitionReason,
+      });
+
+      // 楽曲の開始時間にシーク
+      const startTime = currentTrack.start_at || 0;
+      playerStore.ytPlayer.seekTo(startTime, true);
+
+      // 再生開始（同じ楽曲でも新しく再生開始する）
+      playerStore.setShouldAutoPlay(true);
+      playerStore.ytPlayer.playVideo();
+
+      // 遷移理由をリセット
+      playerStore.setTransitionReason(null);
+
+      // 前の動画IDと楽曲IDを更新（既に同じだが明示的に更新）
+      previousVideoId = videoId;
+      previousSongId = currentTrack.id;
+      return;
+    }
+
+    // 同じ動画だが異なる楽曲の場合はシークのみ実行
+    console.log("hogeeeeeeeeeeeeeeeeee");
+    if (
+      videoId === previousVideoId &&
+      currentTrack.id !== previousSongId &&
+      playerStore.ytPlayer &&
+      playerStore.isPlayerReady
+    ) {
+      console.log(
+        "✅ CONDITION: Same video but different song, seeking to start position instead of reloading"
+      );
+      console.log("Track transition:", {
+        videoId,
+        songId: currentTrack.id,
+        title: currentTrack.title,
+        startTime: currentTrack.start_at || 0,
+        endTime: currentTrack.end_at,
+        shouldAutoPlay,
+        reason: playerStore.transitionReason,
+      });
+
+      // 開始時間にシーク
+      const startTime = currentTrack.start_at || 0;
+      playerStore.ytPlayer.seekTo(startTime, true);
+
+      // 確実に再生を開始
+      playerStore.setShouldAutoPlay(true);
+      playerStore.ytPlayer.playVideo();
+
+      // 遷移理由をリセット
+      playerStore.setTransitionReason(null);
+
+      // 前の動画IDと楽曲IDを更新
+      previousVideoId = videoId;
+      previousSongId = currentTrack.id;
+      return;
+    }
+
+    // 異なる動画の場合は通常の読み込み処理
+    console.log(
+      "✅ CONDITION: Different video or first load, loading new video"
     );
 
     // モバイル対応: 自動再生フラグを適切に設定
@@ -295,19 +468,56 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
 
     // 遷移理由をリセット
     playerStore.setTransitionReason(null);
+
+    // 前の動画IDと楽曲IDを更新
+    previousVideoId = videoId;
+    previousSongId = currentTrack.id;
   };
 
   // キューの変更を監視
   watch(
-    () => queueStore.nowPlaying,
-    (newTrack, oldTrack) => {
-      if (newTrack && newTrack !== oldTrack) {
-        // 遷移理由が設定されていない場合は手動選択とみなす
-        if (playerStore.transitionReason === null) {
-          playerStore.setTransitionReason("manual");
-        }
+    () => ({
+      track: queueStore.nowPlaying,
+      index: queueStore.nowPlayingIndex,
+    }),
+    (newValue, oldValue) => {
+      const newTrack = newValue.track;
+      const oldTrack = oldValue?.track;
+      const newIndex = newValue.index;
+      const oldIndex = oldValue?.index;
 
-        playCurrentTrack();
+      console.log("Queue nowPlaying changed:", {
+        newTrack: newTrack ? { id: newTrack.id, title: newTrack.title } : null,
+        oldTrack: oldTrack ? { id: oldTrack.id, title: oldTrack.title } : null,
+        newIndex,
+        oldIndex,
+        previousSongId,
+        transitionReason: playerStore.transitionReason,
+      });
+
+      if (newTrack) {
+        // 新しいトラックがある場合の条件判定
+        const trackChanged = newTrack !== oldTrack;
+        const songIdChanged = newTrack.id !== previousSongId;
+        const indexChanged = newIndex !== oldIndex;
+
+        // トラックオブジェクト、楽曲ID、またはインデックスのいずれかが変わった場合に再生
+        if (trackChanged || songIdChanged || indexChanged) {
+          // 遷移理由が設定されていない場合は手動選択とみなす
+          if (playerStore.transitionReason === null) {
+            playerStore.setTransitionReason("manual");
+          }
+
+          console.log("Triggering playCurrentTrack due to:", {
+            trackChanged,
+            songIdChanged,
+            indexChanged,
+            currentTrackId: newTrack.id,
+            previousSongId,
+          });
+
+          playCurrentTrack();
+        }
       }
     },
     { immediate: true }
@@ -333,6 +543,20 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
         } else {
           playerStore.ytPlayer.unMute();
         }
+      }
+    }
+  );
+
+  // キューの停止フラグを監視
+  watch(
+    () => queueStore.shouldStop,
+    (shouldStop) => {
+      if (shouldStop) {
+        console.log("Queue requested to stop playback");
+        // プレイヤーを停止
+        playerStore.stop();
+        // フラグをリセット
+        queueStore.resetStopFlag();
       }
     }
   );

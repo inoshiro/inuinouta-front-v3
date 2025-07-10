@@ -45,6 +45,38 @@
     playerStore.setUserInteracted(true);
     queueStore.next();
   };
+
+  // シャッフル切り替え
+  const toggleShuffle = () => {
+    playerStore.setUserInteracted(true);
+    playerStore.toggleShuffle();
+    queueStore.shuffleQueue();
+  };
+
+  // リピートモード切り替え
+  const cycleRepeat = () => {
+    playerStore.setUserInteracted(true);
+    playerStore.cycleRepeatMode();
+  };
+
+  // シャッフル・リピート状態の取得
+  const isShuffled = computed(() => playerStore.isShuffled);
+  const repeatMode = computed(() => playerStore.repeatMode);
+
+  // アイコンクラスの計算
+  const shuffleClass = computed(() => [
+    "p-2 hover:bg-gray-700 rounded-full transition-colors",
+    isShuffled.value
+      ? "text-blue-400 hover:text-blue-300"
+      : "text-gray-400 hover:text-white opacity-75 hover:opacity-100",
+  ]);
+
+  const repeatClass = computed(() => [
+    "p-2 hover:bg-gray-700 rounded-full transition-colors",
+    repeatMode.value !== "none"
+      ? "text-blue-400 hover:text-blue-300"
+      : "text-gray-400 hover:text-white opacity-75 hover:opacity-100",
+  ]);
 </script>
 
 <template>
@@ -53,13 +85,11 @@
     <!-- シャッフル（デスクトップのみ） -->
     <button
       v-if="!isMobile"
-      class="p-2 hover:bg-gray-700 rounded-full transition-colors opacity-75 hover:opacity-100"
+      :class="shuffleClass"
+      :title="isShuffled ? 'シャッフルをオフ' : 'シャッフルをオン'"
+      @click="toggleShuffle"
     >
-      <svg
-        class="w-5 h-5 text-gray-400 hover:text-white"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-      >
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
         <path
           d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"
         />
@@ -136,13 +166,33 @@
     <!-- リピート（デスクトップのみ） -->
     <button
       v-if="!isMobile"
-      class="p-2 hover:bg-gray-700 rounded-full transition-colors opacity-75 hover:opacity-100"
+      :class="repeatClass"
+      :title="`リピート: ${
+        repeatMode === 'none' ? 'オフ' : repeatMode === 'all' ? 'すべて' : '1曲'
+      }`"
+      @click="cycleRepeat"
     >
+      <!-- リピートモードに応じたアイコン -->
       <svg
-        class="w-5 h-5 text-gray-400 hover:text-white"
+        v-if="repeatMode === 'once'"
+        class="w-5 h-5"
         fill="currentColor"
         viewBox="0 0 24 24"
       >
+        <path
+          d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"
+        />
+        <text
+          x="12"
+          y="16"
+          text-anchor="middle"
+          font-size="8"
+          font-weight="bold"
+        >
+          1
+        </text>
+      </svg>
+      <svg v-else class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
         <path
           d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"
         />
