@@ -13,7 +13,6 @@
             type="text"
             placeholder="楽曲名、アーティスト名で検索..."
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            @input="debouncedSearch"
           />
         </div>
 
@@ -22,7 +21,6 @@
           <select
             v-model="selectedArtist"
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            @change="handleFilterChange"
           >
             <option value="">全アーティスト</option>
             <option
@@ -37,7 +35,6 @@
           <select
             v-model="selectedType"
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            @change="handleFilterChange"
           >
             <option value="">全楽曲</option>
             <option value="original">オリジナル楽曲</option>
@@ -45,24 +42,22 @@
           </select>
 
           <select
-            v-model="sortOrder"
+            v-model="selectedVideoType"
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            @change="handleFilterChange"
           >
-            <option value="">デフォルト</option>
-            <option value="title">タイトル順</option>
-            <option value="artist">アーティスト順</option>
-            <option value="-id">新着順</option>
+            <option value="">全動画</option>
+            <option value="music_video">歌動画</option>
+            <option value="stream">歌配信</option>
           </select>
 
-          <!-- ランダム楽曲ボタン -->
-          <button
-            :disabled="loading"
-            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 whitespace-nowrap"
-            @click="getRandomSong"
+          <select
+            v-model="sortOrder"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            @change="handleSortChange"
           >
-            🎲 ランダム
-          </button>
+            <option value="-video.published_at,start_at">デフォルト（新しい配信順）</option>
+            <option value="video.published_at,-start_at">逆順（古い配信順）</option>
+          </select>
         </div>
       </div>
     </div>
@@ -133,65 +128,75 @@
   });
 
   // Composables
-  const { songs, loading, error, fetchSongs, fetchRandomSong } = useSongs();
+  const { songs, loading, error, fetchSongs } = useSongs();
   // Stores（表示情報のみ必要）
   // const { addToQueue } = usePlayerQueue();
 
   // リアクティブデータ
-  const searchQuery = ref("");
-  const selectedArtist = ref("");
-  const selectedType = ref("");
-  const sortOrder = ref("");
+  const searchQuery = ref(""); // クライアント側フィルタ
+  const selectedArtist = ref(""); // クライアント側フィルタ
+  const selectedType = ref(""); // クライアント側フィルタ
+  const selectedVideoType = ref(""); // クライアント側フィルタ（歌動画/歌配信）
+  const sortOrder = ref("-video.published_at,start_at"); // デフォルトソート
   const loadingMore = ref(false);
-  const allSongs = ref([]);
   const totalSongs = ref(0);
 
   // 計算プロパティ
   const displayedSongs = computed(() => {
-    return songs.value || [];
+    let filteredSongs = songs.value || [];
+
+    // キーワード検索フィルター（クライアント側）
+    if (searchQuery.value.trim()) {
+      const searchTerm = searchQuery.value.toLowerCase().trim();
+      filteredSongs = filteredSongs.filter(song => 
+        song.title.toLowerCase().includes(searchTerm) ||
+        song.artist.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // アーティストフィルター（クライアント側）
+    if (selectedArtist.value) {
+      filteredSongs = filteredSongs.filter(song => 
+        song.artist === selectedArtist.value
+      );
+    }
+
+    // 楽曲タイプフィルター（クライアント側）
+    if (selectedType.value === "original") {
+      filteredSongs = filteredSongs.filter(song => song.is_original === true);
+    } else if (selectedType.value === "cover") {
+      filteredSongs = filteredSongs.filter(song => song.is_original === false);
+    }
+
+    // 動画タイプフィルター（クライアント側）
+    if (selectedVideoType.value === "music_video") {
+      filteredSongs = filteredSongs.filter(song => song.video.is_stream === false);
+    } else if (selectedVideoType.value === "stream") {
+      filteredSongs = filteredSongs.filter(song => song.video.is_stream === true);
+    }
+
+    return filteredSongs;
   });
 
   const uniqueArtists = computed(() => {
-    const artists = new Set(allSongs.value.map((song) => song.artist));
+    const artists = new Set((songs.value || []).map((song) => song.artist));
     return Array.from(artists).sort();
   });
 
-  // 検索のデバウンス処理
-  let searchTimeout = null;
-  const debouncedSearch = () => {
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-    searchTimeout = setTimeout(() => {
-      handleFilterChange();
-    }, 300);
-  };
-
+  // 検索のデバウンス処理は不要（クライアント側フィルタのため）
+  
   // メソッド
   const loadSongs = async () => {
     const query = {};
 
-    if (searchQuery.value) query.search = searchQuery.value;
-    if (selectedArtist.value) query.artist = selectedArtist.value;
-    if (selectedType.value === "original") query.is_original = true;
-    if (selectedType.value === "cover") query.is_original = false;
+    // API呼び出しするのはソートのみ
     if (sortOrder.value) query.ordering = sortOrder.value;
 
     const result = await fetchSongs(query);
-    if (result.length > 0) {
-      // 初回読み込み時にすべての楽曲を保存（フィルター用）
-      if (
-        allSongs.value.length === 0 &&
-        !searchQuery.value &&
-        !selectedArtist.value &&
-        !selectedType.value
-      ) {
-        allSongs.value = result;
-      }
-    }
   };
 
-  const handleFilterChange = () => {
+  // ソート変更時のみAPI再取得
+  const handleSortChange = () => {
     loadSongs();
   };
 
@@ -199,15 +204,9 @@
     searchQuery.value = "";
     selectedArtist.value = "";
     selectedType.value = "";
-    sortOrder.value = "";
-    loadSongs();
-  };
-
-  const getRandomSong = async () => {
-    const randomSong = await fetchRandomSong();
-    if (randomSong) {
-      handlePlayNow(randomSong);
-    }
+    selectedVideoType.value = "";
+    sortOrder.value = "-video.published_at,start_at"; // デフォルトソートに戻す
+    loadSongs(); // ソート変更のためAPI再取得
   };
 
   const loadMoreSongs = async () => {

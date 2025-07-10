@@ -41,7 +41,14 @@ export async function fetchDjangoApi<T>(
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        url.searchParams.append(key, String(value));
+        // 配列の場合は複数のパラメータとして追加
+        if (Array.isArray(value)) {
+          value.forEach(item => {
+            url.searchParams.append(key, String(item));
+          });
+        } else {
+          url.searchParams.append(key, String(value));
+        }
       }
     });
   }
@@ -55,7 +62,7 @@ export async function fetchDjangoApi<T>(
       },
     });
 
-    return response;
+    return response as T;
   } catch (error: any) {
     console.error(`Django API Error (${endpoint}):`, error);
 
