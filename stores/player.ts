@@ -32,7 +32,7 @@ export const usePlayerStore = defineStore("player", {
     retryCount: 0, // リトライ回数
     maxRetries: 3, // 最大リトライ回数
     // 新機能：リピート・シャッフル機能
-    repeatMode: "none" as "none" | "once" | "all", // リピートモード
+    repeatMode: "none" as "none" | "one" | "all", // リピートモード
     isShuffled: false, // シャッフル状態
   }),
   getters: {
@@ -138,12 +138,12 @@ export const usePlayerStore = defineStore("player", {
       }
     },
     // 新機能：リピート・シャッフル制御
-    setRepeatMode(mode: "none" | "once" | "all") {
+    setRepeatMode(mode: "none" | "one" | "all") {
       this.repeatMode = mode;
       console.log(`リピートモード変更: ${mode}`);
     },
     cycleRepeatMode() {
-      const modes: ("none" | "once" | "all")[] = ["none", "once", "all"];
+      const modes: ("none" | "one" | "all")[] = ["none", "one", "all"];
       const currentIndex = modes.indexOf(this.repeatMode);
       const nextIndex = (currentIndex + 1) % modes.length;
       this.setRepeatMode(modes[nextIndex]);
