@@ -122,9 +122,9 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
       // リピートモードを考慮した遷移処理
       const repeatMode = playerStore.repeatMode;
 
-      if (repeatMode === "once") {
+      if (repeatMode === "one") {
         // 同じ曲をリピート（旧システムと同様）
-        console.log("Repeat once: restarting current track");
+        console.log("Repeat one: restarting current track");
         playerStore.seek(currentTrack.start_at || 0);
         if (!playerStore.isPlaying) {
           playerStore.play();
@@ -187,9 +187,9 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
 
       const repeatMode = playerStore.repeatMode;
 
-      if (repeatMode === "once") {
+      if (repeatMode === "one") {
         // 同じ曲をリピート
-        console.log("Repeat once: restarting current track");
+        console.log("Repeat one: restarting current track");
         const currentTrack = queueStore.nowPlaying;
         if (currentTrack) {
           playerStore.seek(currentTrack.start_at || 0);

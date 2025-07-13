@@ -3,7 +3,7 @@ import type { Song } from "~/types/song";
 import { usePlayerStore } from "./player";
 
 export type QueueItem = Song & {
-  addedFrom?: "search" | "playlist" | "history";
+  addedFrom?: "search" | "playlist" | "history" | "stream";
   playlistId?: number;
 };
 
@@ -206,7 +206,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
     shuffleQueue() {
       const playerStore = usePlayerStore();
 
-      if (!playerStore.isShuffled) {
+      if (playerStore.isShuffled) {
         // 元のキューを保存
         this.originalQueue = [...this.queue];
 
@@ -218,10 +218,14 @@ export const usePlayerQueue = defineStore("playerQueue", {
 
         // 現在再生中の楽曲のインデックスを同期
         this.syncCurrentTrackIndex();
+        console.log("キューをシャッフルしました");
       } else {
         // 元のキューに戻す
-        this.queue = [...this.originalQueue];
-        this.syncCurrentTrackIndex();
+        if (this.originalQueue.length > 0) {
+          this.queue = [...this.originalQueue];
+          this.syncCurrentTrackIndex();
+          console.log("シャッフルを解除しました");
+        }
       }
     },
     // 現在再生中の楽曲のインデックスを同期
@@ -244,10 +248,12 @@ export const usePlayerQueue = defineStore("playerQueue", {
         this.next();
       } else if (playerStore.repeatMode === "all") {
         this.nowPlayingIndex = 0; // 最初に戻る
-      } else if (playerStore.repeatMode === "once") {
+        playerStore.setTransitionReason("auto-end");
+      } else if (playerStore.repeatMode === "one") {
         // 現在の曲を再再生（インデックス変更なし）
         const currentTrack = this.nowPlaying;
         if (currentTrack) {
+          playerStore.setTransitionReason("auto-end");
           playerStore.seek(currentTrack.start_at || 0);
           if (!playerStore.isPlaying) {
             playerStore.play();

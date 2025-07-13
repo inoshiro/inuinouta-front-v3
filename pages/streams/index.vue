@@ -12,42 +12,29 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="歌枠タイトル、配信者名で検索..."
+            placeholder="歌枠タイトルで検索..."
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            @input="debouncedSearch"
           />
         </div>
 
         <!-- フィルター（モバイル対応） -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-          <select
-            v-model="selectedFilter"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            @change="handleFilterChange"
-          >
-            <option value="">全ての歌枠</option>
-            <option value="public">一般公開のみ</option>
-            <option value="member">メンバー限定のみ</option>
-            <option value="playable">再生可能のみ</option>
-          </select>
-
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <select
             v-model="sortOrder"
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            @change="handleFilterChange"
           >
             <option value="-published_at">新しい順</option>
             <option value="published_at">古い順</option>
-            <option value="title">タイトル順</option>
           </select>
 
-          <!-- ランダム取得ボタン -->
+          <!-- ランダム歌枠キュー設定ボタン -->
           <button
             :disabled="loading"
             class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors whitespace-nowrap"
+            title="ランダムな歌枠の楽曲をキューに設定"
             @click="fetchRandomStream"
           >
-            🎲 ランダム
+            🎲 ランダムキュー
           </button>
         </div>
       </div>
@@ -103,37 +90,29 @@
 </template>
 
 <script setup lang="ts">
+  import type { VideoWithSongs } from "~/types/video";
+  import type { Song } from "~/types/song";
+
   // リアクティブな状態
-  const { videos, loading, error, fetchVideos, searchVideos } = useVideos();
+  const { videos, loading, error, fetchVideos } = useVideos();
   const searchQuery = ref("");
-  const selectedFilter = ref("");
   const sortOrder = ref("-published_at");
-  const searchTimeout = ref();
 
   // 歌枠のみをフィルター（is_stream: true）
   const streams = computed(() => {
     return videos.value.filter((video) => video.is_stream === true);
   });
 
-  // フィルター適用
+  // フィルター適用（クライアント側）
   const filteredStreams = computed(() => {
     let result = [...streams.value];
 
-    // 歌枠フィルター
-    if (selectedFilter.value) {
-      switch (selectedFilter.value) {
-        case "public":
-          result = result.filter(
-            (stream) => stream.is_open && !stream.is_member_only
-          );
-          break;
-        case "member":
-          result = result.filter((stream) => stream.is_member_only);
-          break;
-        case "playable":
-          result = result.filter((stream) => !stream.unplayable);
-          break;
-      }
+    // キーワード検索（タイトルのみ）
+    if (searchQuery.value.trim()) {
+      const query = searchQuery.value.toLowerCase().trim();
+      result = result.filter((stream) =>
+        stream.title.toLowerCase().includes(query)
+      );
     }
 
     // ソート
@@ -149,8 +128,6 @@
             new Date(a.published_at).getTime() -
             new Date(b.published_at).getTime()
           );
-        case "title":
-          return a.title.localeCompare(b.title);
         default:
           return 0;
       }
@@ -166,59 +143,134 @@
     });
   };
 
-  // 検索実行（デバウンス付き）
-  const debouncedSearch = () => {
-    if (searchTimeout.value) {
-      clearTimeout(searchTimeout.value);
-    }
-    searchTimeout.value = setTimeout(async () => {
-      if (searchQuery.value.trim()) {
-        await searchVideos(searchQuery.value, {
-          ordering: sortOrder.value,
-        });
-      } else {
-        await fetchStreams();
-      }
-    }, 300);
-  };
-
-  // フィルター変更時の処理
-  const handleFilterChange = async () => {
-    if (searchQuery.value.trim()) {
-      await searchVideos(searchQuery.value, {
-        ordering: sortOrder.value,
-      });
-    } else {
-      await fetchStreams();
-    }
-  };
-
   // ランダム歌枠取得
   const fetchRandomStream = async () => {
-    await fetchVideos({
-      ordering: "?",
-      limit: 20,
-    });
+    try {
+      // 現在の歌枠一覧からランダムに選択（楽曲数が0以外のもの）
+      const availableStreams = streams.value.filter(
+        (stream) => stream.songs_count && stream.songs_count > 0
+      );
+
+      if (availableStreams.length === 0) {
+        console.log("楽曲がある歌枠が見つかりませんでした");
+        return;
+      }
+
+      // ランダムに歌枠を選択
+      const randomIndex = Math.floor(Math.random() * availableStreams.length);
+      const randomStream = availableStreams[randomIndex];
+
+      console.log(
+        `ランダム選択: 「${randomStream.title}」（${randomStream.songs_count}曲）`
+      );
+
+      // video詳細APIを使ってsongs情報も含めて取得
+      const { fetchVideoWithSongs } = useVideos();
+      const videoWithSongs = await fetchVideoWithSongs(randomStream.id);
+
+      console.log("取得したvideo詳細:", videoWithSongs);
+      console.log("songs配列:", videoWithSongs?.songs);
+      console.log("songs配列の長さ:", videoWithSongs?.songs?.length);
+
+      if (
+        videoWithSongs &&
+        videoWithSongs.songs &&
+        videoWithSongs.songs.length > 0
+      ) {
+        // キューストアを使ってキューをクリアしてから楽曲を追加
+        const { usePlayerQueue } = await import("~/stores/usePlayerQueue");
+        const queueStore = usePlayerQueue();
+
+        // ランダム歌枠の楽曲でキューを新規設定（既存キューはクリアされる）
+        const songsWithVideoInfo = videoWithSongs.songs.map((song: Song) => ({
+          ...song,
+          video: {
+            id: videoWithSongs.id,
+            title: videoWithSongs.title,
+            thumbnail_path: videoWithSongs.thumbnail_path,
+            url: videoWithSongs.url,
+            is_open: videoWithSongs.is_open,
+            is_member_only: videoWithSongs.is_member_only,
+            is_stream: videoWithSongs.is_stream,
+            unplayable: videoWithSongs.unplayable,
+            published_at: videoWithSongs.published_at,
+          },
+          addedFrom: "stream" as const,
+        }));
+
+        queueStore.setQueue(songsWithVideoInfo);
+
+        console.log(
+          `ランダム歌枠「${videoWithSongs.title}」の${videoWithSongs.songs.length}曲をキューに設定しました`
+        );
+      } else {
+        console.log(
+          `ランダム歌枠「${randomStream.title}」に楽曲が見つかりませんでした。再試行してください。`
+        );
+      }
+    } catch (error) {
+      console.error("ランダム歌枠の取得中にエラーが発生しました:", error);
+    }
   };
 
   // フィルタークリア
   const clearFilters = () => {
     searchQuery.value = "";
-    selectedFilter.value = "";
     sortOrder.value = "-published_at";
-    fetchStreams();
+    // データは既に取得済みなので、クライアント側フィルタのリセットのみ
   };
 
   // 歌枠の楽曲一覧を表示
-  const handleViewSongs = (stream) => {
+  const handleViewSongs = (stream: any) => {
     // 楽曲一覧ページに遷移し、その歌枠の楽曲のみを表示
     navigateTo(`/songs?video_id=${stream.id}`);
   };
 
   // 歌枠全体をキューに追加
-  const handleAddStreamToQueue = (stream) => {
-    // TODO: キュー機能が実装されたら対応
-    console.log("歌枠をキューに追加:", stream.title);
+  const handleAddStreamToQueue = async (stream: any) => {
+    try {
+      // video詳細APIを使ってsongs情報も含めて取得
+      const { fetchVideoWithSongs } = useVideos();
+      const videoWithSongs = await fetchVideoWithSongs(stream.id);
+
+      if (
+        videoWithSongs &&
+        videoWithSongs.songs &&
+        videoWithSongs.songs.length > 0
+      ) {
+        // キューストアを使って楽曲を追加
+        const { usePlayerQueue } = await import("~/stores/usePlayerQueue");
+        const queueStore = usePlayerQueue();
+
+        videoWithSongs.songs.forEach((song: Song) => {
+          // video情報を補完
+          const songWithVideo = {
+            ...song,
+            video: {
+              id: videoWithSongs.id,
+              title: videoWithSongs.title,
+              thumbnail_path: videoWithSongs.thumbnail_path,
+              url: videoWithSongs.url,
+              is_open: videoWithSongs.is_open,
+              is_member_only: videoWithSongs.is_member_only,
+              is_stream: videoWithSongs.is_stream,
+              unplayable: videoWithSongs.unplayable,
+              published_at: videoWithSongs.published_at,
+            },
+            addedFrom: "stream" as const,
+          };
+          queueStore.addToQueue(songWithVideo);
+        });
+
+        console.log(
+          `歌枠「${videoWithSongs.title}」の${videoWithSongs.songs.length}曲をキューに追加しました`
+        );
+      } else {
+        console.log("この歌枠には楽曲が見つかりませんでした");
+      }
+    } catch (error) {
+      console.error("歌枠をキューに追加する際にエラーが発生しました:", error);
+    }
   };
 
   // 初期データ取得
@@ -226,11 +278,10 @@
     fetchStreams();
   });
 
-  // 検索クエリの変更を監視
-  watch(searchQuery, (newValue) => {
-    if (!newValue.trim()) {
-      fetchStreams();
-    }
+  // ソート順変更時の処理
+  watch(sortOrder, () => {
+    // クライアント側フィルタリングなので、新たにAPIを呼ぶ必要なし
+    // computed が自動的に再計算される
   });
 </script>
 
