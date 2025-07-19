@@ -79,11 +79,16 @@
     width: 100%;
     height: 4px;
     cursor: pointer;
-    background: transparent;
+    background: linear-gradient(
+      to right,
+      #ffffff var(--progress, 0%),
+      #374151 var(--progress, 0%)
+    );
     -webkit-appearance: none;
     appearance: none;
     outline: none;
     border: none;
+    border-radius: 2px;
     vertical-align: middle;
   }
 
@@ -91,22 +96,7 @@
   .volume-range-slider::-webkit-slider-track {
     width: 100%;
     height: 4px;
-    background: #374151; /* gray-700 */
-    border: none;
-    border-radius: 2px;
-  }
-
-  /* WebKit用のプログレス部分 */
-  .volume-range-slider::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(
-      to right,
-      #ffffff 0%,
-      #ffffff var(--progress, 0%),
-      #374151 var(--progress, 0%),
-      #374151 100%
-    );
+    background: transparent;
     border: none;
     border-radius: 2px;
   }

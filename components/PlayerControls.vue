@@ -373,7 +373,8 @@
               min="0"
               max="100"
               :value="playerStore.volume"
-              class="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+              class="flex-1 h-1 appearance-none cursor-pointer volume-slider"
+              :style="{ '--volume-progress': `${playerStore.volume}%` }"
               @input="onVolumeChange"
             />
             <span class="text-xs text-gray-400 w-8 text-right flex-shrink-0">
@@ -580,7 +581,8 @@
             min="0"
             max="100"
             :value="playerStore.volume"
-            class="flex-1 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+            class="flex-1 h-2 appearance-none cursor-pointer volume-slider-mobile"
+            :style="{ '--volume-progress': `${playerStore.volume}%` }"
             @input="onVolumeChange"
           />
           <span class="text-sm text-gray-400 w-10 text-right flex-shrink-0">
@@ -648,7 +650,97 @@
     cursor: not-allowed;
   }
 
-  /* 音量スライダー用スタイル */
+  /* 音量スライダー用スタイル - デスクトップ版 */
+  .volume-slider {
+    width: 100%;
+    background: linear-gradient(
+      to right,
+      #ffffff var(--volume-progress, 0%),
+      #4b5563 var(--volume-progress, 0%)
+    );
+    border-radius: 4px;
+    outline: none;
+    border: none;
+    vertical-align: middle;
+  }
+
+  .volume-slider::-webkit-slider-track {
+    background: transparent;
+    border-radius: 4px;
+  }
+
+  .volume-slider::-moz-range-track {
+    background: transparent;
+    border-radius: 4px;
+  }
+
+  .volume-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  /* 音量スライダー用スタイル - モバイル版 */
+  .volume-slider-mobile {
+    width: 100%;
+    background: linear-gradient(
+      to right,
+      #ffffff var(--volume-progress, 0%),
+      #4b5563 var(--volume-progress, 0%)
+    );
+    border-radius: 4px;
+    outline: none;
+    border: none;
+    vertical-align: middle;
+  }
+
+  .volume-slider-mobile::-webkit-slider-track {
+    background: transparent;
+    border-radius: 4px;
+  }
+
+  .volume-slider-mobile::-moz-range-track {
+    background: transparent;
+    border-radius: 4px;
+  }
+
+  .volume-slider-mobile::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .volume-slider-mobile::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  /* 旧スライダー用スタイル（他の用途で使用される場合のために保持） */
   .slider::-webkit-slider-thumb {
     appearance: none;
     width: 12px;
@@ -681,21 +773,27 @@
   }
 
   /* ホバー時のスライダー効果 */
+  .volume-slider:hover::-webkit-slider-thumb,
+  .volume-slider-mobile:hover::-webkit-slider-thumb,
   .slider:hover::-webkit-slider-thumb {
     background: #2563eb;
   }
 
+  .volume-slider:hover::-moz-range-thumb,
+  .volume-slider-mobile:hover::-moz-range-thumb,
   .slider:hover::-moz-range-thumb {
     background: #2563eb;
   }
 
   /* モバイル用のスライダー調整 */
   @media (max-width: 768px) {
+    .volume-slider::-webkit-slider-thumb,
     .slider::-webkit-slider-thumb {
       width: 16px;
       height: 16px;
     }
 
+    .volume-slider::-moz-range-thumb,
     .slider::-moz-range-thumb {
       width: 16px;
       height: 16px;

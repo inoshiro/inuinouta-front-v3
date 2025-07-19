@@ -88,6 +88,20 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
   const onPlayerReady = (event: any) => {
     console.log("YouTube Player ready");
 
+    // 保存された音量設定をYouTubeプレイヤーに適用
+    if (playerStore.ytPlayer) {
+      playerStore.ytPlayer.setVolume(playerStore.volume);
+      if (playerStore.isMuted) {
+        playerStore.ytPlayer.mute();
+      } else {
+        playerStore.ytPlayer.unMute();
+      }
+      console.log('YouTube Player初期化時に音量設定を適用:', { 
+        volume: playerStore.volume, 
+        muted: playerStore.isMuted 
+      });
+    }
+
     // 現在時刻の更新を開始（旧プロジェクトと同じ1秒間隔）
     updateInterval = setInterval(() => {
       if (playerStore.ytPlayer && playerStore.isPlaying) {
@@ -401,7 +415,6 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
     }
 
     // 同じ動画だが異なる楽曲の場合はシークのみ実行
-    console.log("hogeeeeeeeeeeeeeeeeee");
     if (
       videoId === previousVideoId &&
       currentTrack.id !== previousSongId &&
