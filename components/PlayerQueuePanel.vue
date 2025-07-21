@@ -268,10 +268,10 @@
           <svg
             class="w-4 h-4 inline mr-1"
             fill="currentColor"
-            viewBox="0 0 20 20"
+            viewBox="0 0 24 24"
           >
             <path
-              d="M8.445 14.832A1 1 0 0010 14v-4a1 1 0 00-1.555-.832L6 10.202V6a1 1 0 10-2 0v8a1 1 0 001.555.832L8.445 14.832zM14 6a1 1 0 10-2 0v8a1 1 0 102 0V6z"
+              d="M6 6h2v12H6V6zm3.5 6l8.5 6V6l-8.5 6z"
             />
           </svg>
           前へ
@@ -285,10 +285,10 @@
           <svg
             class="w-4 h-4 inline ml-1"
             fill="currentColor"
-            viewBox="0 0 20 20"
+            viewBox="0 0 24 24"
           >
             <path
-              d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L7 13.798V18a1 1 0 102 0V6a1 1 0 00-1.555-.832L4.555 5.168zM10 6a1 1 0 112 0v8a1 1 0 11-2 0V6z"
+              d="M6 18l8.5-6L6 6v12zm10-12v12h2V6h-2z"
             />
           </svg>
         </button>
