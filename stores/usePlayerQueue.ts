@@ -274,41 +274,45 @@ export const usePlayerQueue = defineStore("playerQueue", {
       }
       // repeatMode === 'none' の場合は何もしない（再生停止）
     },
-    
+
     // キューの永続化機能
     initializeQueueSettings() {
-      if (typeof localStorage !== 'undefined') {
+      if (typeof localStorage !== "undefined") {
         try {
-          const savedQueue = localStorage.getItem('player-queue');
-          const savedIndex = localStorage.getItem('player-queue-index');
-          const savedOriginalQueue = localStorage.getItem('player-original-queue');
-          
+          const savedQueue = localStorage.getItem("player-queue");
+          const savedIndex = localStorage.getItem("player-queue-index");
+          const savedOriginalQueue = localStorage.getItem(
+            "player-original-queue"
+          );
+
           if (savedQueue) {
             const queueData = JSON.parse(savedQueue);
             if (Array.isArray(queueData) && queueData.length > 0) {
               this.queue = queueData;
-              console.log('キューを復元:', queueData.length + '曲');
+              console.log("キューを復元:", queueData.length + "曲");
             }
           }
-          
+
           if (savedIndex !== null) {
             const index = parseInt(savedIndex);
             if (!isNaN(index) && index >= 0 && index < this.queue.length) {
               this.nowPlayingIndex = index;
-              console.log('再生位置を復元:', index);
+              console.log("再生位置を復元:", index);
             }
           }
-          
+
           if (savedOriginalQueue) {
             const originalQueueData = JSON.parse(savedOriginalQueue);
             if (Array.isArray(originalQueueData)) {
               this.originalQueue = originalQueueData;
-              console.log('オリジナルキューを復元:', originalQueueData.length + '曲');
+              console.log(
+                "オリジナルキューを復元:",
+                originalQueueData.length + "曲"
+              );
             }
           }
-          
         } catch (error) {
-          console.warn('キュー設定の読み込みに失敗:', error);
+          console.warn("キュー設定の読み込みに失敗:", error);
           // エラー時は初期状態にリセット
           this.queue = [];
           this.nowPlayingIndex = 0;
@@ -316,30 +320,36 @@ export const usePlayerQueue = defineStore("playerQueue", {
         }
       }
     },
-    
+
     saveQueueSettings() {
-      if (typeof localStorage !== 'undefined') {
+      if (typeof localStorage !== "undefined") {
         try {
-          localStorage.setItem('player-queue', JSON.stringify(this.queue));
-          localStorage.setItem('player-queue-index', this.nowPlayingIndex.toString());
-          localStorage.setItem('player-original-queue', JSON.stringify(this.originalQueue));
-          console.log('キュー設定を保存:', { 
-            queueLength: this.queue.length, 
+          localStorage.setItem("player-queue", JSON.stringify(this.queue));
+          localStorage.setItem(
+            "player-queue-index",
+            this.nowPlayingIndex.toString()
+          );
+          localStorage.setItem(
+            "player-original-queue",
+            JSON.stringify(this.originalQueue)
+          );
+          console.log("キュー設定を保存:", {
+            queueLength: this.queue.length,
             index: this.nowPlayingIndex,
-            originalQueueLength: this.originalQueue.length
+            originalQueueLength: this.originalQueue.length,
           });
         } catch (error) {
-          console.warn('キュー設定の保存に失敗:', error);
+          console.warn("キュー設定の保存に失敗:", error);
         }
       }
     },
-    
+
     clearQueueSettings() {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem('player-queue');
-        localStorage.removeItem('player-queue-index');
-        localStorage.removeItem('player-original-queue');
-        console.log('キュー設定をクリア');
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem("player-queue");
+        localStorage.removeItem("player-queue-index");
+        localStorage.removeItem("player-original-queue");
+        console.log("キュー設定をクリア");
       }
     },
   },

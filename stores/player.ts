@@ -51,84 +51,95 @@ export const usePlayerStore = defineStore("player", {
   actions: {
     // 初期化時にlocalStorageから音量設定を読み込み
     initializeVolumeSettings() {
-      if (typeof localStorage !== 'undefined') {
-        const savedVolume = localStorage.getItem('player-volume');
-        const savedMuted = localStorage.getItem('player-muted');
-        
+      if (typeof localStorage !== "undefined") {
+        const savedVolume = localStorage.getItem("player-volume");
+        const savedMuted = localStorage.getItem("player-muted");
+
         if (savedVolume !== null) {
           const volume = parseInt(savedVolume);
           if (!isNaN(volume) && volume >= 0 && volume <= 100) {
             this.volume = volume;
           }
         }
-        
+
         if (savedMuted !== null) {
-          this.isMuted = savedMuted === 'true';
+          this.isMuted = savedMuted === "true";
         }
-        
-        console.log('音量設定を読み込み:', { volume: this.volume, muted: this.isMuted });
+
+        console.log("音量設定を読み込み:", {
+          volume: this.volume,
+          muted: this.isMuted,
+        });
       }
     },
-    
+
     // 音量設定をlocalStorageに保存
     saveVolumeSettings() {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('player-volume', this.volume.toString());
-        localStorage.setItem('player-muted', this.isMuted.toString());
-        console.log('音量設定を保存:', { volume: this.volume, muted: this.isMuted });
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("player-volume", this.volume.toString());
+        localStorage.setItem("player-muted", this.isMuted.toString());
+        console.log("音量設定を保存:", {
+          volume: this.volume,
+          muted: this.isMuted,
+        });
       }
     },
-    
+
     // プレイヤー状態の永続化機能
     initializePlayerSettings() {
-      if (typeof localStorage !== 'undefined') {
+      if (typeof localStorage !== "undefined") {
         try {
-          const savedTrack = localStorage.getItem('player-current-track');
-          const savedRepeatMode = localStorage.getItem('player-repeat-mode');
-          const savedIsShuffled = localStorage.getItem('player-is-shuffled');
-          
+          const savedTrack = localStorage.getItem("player-current-track");
+          const savedRepeatMode = localStorage.getItem("player-repeat-mode");
+          const savedIsShuffled = localStorage.getItem("player-is-shuffled");
+
           if (savedTrack) {
             const trackData = JSON.parse(savedTrack);
             this.currentTrack = trackData;
-            console.log('現在の楽曲を復元:', trackData.title);
+            console.log("現在の楽曲を復元:", trackData.title);
           }
-          
+
           if (savedRepeatMode) {
             const mode = savedRepeatMode as "none" | "one" | "all";
-            if (['none', 'one', 'all'].includes(mode)) {
+            if (["none", "one", "all"].includes(mode)) {
               this.repeatMode = mode;
-              console.log('リピートモードを復元:', mode);
+              console.log("リピートモードを復元:", mode);
             }
           }
-          
+
           if (savedIsShuffled !== null) {
-            this.isShuffled = savedIsShuffled === 'true';
-            console.log('シャッフル状態を復元:', this.isShuffled);
+            this.isShuffled = savedIsShuffled === "true";
+            console.log("シャッフル状態を復元:", this.isShuffled);
           }
-          
         } catch (error) {
-          console.warn('プレイヤー設定の読み込みに失敗:', error);
+          console.warn("プレイヤー設定の読み込みに失敗:", error);
         }
       }
     },
-    
+
     savePlayerSettings() {
-      if (typeof localStorage !== 'undefined') {
+      if (typeof localStorage !== "undefined") {
         try {
           if (this.currentTrack) {
-            localStorage.setItem('player-current-track', JSON.stringify(this.currentTrack));
+            localStorage.setItem(
+              "player-current-track",
+              JSON.stringify(this.currentTrack)
+            );
           } else {
-            localStorage.removeItem('player-current-track');
+            localStorage.removeItem("player-current-track");
           }
-          localStorage.setItem('player-repeat-mode', this.repeatMode);
-          localStorage.setItem('player-is-shuffled', this.isShuffled.toString());
-          console.log('プレイヤー設定を保存:', { 
-            track: this.currentTrack?.title || 'なし',
+          localStorage.setItem("player-repeat-mode", this.repeatMode);
+          localStorage.setItem(
+            "player-is-shuffled",
+            this.isShuffled.toString()
+          );
+          console.log("プレイヤー設定を保存:", {
+            track: this.currentTrack?.title || "なし",
             repeatMode: this.repeatMode,
-            isShuffled: this.isShuffled
+            isShuffled: this.isShuffled,
           });
         } catch (error) {
-          console.warn('プレイヤー設定の保存に失敗:', error);
+          console.warn("プレイヤー設定の保存に失敗:", error);
         }
       }
     },
