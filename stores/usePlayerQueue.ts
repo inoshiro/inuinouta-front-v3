@@ -285,10 +285,13 @@ export const usePlayerQueue = defineStore("playerQueue", {
             "player-original-queue"
           );
 
+          let queueRestored = false;
+
           if (savedQueue) {
             const queueData = JSON.parse(savedQueue);
             if (Array.isArray(queueData) && queueData.length > 0) {
               this.queue = queueData;
+              queueRestored = true;
               console.log("キューを復元:", queueData.length + "曲");
             }
           }
@@ -309,6 +312,64 @@ export const usePlayerQueue = defineStore("playerQueue", {
                 "オリジナルキューを復元:",
                 originalQueueData.length + "曲"
               );
+            }
+          }
+
+          // キューが復元された場合、プレイヤーの再生を明示的に停止し、現在の楽曲をロード
+          if (queueRestored) {
+            const playerStore = usePlayerStore();
+
+            // 現在再生中の楽曲を取得
+            const currentTrack = this.nowPlaying;
+
+            if (currentTrack) {
+              // プレイヤーストアに現在のトラックを設定
+              playerStore.setTrack(currentTrack);
+
+              // YouTube Playerの初期化を待つため、遅延実行でロード処理を行う
+              setTimeout(() => {
+                const updatedPlayerStore = usePlayerStore();
+                if (
+                  updatedPlayerStore.isPlayerReady &&
+                  updatedPlayerStore.ytPlayer &&
+                  typeof updatedPlayerStore.ytPlayer.cueVideoById ===
+                    "function" &&
+                  currentTrack.video?.url
+                ) {
+                  // YouTube URLから動画IDを抽出
+                  const extractVideoId = (url: string): string | null => {
+                    const regExp =
+                      /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+                    const match = url.match(regExp);
+                    return match && match[7].length === 11 ? match[7] : null;
+                  };
+
+                  const videoId = extractVideoId(currentTrack.video.url);
+                  if (videoId) {
+                    try {
+                      const startTime = currentTrack.start_at || 0;
+                      // cueVideoById を使用して動画を準備状態でロード
+                      updatedPlayerStore.ytPlayer.cueVideoById(
+                        videoId,
+                        startTime
+                      );
+                      console.log("キュー復元後、動画をロードしました:", {
+                        videoId,
+                        songTitle: currentTrack.title,
+                        startAt: startTime,
+                      });
+                    } catch (error) {
+                      console.warn("動画ロードに失敗:", error);
+                    }
+                  }
+                }
+              }, 1000); // 1秒待機してからロード処理を実行
+
+              // プレイヤーが再生中の場合は停止
+              if (playerStore.isPlaying) {
+                playerStore.pause();
+                console.log("キュー復元後、プレイヤーを停止しました");
+              }
             }
           }
         } catch (error) {
