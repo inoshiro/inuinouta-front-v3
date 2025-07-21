@@ -1,11 +1,16 @@
 <script setup lang="ts">
-  import { ref } from "vue";
+  import { ref, onMounted, nextTick } from "vue";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
+  import { usePlayerStore } from "~/stores/player";
 
   const playerQueue = usePlayerQueue();
+  const playerStore = usePlayerStore();
 
   // Emits（モバイル用の閉じる機能）
   const emit = defineEmits(["close"]);
+
+  // レンダリング遅延の状態管理
+  const isRenderingReady = ref(false);
 
   // ドラッグ&ドロップの状態管理
   const draggedIndex = ref<number | null>(null);
@@ -57,6 +62,13 @@
       playerQueue.clear();
     }
   };
+
+  // 1秒遅延でレンダリング準備完了
+  onMounted(() => {
+    setTimeout(() => {
+      isRenderingReady.value = true;
+    }, 1000);
+  });
 </script>
 
 <template>
@@ -120,7 +132,7 @@
         </div>
 
         <!-- キューアイテムリスト -->
-        <div v-else class="space-y-2">
+        <div v-else-if="isRenderingReady" class="space-y-2">
           <div
             v-for="(song, i) in playerQueue.queue"
             :key="`${song.id}-${i}`"
@@ -215,6 +227,29 @@
             </div>
           </div>
         </div>
+
+        <!-- ローディング表示 -->
+        <div
+          v-else-if="playerQueue.queue.length > 0 && !isRenderingReady"
+          class="text-center py-8"
+        >
+          <div class="text-gray-400 mb-2">
+            <svg
+              class="w-8 h-8 mx-auto animate-spin"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+          </div>
+          <p class="text-gray-500 text-sm">キューを読み込み中...</p>
+        </div>
       </div>
     </div>
 
@@ -233,10 +268,10 @@
           <svg
             class="w-4 h-4 inline mr-1"
             fill="currentColor"
-            viewBox="0 0 20 20"
+            viewBox="0 0 24 24"
           >
             <path
-              d="M8.445 14.832A1 1 0 0010 14v-4a1 1 0 00-1.555-.832L6 10.202V6a1 1 0 10-2 0v8a1 1 0 001.555.832L8.445 14.832zM14 6a1 1 0 10-2 0v8a1 1 0 102 0V6z"
+              d="M6 6h2v12H6V6zm3.5 6l8.5 6V6l-8.5 6z"
             />
           </svg>
           前へ
@@ -250,10 +285,10 @@
           <svg
             class="w-4 h-4 inline ml-1"
             fill="currentColor"
-            viewBox="0 0 20 20"
+            viewBox="0 0 24 24"
           >
             <path
-              d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L7 13.798V18a1 1 0 102 0V6a1 1 0 00-1.555-.832L4.555 5.168zM10 6a1 1 0 112 0v8a1 1 0 11-2 0V6z"
+              d="M6 18l8.5-6L6 6v12zm10-12v12h2V6h-2z"
             />
           </svg>
         </button>
