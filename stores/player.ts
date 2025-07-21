@@ -78,8 +78,63 @@ export const usePlayerStore = defineStore("player", {
         console.log('音量設定を保存:', { volume: this.volume, muted: this.isMuted });
       }
     },
+    
+    // プレイヤー状態の永続化機能
+    initializePlayerSettings() {
+      if (typeof localStorage !== 'undefined') {
+        try {
+          const savedTrack = localStorage.getItem('player-current-track');
+          const savedRepeatMode = localStorage.getItem('player-repeat-mode');
+          const savedIsShuffled = localStorage.getItem('player-is-shuffled');
+          
+          if (savedTrack) {
+            const trackData = JSON.parse(savedTrack);
+            this.currentTrack = trackData;
+            console.log('現在の楽曲を復元:', trackData.title);
+          }
+          
+          if (savedRepeatMode) {
+            const mode = savedRepeatMode as "none" | "one" | "all";
+            if (['none', 'one', 'all'].includes(mode)) {
+              this.repeatMode = mode;
+              console.log('リピートモードを復元:', mode);
+            }
+          }
+          
+          if (savedIsShuffled !== null) {
+            this.isShuffled = savedIsShuffled === 'true';
+            console.log('シャッフル状態を復元:', this.isShuffled);
+          }
+          
+        } catch (error) {
+          console.warn('プレイヤー設定の読み込みに失敗:', error);
+        }
+      }
+    },
+    
+    savePlayerSettings() {
+      if (typeof localStorage !== 'undefined') {
+        try {
+          if (this.currentTrack) {
+            localStorage.setItem('player-current-track', JSON.stringify(this.currentTrack));
+          } else {
+            localStorage.removeItem('player-current-track');
+          }
+          localStorage.setItem('player-repeat-mode', this.repeatMode);
+          localStorage.setItem('player-is-shuffled', this.isShuffled.toString());
+          console.log('プレイヤー設定を保存:', { 
+            track: this.currentTrack?.title || 'なし',
+            repeatMode: this.repeatMode,
+            isShuffled: this.isShuffled
+          });
+        } catch (error) {
+          console.warn('プレイヤー設定の保存に失敗:', error);
+        }
+      }
+    },
     setTrack(song: Song) {
       this.currentTrack = song;
+      this.savePlayerSettings(); // 自動保存
     },
     setPlayerInstance(player: any) {
       this.ytPlayer = player;
@@ -171,6 +226,7 @@ export const usePlayerStore = defineStore("player", {
     // 新機能：リピート・シャッフル制御
     setRepeatMode(mode: "none" | "one" | "all") {
       this.repeatMode = mode;
+      this.savePlayerSettings(); // 自動保存
       console.log(`リピートモード変更: ${mode}`);
     },
     cycleRepeatMode() {
@@ -181,6 +237,7 @@ export const usePlayerStore = defineStore("player", {
     },
     setShuffled(enabled: boolean) {
       this.isShuffled = enabled;
+      this.savePlayerSettings(); // 自動保存
       console.log(`シャッフル${enabled ? "有効" : "無効"}`);
     },
     toggleShuffle() {

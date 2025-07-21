@@ -46,6 +46,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
     setQueue(songs: QueueItem[]) {
       this.queue = songs;
       this.nowPlayingIndex = 0;
+      this.saveQueueSettings(); // 自動保存
     },
     addToQueue(song: QueueItem, toTop = false) {
       console.log("Adding to queue:", {
@@ -58,6 +59,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
       } else {
         this.queue.push(song);
       }
+      this.saveQueueSettings(); // 自動保存
     },
     removeFromQueue(index: number) {
       if (index < 0 || index >= this.queue.length) return;
@@ -86,6 +88,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
         // 現在再生中より後の曲を削除した場合、インデックスはそのまま
         this.queue.splice(index, 1);
       }
+      this.saveQueueSettings(); // 自動保存
     },
     moveInQueue(fromIndex: number, toIndex: number) {
       if (
@@ -114,6 +117,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
       ) {
         this.nowPlayingIndex++;
       }
+      this.saveQueueSettings(); // 自動保存
     },
     play(index: number) {
       if (index >= 0 && index < this.queue.length) {
@@ -121,6 +125,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
         // 直接楽曲を選択する場合は常にmanual
         playerStore.setTransitionReason("manual");
         this.nowPlayingIndex = index;
+        this.saveQueueSettings(); // 自動保存
       }
     },
     next() {
@@ -145,6 +150,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
           playerStore.setTransitionReason("manual");
         }
         this.nowPlayingIndex++;
+        this.saveQueueSettings(); // 自動保存
       }
     },
     previous() {
@@ -188,6 +194,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
           playerStore.setTransitionReason("manual");
         }
         this.nowPlayingIndex--;
+        this.saveQueueSettings(); // 自動保存
       }
     },
     clear() {
@@ -196,6 +203,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
       this.shouldStopPlayback = true;
       this.queue = [];
       this.nowPlayingIndex = 0;
+      this.clearQueueSettings(); // localStorage からも削除
     },
     // フラグをリセットするためのメソッド
     resetStopFlag() {
@@ -218,12 +226,14 @@ export const usePlayerQueue = defineStore("playerQueue", {
 
         // 現在再生中の楽曲のインデックスを同期
         this.syncCurrentTrackIndex();
+        this.saveQueueSettings(); // 自動保存
         console.log("キューをシャッフルしました");
       } else {
         // 元のキューに戻す
         if (this.originalQueue.length > 0) {
           this.queue = [...this.originalQueue];
           this.syncCurrentTrackIndex();
+          this.saveQueueSettings(); // 自動保存
           console.log("シャッフルを解除しました");
         }
       }
@@ -237,6 +247,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
         );
         if (index !== -1) {
           this.nowPlayingIndex = index;
+          this.saveQueueSettings(); // 自動保存
         }
       }
     },
@@ -249,6 +260,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
       } else if (playerStore.repeatMode === "all") {
         this.nowPlayingIndex = 0; // 最初に戻る
         playerStore.setTransitionReason("auto-end");
+        this.saveQueueSettings(); // 自動保存
       } else if (playerStore.repeatMode === "one") {
         // 現在の曲を再再生（インデックス変更なし）
         const currentTrack = this.nowPlaying;
@@ -261,6 +273,74 @@ export const usePlayerQueue = defineStore("playerQueue", {
         }
       }
       // repeatMode === 'none' の場合は何もしない（再生停止）
+    },
+    
+    // キューの永続化機能
+    initializeQueueSettings() {
+      if (typeof localStorage !== 'undefined') {
+        try {
+          const savedQueue = localStorage.getItem('player-queue');
+          const savedIndex = localStorage.getItem('player-queue-index');
+          const savedOriginalQueue = localStorage.getItem('player-original-queue');
+          
+          if (savedQueue) {
+            const queueData = JSON.parse(savedQueue);
+            if (Array.isArray(queueData) && queueData.length > 0) {
+              this.queue = queueData;
+              console.log('キューを復元:', queueData.length + '曲');
+            }
+          }
+          
+          if (savedIndex !== null) {
+            const index = parseInt(savedIndex);
+            if (!isNaN(index) && index >= 0 && index < this.queue.length) {
+              this.nowPlayingIndex = index;
+              console.log('再生位置を復元:', index);
+            }
+          }
+          
+          if (savedOriginalQueue) {
+            const originalQueueData = JSON.parse(savedOriginalQueue);
+            if (Array.isArray(originalQueueData)) {
+              this.originalQueue = originalQueueData;
+              console.log('オリジナルキューを復元:', originalQueueData.length + '曲');
+            }
+          }
+          
+        } catch (error) {
+          console.warn('キュー設定の読み込みに失敗:', error);
+          // エラー時は初期状態にリセット
+          this.queue = [];
+          this.nowPlayingIndex = 0;
+          this.originalQueue = [];
+        }
+      }
+    },
+    
+    saveQueueSettings() {
+      if (typeof localStorage !== 'undefined') {
+        try {
+          localStorage.setItem('player-queue', JSON.stringify(this.queue));
+          localStorage.setItem('player-queue-index', this.nowPlayingIndex.toString());
+          localStorage.setItem('player-original-queue', JSON.stringify(this.originalQueue));
+          console.log('キュー設定を保存:', { 
+            queueLength: this.queue.length, 
+            index: this.nowPlayingIndex,
+            originalQueueLength: this.originalQueue.length
+          });
+        } catch (error) {
+          console.warn('キュー設定の保存に失敗:', error);
+        }
+      }
+    },
+    
+    clearQueueSettings() {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('player-queue');
+        localStorage.removeItem('player-queue-index');
+        localStorage.removeItem('player-original-queue');
+        console.log('キュー設定をクリア');
+      }
     },
   },
 });
