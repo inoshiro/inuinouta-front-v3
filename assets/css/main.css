@@ -1,10 +1,19 @@
 @import "tailwindcss";
 
+/* テキストクランプのユーティリティクラス */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* プレイヤーコントロールの高さ定義 */
 :root {
-  --player-height-mobile: 56px; /* h-12 + pt-2 + pb-3 = 48px + 8px + 0px（コンパクト化） */
-  --player-height-desktop: 68px; /* h-14 + pt-2 + pb-3 = 56px + 8px + 12px - プログレスバー高さ(4px) */
-  --progress-safe-area: 8px; /* プログレスバー保護領域 */
+  --player-height-mobile: 72px; /* プレイヤーの実際の高さに合わせて調整 */
+  --player-height-desktop: 80px; /* デスクトップでの高さ調整 */
+  --progress-safe-area: 16px; /* 余裕を持った保護領域 */
 }
 
 /* プレイヤーが表示されている時のメインコンテンツ調整 */
