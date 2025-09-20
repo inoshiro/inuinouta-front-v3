@@ -22,3 +22,7 @@ logs
 .env
 .env.*
 !.env.example
+
+# Serena AI Assistant
+.serena/cache/
+.serena/memories/
