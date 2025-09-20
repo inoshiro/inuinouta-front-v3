@@ -7,23 +7,23 @@
     <div v-if="video" class="p-4">
       <!-- YouTube埋め込みプレイヤー -->
       <div class="relative">
+        <ClientOnly>
+          <div
+            v-if="video"
+            ref="playerContainerRef"
+            class="w-full aspect-video rounded-lg bg-black"
+          ></div>
+          <template #fallback>
+            <div class="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+              <p class="text-gray-500">プレイヤーを読み込み中...</p>
+            </div>
+          </template>
+        </ClientOnly>
         <div
-          v-if="video"
-          ref="playerContainerRef"
-          class="w-full aspect-video rounded-lg bg-black"
-        ></div>
-        <div
-          v-else
+          v-if="!video"
           class="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center"
         >
           <p class="text-gray-500">プレイヤーを読み込めませんでした</p>
-        </div>
-
-        <!-- ライブ配信バッジ -->
-        <div
-          class="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded font-medium z-10"
-        >
-          LIVE
         </div>
       </div>
 
@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, nextTick } from "vue";
+  import { ref, onMounted, nextTick, watch, onBeforeUnmount } from "vue";
   import type { Video, VideoWithSongs } from "~/types/video";
   import {
     getYouTubeEmbedUrl,
@@ -108,6 +108,14 @@
     formatTime,
     extractYouTubeId,
   } from "~/utils/video";
+
+  // YouTube API型定義
+  declare global {
+    interface Window {
+      YT: any;
+      onYouTubeIframeAPIReady: () => void;
+    }
+  }
 
   interface Props {
     video: Video | null;
@@ -118,63 +126,152 @@
   const playerContainerRef = ref<HTMLDivElement | null>(null);
   const ytPlayer = ref<any>(null);
   const isPlayerReady = ref(false);
+  const isLoading = ref(false);
+  const playerId = `youtube-player-${Math.random().toString(36).substr(2, 9)}`;
 
   // YouTube IFrame APIが読み込まれているかチェック
-  const isYouTubeAPIReady = () => {
-    return typeof window !== "undefined" && window.YT && window.YT.Player;
+  const isYouTubeAPIReady = (): boolean => {
+    return (
+      typeof window !== "undefined" && 
+      window.YT && 
+      window.YT.Player &&
+      typeof window.YT.Player === "function"
+    );
   };
 
   // YouTube IFrame APIを読み込む
   const loadYouTubeAPI = (): Promise<void> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      // 既にAPIが読み込まれている場合
       if (isYouTubeAPIReady()) {
         resolve();
         return;
       }
 
-      // グローバルコールバックが既に設定されている場合
-      if (window.onYouTubeIframeAPIReady) {
-        const originalCallback = window.onYouTubeIframeAPIReady;
-        window.onYouTubeIframeAPIReady = () => {
-          originalCallback();
-          resolve();
-        };
+      // 読み込み中の場合は待機
+      if (window.YT && (window.YT as any).loading) {
+        const checkInterval = setInterval(() => {
+          if (isYouTubeAPIReady()) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 100);
+        
+        // タイムアウト処理
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          reject(new Error("YouTube API loading timeout"));
+        }, 10000);
         return;
       }
+
+      // 既存のスクリプトタグをチェック
+      const existingScript = document.querySelector('script[src*="youtube.com/iframe_api"]');
+      if (existingScript) {
+        // 既存のスクリプトがある場合は待機
+        const checkInterval = setInterval(() => {
+          if (isYouTubeAPIReady()) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 100);
+        
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          reject(new Error("YouTube API loading timeout"));
+        }, 10000);
+        return;
+      }
+
+      // グローバルコールバックの設定
+      const callbacks: (() => void)[] = [];
+      
+      if (window.onYouTubeIframeAPIReady) {
+        callbacks.push(window.onYouTubeIframeAPIReady);
+      }
+      
+      callbacks.push(() => resolve());
+
+      window.onYouTubeIframeAPIReady = () => {
+        callbacks.forEach(callback => {
+          try {
+            callback();
+          } catch (error) {
+            console.error("YouTube API callback error:", error);
+          }
+        });
+      };
 
       // APIスクリプトを読み込み
       const script = document.createElement("script");
       script.src = "https://www.youtube.com/iframe_api";
+      script.async = true;
+      script.onerror = () => reject(new Error("Failed to load YouTube API script"));
+      
       document.head.appendChild(script);
 
-      window.onYouTubeIframeAPIReady = () => {
-        resolve();
-      };
+      // タイムアウト処理
+      setTimeout(() => {
+        reject(new Error("YouTube API loading timeout"));
+      }, 10000);
     });
   };
 
   // プレイヤーを初期化
-  const initializePlayer = async () => {
-    if (!props.video || !playerContainerRef.value) return;
+  const initializePlayer = async (): Promise<void> => {
+    if (isLoading.value) {
+      console.log("Player initialization already in progress");
+      return;
+    }
+
+    if (!props.video?.url) {
+      console.log("No video URL provided");
+      return;
+    }
 
     try {
-      await loadYouTubeAPI();
+      isLoading.value = true;
+      console.log("Starting YouTube player initialization");
+
+      // DOM要素の準備を待つ
       await nextTick();
+      
+      if (!playerContainerRef.value) {
+        console.error("Player container not found");
+        return;
+      }
+
+      // YouTube APIの読み込みを待つ
+      await loadYouTubeAPI();
 
       const videoId = extractYouTubeId(props.video.url);
-      if (!videoId) return;
+      if (!videoId) {
+        console.error("Invalid YouTube URL:", props.video.url);
+        return;
+      }
 
-      // 既存のプレイヤーがあれば破棄
+      console.log("Extracted video ID:", videoId);
+
+      // 既存のプレイヤーをクリーンアップ
       if (ytPlayer.value) {
         try {
           ytPlayer.value.destroy();
-        } catch (e) {
-          // エラーは無視
+        } catch (error) {
+          console.warn("Error destroying existing player:", error);
         }
+        ytPlayer.value = null;
       }
 
+      // プレイヤーコンテナをクリア
+      playerContainerRef.value.innerHTML = "";
+
+      // プレイヤー用のdiv要素を作成
+      const playerDiv = document.createElement("div");
+      playerDiv.id = playerId;
+      playerContainerRef.value.appendChild(playerDiv);
+
       // 新しいプレイヤーを作成
-      ytPlayer.value = new window.YT.Player(playerContainerRef.value, {
+      ytPlayer.value = new window.YT.Player(playerId, {
         videoId: videoId,
         width: "100%",
         height: "100%",
@@ -183,38 +280,89 @@
           modestbranding: 1,
           enablejsapi: 1,
           origin: window.location.origin,
+          playsinline: 1,
+          controls: 1,
         },
         events: {
-          onReady: () => {
+          onReady: (event: any) => {
+            console.log("YouTube Player ready");
             isPlayerReady.value = true;
           },
+          onStateChange: (event: any) => {
+            console.log("Player state changed:", event.data);
+          },
           onError: (error: any) => {
-            console.error("YouTube player error:", error);
+            console.error("YouTube player error:", error.data);
             isPlayerReady.value = false;
           },
         },
       });
+
+      console.log("YouTube player created successfully");
     } catch (error) {
       console.error("Failed to initialize YouTube player:", error);
       isPlayerReady.value = false;
+    } finally {
+      isLoading.value = false;
     }
   };
 
   // 楽曲の開始時間にシークして再生
-  const seekToSong = async (startSeconds: number) => {
-    if (startSeconds < 0) return;
+  const seekToSong = async (startSeconds: number): Promise<void> => {
+    if (startSeconds < 0) {
+      console.warn("Invalid start time:", startSeconds);
+      return;
+    }
 
-    if (ytPlayer.value && isPlayerReady.value) {
-      try {
-        ytPlayer.value.seekTo(startSeconds, true);
-        ytPlayer.value.playVideo();
-      } catch (error) {
-        console.error("Failed to seek to song:", error);
-      }
+    if (!ytPlayer.value || !isPlayerReady.value) {
+      console.warn("Player not ready for seeking");
+      return;
+    }
+
+    try {
+      console.log("Seeking to:", startSeconds);
+      ytPlayer.value.seekTo(startSeconds, true);
+      ytPlayer.value.playVideo();
+    } catch (error) {
+      console.error("Failed to seek to song:", error);
     }
   };
 
+  // プレイヤーのクリーンアップ
+  const cleanupPlayer = (): void => {
+    if (ytPlayer.value) {
+      try {
+        ytPlayer.value.destroy();
+      } catch (error) {
+        console.warn("Error during player cleanup:", error);
+      }
+      ytPlayer.value = null;
+    }
+    isPlayerReady.value = false;
+  };
+
+  // プロパティの変更を監視
+  watch(
+    () => props.video?.url,
+    (newUrl, oldUrl) => {
+      if (newUrl !== oldUrl && newUrl) {
+        console.log("Video URL changed, reinitializing player");
+        cleanupPlayer();
+        initializePlayer();
+      }
+    }
+  );
+
   onMounted(() => {
-    initializePlayer();
+    // クライアントサイドでのみ実行
+    if (process.client) {
+      console.log("LatestStreamVideo component mounted");
+      initializePlayer();
+    }
+  });
+
+  onBeforeUnmount(() => {
+    console.log("LatestStreamVideo component unmounting");
+    cleanupPlayer();
   });
 </script>
