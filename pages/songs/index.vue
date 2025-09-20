@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 py-8 pb-32">
     <!-- ページヘッダー -->
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-gray-900 mb-4">楽曲一覧</h1>
@@ -55,8 +55,12 @@
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             @change="handleSortChange"
           >
-            <option value="-video.published_at,start_at">デフォルト（新しい配信順）</option>
-            <option value="video.published_at,-start_at">逆順（古い配信順）</option>
+            <option value="-video.published_at,start_at">
+              デフォルト（新しい配信順）
+            </option>
+            <option value="video.published_at,-start_at">
+              逆順（古い配信順）
+            </option>
           </select>
         </div>
       </div>
@@ -148,31 +152,38 @@
     // キーワード検索フィルター（クライアント側）
     if (searchQuery.value.trim()) {
       const searchTerm = searchQuery.value.toLowerCase().trim();
-      filteredSongs = filteredSongs.filter(song => 
-        song.title.toLowerCase().includes(searchTerm) ||
-        song.artist.toLowerCase().includes(searchTerm)
+      filteredSongs = filteredSongs.filter(
+        (song) =>
+          song.title.toLowerCase().includes(searchTerm) ||
+          song.artist.toLowerCase().includes(searchTerm)
       );
     }
 
     // アーティストフィルター（クライアント側）
     if (selectedArtist.value) {
-      filteredSongs = filteredSongs.filter(song => 
-        song.artist === selectedArtist.value
+      filteredSongs = filteredSongs.filter(
+        (song) => song.artist === selectedArtist.value
       );
     }
 
     // 楽曲タイプフィルター（クライアント側）
     if (selectedType.value === "original") {
-      filteredSongs = filteredSongs.filter(song => song.is_original === true);
+      filteredSongs = filteredSongs.filter((song) => song.is_original === true);
     } else if (selectedType.value === "cover") {
-      filteredSongs = filteredSongs.filter(song => song.is_original === false);
+      filteredSongs = filteredSongs.filter(
+        (song) => song.is_original === false
+      );
     }
 
     // 動画タイプフィルター（クライアント側）
     if (selectedVideoType.value === "music_video") {
-      filteredSongs = filteredSongs.filter(song => song.video.is_stream === false);
+      filteredSongs = filteredSongs.filter(
+        (song) => song.video.is_stream === false
+      );
     } else if (selectedVideoType.value === "stream") {
-      filteredSongs = filteredSongs.filter(song => song.video.is_stream === true);
+      filteredSongs = filteredSongs.filter(
+        (song) => song.video.is_stream === true
+      );
     }
 
     return filteredSongs;
@@ -184,7 +195,7 @@
   });
 
   // 検索のデバウンス処理は不要（クライアント側フィルタのため）
-  
+
   // メソッド
   const loadSongs = async () => {
     const query = {};

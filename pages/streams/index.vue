@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 py-8 pb-32">
     <!-- ページヘッダー -->
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-gray-900 mb-4">歌枠一覧</h1>
