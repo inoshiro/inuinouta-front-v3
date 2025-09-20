@@ -84,25 +84,6 @@
 
 <template>
   <div class="max-w-6xl mx-auto space-y-8 pb-32">
-    <!-- サイト概要セクション -->
-    <section
-      class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 md:p-8"
-    >
-      <div class="text-center space-y-4">
-        <p
-          class="text-lg md:text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto"
-        >
-          このサイトは、にじさんじ所属のバーチャルライバー、<span
-            class="font-semibold text-purple-600"
-            >戌亥とこ</span
-          >さんの歌を視聴しやすいようにまとめた非公式ファンサイトです。
-        </p>
-        <div class="text-sm text-gray-500 pt-2 border-t border-gray-200 mt-6">
-          <p>戌亥とこさん及びANYCOLOR株式会社とは一切関係はありません。</p>
-        </div>
-      </div>
-    </section>
-
     <!-- ローディング表示 -->
     <div v-show="loading" class="text-center py-12">
       <div class="inline-flex items-center space-x-2">
@@ -139,6 +120,27 @@
       />
     </div>
 
+    <!-- サイト概要セクション -->
+    <section
+      class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 md:p-8"
+    >
+      <div class="text-center space-y-4">
+        <p
+          class="text-lg md:text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto"
+        >
+          にじさんじ所属のバーチャルライバー、<span
+            class="font-semibold text-emerald-500"
+            >戌亥とこ</span
+          >さんの歌を視聴しやすいようにまとめた非公式ファンサイトです。
+        </p>
+        <div class="text-sm text-gray-500 pt-2 border-t border-gray-200 mt-6">
+          <p>
+            本サイトは戌亥とこさん及びANYCOLOR株式会社とは一切関係はありません。
+          </p>
+        </div>
+      </div>
+    </section>
+
     <!-- ナビゲーションセクション -->
     <section class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
@@ -148,7 +150,7 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <NuxtLink
           to="/songs"
-          class="group bg-gradient-to-br from-purple-500 to-pink-600 text-white p-6 rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all transform hover:scale-105"
+          class="group bg-gradient-to-br from-slate-600 to-slate-700 text-white p-6 rounded-lg hover:from-slate-700 hover:to-slate-800 transition-all transform hover:scale-105"
         >
           <div class="text-center space-y-2">
             <div class="text-3xl">🎤</div>
@@ -159,7 +161,7 @@
 
         <NuxtLink
           to="/streams"
-          class="group bg-gradient-to-br from-blue-500 to-cyan-600 text-white p-6 rounded-lg hover:from-blue-600 hover:to-cyan-700 transition-all transform hover:scale-105"
+          class="group bg-gradient-to-br from-slate-500 to-slate-600 text-white p-6 rounded-lg hover:from-slate-600 hover:to-slate-700 transition-all transform hover:scale-105"
         >
           <div class="text-center space-y-2">
             <div class="text-3xl">📺</div>
@@ -168,16 +170,20 @@
           </div>
         </NuxtLink>
 
-        <NuxtLink
-          to="/playlists"
-          class="group bg-gradient-to-br from-green-500 to-teal-600 text-white p-6 rounded-lg hover:from-green-600 hover:to-teal-700 transition-all transform hover:scale-105"
-        >
-          <div class="text-center space-y-2">
-            <div class="text-3xl">📝</div>
-            <h3 class="font-bold text-lg">プレイリスト</h3>
-            <p class="text-sm opacity-90">お気に入りの楽曲をまとめて</p>
+        <div class="relative group cursor-not-allowed">
+          <div class="bg-gradient-to-br from-gray-400 to-gray-500 text-white p-6 rounded-lg opacity-60">
+            <div class="text-center space-y-2">
+              <div class="text-3xl">📝</div>
+              <h3 class="font-bold text-lg">プレイリスト</h3>
+              <p class="text-sm opacity-90">お気に入りの楽曲をまとめて</p>
+              <div class="mt-3 pt-2 border-t border-gray-300">
+                <span class="inline-block bg-yellow-400 text-black text-xs font-semibold px-3 py-1 rounded-full">
+                  開発中
+                </span>
+              </div>
+            </div>
           </div>
-        </NuxtLink>
+        </div>
       </div>
     </section>
   </div>

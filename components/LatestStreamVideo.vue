@@ -1,6 +1,6 @@
 <template>
   <section class="bg-white rounded-lg shadow-md overflow-hidden">
-    <div class="bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-4">
+    <div class="bg-gradient-to-r from-slate-500 to-slate-600 text-white p-4">
       <h2 class="text-xl font-bold flex items-center">📺 最新の歌配信</h2>
     </div>
 
@@ -14,7 +14,9 @@
             class="w-full aspect-video rounded-lg bg-black"
           ></div>
           <template #fallback>
-            <div class="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+            <div
+              class="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center"
+            >
               <p class="text-gray-500">プレイヤーを読み込み中...</p>
             </div>
           </template>
@@ -132,8 +134,8 @@
   // YouTube IFrame APIが読み込まれているかチェック
   const isYouTubeAPIReady = (): boolean => {
     return (
-      typeof window !== "undefined" && 
-      window.YT && 
+      typeof window !== "undefined" &&
+      window.YT &&
       window.YT.Player &&
       typeof window.YT.Player === "function"
     );
@@ -156,7 +158,7 @@
             resolve();
           }
         }, 100);
-        
+
         // タイムアウト処理
         setTimeout(() => {
           clearInterval(checkInterval);
@@ -166,7 +168,9 @@
       }
 
       // 既存のスクリプトタグをチェック
-      const existingScript = document.querySelector('script[src*="youtube.com/iframe_api"]');
+      const existingScript = document.querySelector(
+        'script[src*="youtube.com/iframe_api"]'
+      );
       if (existingScript) {
         // 既存のスクリプトがある場合は待機
         const checkInterval = setInterval(() => {
@@ -175,7 +179,7 @@
             resolve();
           }
         }, 100);
-        
+
         setTimeout(() => {
           clearInterval(checkInterval);
           reject(new Error("YouTube API loading timeout"));
@@ -185,15 +189,15 @@
 
       // グローバルコールバックの設定
       const callbacks: (() => void)[] = [];
-      
+
       if (window.onYouTubeIframeAPIReady) {
         callbacks.push(window.onYouTubeIframeAPIReady);
       }
-      
+
       callbacks.push(() => resolve());
 
       window.onYouTubeIframeAPIReady = () => {
-        callbacks.forEach(callback => {
+        callbacks.forEach((callback) => {
           try {
             callback();
           } catch (error) {
@@ -206,8 +210,9 @@
       const script = document.createElement("script");
       script.src = "https://www.youtube.com/iframe_api";
       script.async = true;
-      script.onerror = () => reject(new Error("Failed to load YouTube API script"));
-      
+      script.onerror = () =>
+        reject(new Error("Failed to load YouTube API script"));
+
       document.head.appendChild(script);
 
       // タイムアウト処理
@@ -235,7 +240,7 @@
 
       // DOM要素の準備を待つ
       await nextTick();
-      
+
       if (!playerContainerRef.value) {
         console.error("Player container not found");
         return;

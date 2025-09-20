@@ -15,11 +15,13 @@ export default defineNuxtPlugin(() => {
     }
 
     // 既存のスクリプトタグをチェック
-    const existingScript = document.querySelector('script[src*="youtube.com/iframe_api"]');
+    const existingScript = document.querySelector(
+      'script[src*="youtube.com/iframe_api"]'
+    );
     if (!existingScript) {
       // スクリプトタグを作成して読み込み
-      const script = document.createElement('script');
-      script.src = 'https://www.youtube.com/iframe_api';
+      const script = document.createElement("script");
+      script.src = "https://www.youtube.com/iframe_api";
       script.async = true;
       document.head.appendChild(script);
     }

@@ -1,6 +1,6 @@
 <template>
   <section class="bg-white rounded-lg shadow-md overflow-hidden">
-    <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4">
+    <div class="bg-gradient-to-r from-slate-600 to-slate-700 text-white p-4">
       <h2 class="text-xl font-bold flex items-center">🎤 最新の歌ってみた</h2>
     </div>
 
