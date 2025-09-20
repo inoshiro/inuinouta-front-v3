@@ -11,7 +11,7 @@
           <div
             v-if="video"
             ref="playerContainerRef"
-            class="w-full aspect-video rounded-lg bg-black"
+            class="w-full aspect-video rounded-lg bg-black overflow-hidden"
           ></div>
           <template #fallback>
             <div
