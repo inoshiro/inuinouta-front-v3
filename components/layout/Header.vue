@@ -30,7 +30,7 @@
             to="/"
             class="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            <img src="/favicon.ico" alt="ロゴ" class="w-8 h-8 rounded" />
+            <img src="/icon-192x192.png" alt="ロゴ" class="w-8 h-8 rounded" />
             <span class="font-bold text-lg">いぬいのうた</span>
           </NuxtLink>
         </div>
