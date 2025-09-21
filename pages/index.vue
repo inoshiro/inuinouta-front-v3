@@ -2,15 +2,24 @@
   import { ref, onMounted, nextTick } from "vue";
   import type { Video, VideoWithSongs } from "~/types/video";
 
-  // ページメタデータの設定
+  // ページメタデータの設定（Djangoプロジェクトと統一）
   useSeoMeta({
-    title: "いぬいのうた - 戌亥とこさん歌枠まとめサイト",
+    title: "いぬいのうた | 戌亥とこ非公式ファンサイト",
     description:
-      "にじさんじ所属のバーチャルライバー、戌亥とこさんの歌を視聴しやすくまとめた非公式ファンサイトです。",
-    ogTitle: "いぬいのうた - 戌亥とこさん歌枠まとめサイト",
+      "いぬいのうたは、にじさんじ所属のバーチャルライバーである戌亥とこさんを応援するファンサイトです。戌亥とこさんが歌った楽曲を探しやすく、再生しやすいようにまとめています。",
+    keywords:
+      "戌亥とこ,ケルベロス,にじさんじ,歌,歌ってみた,バーチャルYouTuber,Vtuber,いぬいのうた,YouTube",
+    ogTitle: "いぬいのうた | 戌亥とこ非公式ファンサイト",
     ogDescription:
-      "にじさんじ所属のバーチャルライバー、戌亥とこさんの歌を視聴しやすくまとめた非公式ファンサイトです。",
-    ogImage: "/og-image.jpg",
+      "いぬいのうたは、にじさんじ所属のバーチャルライバーである戌亥とこさんを応援するファンサイトです。戌亥とこさんが歌った楽曲を探しやすく、再生しやすいようにまとめています。",
+    ogImage: "https://inuinouta-front-v3.vercel.app/og-image.png",
+    ogUrl: "https://inuinouta-front-v3.vercel.app/",
+    ogType: "website",
+    twitterCard: "summary",
+    twitterTitle: "いぬいのうた | 戌亥とこ非公式ファンサイト",
+    twitterDescription:
+      "いぬいのうたは、にじさんじ所属のバーチャルライバーである戌亥とこさんを応援するファンサイトです。戌亥とこさんが歌った楽曲を探しやすく、再生しやすいようにまとめています。",
+    twitterImage: "https://inuinouta-front-v3.vercel.app/og-image.png",
   });
 
   // データ取得用のcomposables
