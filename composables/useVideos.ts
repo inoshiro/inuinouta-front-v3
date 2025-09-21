@@ -4,8 +4,8 @@ export interface VideoQuery {
   search?: string;
   title?: string;
   ordering?: string;
-  limit?: number;
-  offset?: number;
+  per_page?: number;
+  page?: number;
 }
 
 export interface VideosResponse {

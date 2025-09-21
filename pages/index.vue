@@ -32,7 +32,7 @@
       // 最新の歌ってみた動画（is_stream=false）を取得
       const songVideos = await fetchVideos({
         ordering: "-published_at",
-        limit: 1,
+        per_page: 1,
       });
 
       // is_streamがfalseの動画を探す（APIにis_streamフィルターがない場合の対処）
@@ -43,7 +43,7 @@
       // 最新の歌配信（is_stream=true）を取得
       const streamVideos = await fetchVideos({
         ordering: "-published_at",
-        limit: 10, // 複数取得してis_stream=trueを探す
+        per_page: 10, // 複数取得してis_stream=trueを探す
       });
 
       const streamVideo = streamVideos.find((video) => video.is_stream);
