@@ -98,9 +98,9 @@
   const searchQuery = ref("");
   const sortOrder = ref("-published_at");
 
-  // 歌枠のみをフィルター（is_stream: true）
+  // 歌枠のフィルタリング（既にサーバー側でフィルタ済み）
   const streams = computed(() => {
-    return videos.value.filter((video) => video.is_stream === true);
+    return videos.value; // サーバー側で歌配信のみ取得済み
   });
 
   // フィルター適用（クライアント側）
@@ -136,9 +136,12 @@
     return result;
   });
 
-  // 歌枠を取得
+  // 歌枠を取得（サーバー側で歌配信のみフィルタ）
   const fetchStreams = async () => {
     await fetchVideos({
+      "filter{is_stream}": true,
+      "filter{is_open}": true,
+      "filter{is_member_only}": false,
       ordering: sortOrder.value,
     });
   };

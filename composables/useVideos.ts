@@ -6,6 +6,13 @@ export interface VideoQuery {
   ordering?: string;
   per_page?: number;
   page?: number;
+  // Django API filter{} parameters
+  "filter{is_stream}"?: boolean;
+  "filter{is_open}"?: boolean;
+  "filter{is_member_only}"?: boolean;
+  "filter{unplayable}"?: boolean;
+  // 動的フィルタ用の catch-all
+  [key: string]: any;
 }
 
 export interface VideosResponse {

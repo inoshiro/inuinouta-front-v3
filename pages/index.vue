@@ -29,24 +29,29 @@
       loading.value = true;
       error.value = null;
 
-      // 最新の歌ってみた動画（is_stream=false）を取得
+      // 最新の歌ってみた動画（is_stream=false）をサーバー側フィルタで取得
       const songVideos = await fetchVideos({
+        "filter{is_stream}": false,
+        "filter{is_open}": true,
+        "filter{is_member_only}": false,
         ordering: "-published_at",
         per_page: 1,
       });
 
-      // is_streamがfalseの動画を探す（APIにis_streamフィルターがない場合の対処）
-      const songVideo = songVideos.find((video) => !video.is_stream);
-      if (songVideo) {
-        latestSongVideo.value = songVideo;
+      if (songVideos.length > 0) {
+        latestSongVideo.value = songVideos[0];
       }
-      // 最新の歌配信（is_stream=true）を取得
+
+      // 最新の歌配信（is_stream=true）をサーバー側フィルタで取得
       const streamVideos = await fetchVideos({
+        "filter{is_stream}": true,
+        "filter{is_open}": true,
+        "filter{is_member_only}": false,
         ordering: "-published_at",
-        per_page: 10, // 複数取得してis_stream=trueを探す
+        per_page: 1,
       });
 
-      const streamVideo = streamVideos.find((video) => video.is_stream);
+      const streamVideo = streamVideos.length > 0 ? streamVideos[0] : null;
       if (streamVideo) {
         latestStreamVideo.value = streamVideo;
 

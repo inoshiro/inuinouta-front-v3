@@ -145,7 +145,7 @@
   const loadingMore = ref(false);
   const totalSongs = ref(0);
 
-  // 計算プロパティ
+  // 計算プロパティ（クライアント側フィルタは検索とアーティストのみ）
   const displayedSongs = computed(() => {
     let filteredSongs = songs.value || [];
 
@@ -166,25 +166,7 @@
       );
     }
 
-    // 楽曲タイプフィルター（クライアント側）
-    if (selectedType.value === "original") {
-      filteredSongs = filteredSongs.filter((song) => song.is_original === true);
-    } else if (selectedType.value === "cover") {
-      filteredSongs = filteredSongs.filter(
-        (song) => song.is_original === false
-      );
-    }
-
-    // 動画タイプフィルター（クライアント側）
-    if (selectedVideoType.value === "music_video") {
-      filteredSongs = filteredSongs.filter(
-        (song) => song.video.is_stream === false
-      );
-    } else if (selectedVideoType.value === "stream") {
-      filteredSongs = filteredSongs.filter(
-        (song) => song.video.is_stream === true
-      );
-    }
+    // 楽曲タイプと動画タイプのフィルタはサーバー側で処理済み
 
     return filteredSongs;
   });
@@ -203,11 +185,34 @@
     // API呼び出しするのはソートのみ
     if (sortOrder.value) query.ordering = sortOrder.value;
 
+    // 楽曲タイプフィルタ（サーバー側）
+    if (selectedType.value === "original") {
+      query["filter{is_original}"] = true;
+    } else if (selectedType.value === "cover") {
+      query["filter{is_original}"] = false;
+    }
+
+    // 動画タイプフィルタ（サーバー側）
+    if (selectedVideoType.value === "music_video") {
+      query["filter{video.is_stream}"] = false;
+    } else if (selectedVideoType.value === "stream") {
+      query["filter{video.is_stream}"] = true;
+    }
+
+    // 公開動画のみ取得
+    query["filter{video.is_open}"] = true;
+    query["filter{video.is_member_only}"] = false;
+
     const result = await fetchSongs(query);
   };
 
   // ソート変更時のみAPI再取得
   const handleSortChange = () => {
+    loadSongs();
+  };
+
+  // フィルタ変更時にAPI再取得
+  const handleFilterChange = () => {
     loadSongs();
   };
 
@@ -240,5 +245,10 @@
   // ライフサイクル
   onMounted(() => {
     loadSongs();
+  });
+
+  // フィルタ変更の監視（サーバー側フィルタのみ）
+  watch([selectedType, selectedVideoType], () => {
+    handleFilterChange();
   });
 </script>
