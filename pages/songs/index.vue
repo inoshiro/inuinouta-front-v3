@@ -18,19 +18,12 @@
 
         <!-- フィルター（モバイル対応） -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-          <select
+          <SearchableSelect
             v-model="selectedArtist"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">全アーティスト</option>
-            <option
-              v-for="artist in uniqueArtists"
-              :key="artist"
-              :value="artist"
-            >
-              {{ artist }}
-            </option>
-          </select>
+            :options="uniqueArtists"
+            placeholder="アーティスト名で検索..."
+            all-option-text="全アーティスト"
+          />
 
           <select
             v-model="selectedType"
