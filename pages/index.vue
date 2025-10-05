@@ -109,11 +109,11 @@
           にじさんじ所属のバーチャルライバー、<span
             class="font-semibold text-emerald-500"
             >戌亥とこ</span
-          >さんの歌を視聴しやすいようにまとめた非公式ファンサイトです。
+          >さんの歌を視聴しやすいようにまとめたサイトです。
         </p>
         <div class="text-sm text-gray-500 pt-2 border-t border-gray-200 mt-3">
           <p>
-            本サイトは戌亥とこさん及びANYCOLOR株式会社とは一切関係はありません。
+            本サイトは戌亥とこさん、ANYCOLOR株式会社とは関係のない個人運営のファンサイトです。
           </p>
         </div>
       </div>
