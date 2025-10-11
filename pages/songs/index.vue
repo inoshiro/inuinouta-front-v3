@@ -12,49 +12,126 @@
             v-model="searchQuery"
             type="text"
             placeholder="楽曲名、アーティスト名で検索..."
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
         <!-- フィルター（モバイル対応） -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-          <SearchableSelect
-            v-model="selectedArtist"
-            :options="uniqueArtists"
-            placeholder="アーティスト名で検索..."
-            all-option-text="全アーティスト"
-          />
+        <div class="space-y-3">
+          <!-- アーティスト検索 -->
+          <div>
+            <SearchableSelect
+              v-model="selectedArtist"
+              :options="uniqueArtists"
+              placeholder="アーティスト名で検索..."
+              all-option-text="全アーティスト"
+              input-class="w-full px-3 py-1.5 pr-20 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
 
-          <select
-            v-model="selectedType"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">全楽曲</option>
-            <option value="original">オリジナル楽曲</option>
-            <option value="cover">カバー楽曲</option>
-          </select>
+          <!-- 楽曲タイプ、動画タイプ、並び順を横並び -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- 楽曲タイプフィルター（トグルボタン） -->
+            <div>
+              <label class="text-xs font-medium text-gray-700 mb-1.5 block">
+                楽曲タイプ
+              </label>
+              <div class="flex gap-1.5 flex-wrap">
+                <button
+                  :class="[
+                    'px-3 py-1.5 rounded-lg font-medium transition-all text-xs',
+                    songTypeFilter === 'all'
+                      ? 'bg-blue-600 text-white shadow-md border-2 border-blue-700'
+                      : 'bg-gray-100 text-gray-600',
+                  ]"
+                  @click="songTypeFilter = 'all'"
+                >
+                  すべて
+                </button>
+                <button
+                  :class="[
+                    'px-3 py-1.5 rounded-lg font-medium transition-all text-xs',
+                    songTypeFilter === 'original'
+                      ? 'bg-blue-600 text-white shadow-md border-2 border-blue-700'
+                      : 'bg-gray-100 text-gray-600',
+                  ]"
+                  @click="songTypeFilter = 'original'"
+                >
+                  オリジナル曲
+                </button>
+                <button
+                  :class="[
+                    'px-3 py-1.5 rounded-lg font-medium transition-all text-xs',
+                    songTypeFilter === 'cover'
+                      ? 'bg-blue-600 text-white shadow-md border-2 border-blue-700'
+                      : 'bg-gray-100 text-gray-600',
+                  ]"
+                  @click="songTypeFilter = 'cover'"
+                >
+                  カバー曲
+                </button>
+              </div>
+            </div>
 
-          <select
-            v-model="selectedVideoType"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">全動画</option>
-            <option value="music_video">歌動画</option>
-            <option value="stream">歌配信</option>
-          </select>
+            <!-- 動画タイプフィルター（トグルボタン） -->
+            <div>
+              <label class="text-xs font-medium text-gray-700 mb-1.5 block">
+                動画タイプ
+              </label>
+              <div class="flex gap-1.5 flex-wrap">
+                <button
+                  :class="[
+                    'px-3 py-1.5 rounded-lg font-medium transition-all text-xs',
+                    videoTypeFilter === 'all'
+                      ? 'bg-purple-600 text-white shadow-md border-2 border-purple-700'
+                      : 'bg-gray-100 text-gray-600',
+                  ]"
+                  @click="videoTypeFilter = 'all'"
+                >
+                  すべて
+                </button>
+                <button
+                  :class="[
+                    'px-3 py-1.5 rounded-lg font-medium transition-all text-xs',
+                    videoTypeFilter === 'music_video'
+                      ? 'bg-purple-600 text-white shadow-md border-2 border-purple-700'
+                      : 'bg-gray-100 text-gray-600',
+                  ]"
+                  @click="videoTypeFilter = 'music_video'"
+                >
+                  歌動画
+                </button>
+                <button
+                  :class="[
+                    'px-3 py-1.5 rounded-lg font-medium transition-all text-xs',
+                    videoTypeFilter === 'stream'
+                      ? 'bg-purple-600 text-white shadow-md border-2 border-purple-700'
+                      : 'bg-gray-100 text-gray-600',
+                  ]"
+                  @click="videoTypeFilter = 'stream'"
+                >
+                  歌配信
+                </button>
+              </div>
+            </div>
 
-          <select
-            v-model="sortOrder"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            @change="handleSortChange"
-          >
-            <option value="-video.published_at,start_at">
-              デフォルト（新しい配信順）
-            </option>
-            <option value="video.published_at,-start_at">
-              逆順（古い配信順）
-            </option>
-          </select>
+            <!-- ソート順 -->
+            <div>
+              <label class="text-xs font-medium text-gray-700 mb-1.5 block">
+                並び順
+              </label>
+              <select
+                v-model="sortOrder"
+                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-xs"
+                @change="handleSortChange"
+              >
+                <option value="-video.published_at,start_at">
+                  新しい配信順
+                </option>
+                <option value="video.published_at,-start_at">古い配信順</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -132,8 +209,9 @@
   // リアクティブデータ
   const searchQuery = ref(""); // クライアント側フィルタ
   const selectedArtist = ref(""); // クライアント側フィルタ
-  const selectedType = ref(""); // クライアント側フィルタ
-  const selectedVideoType = ref(""); // クライアント側フィルタ（歌動画/歌配信）
+  // フィルター用（ラジオボタン式）
+  const songTypeFilter = ref("all"); // 'all', 'original', 'cover'
+  const videoTypeFilter = ref("all"); // 'all', 'music_video', 'stream'
   const sortOrder = ref("-video.published_at,start_at"); // デフォルトソート
   const loadingMore = ref(false);
   const totalSongs = ref(0);
@@ -159,7 +237,19 @@
       );
     }
 
-    // 楽曲タイプと動画タイプのフィルタはサーバー側で処理済み
+    // 楽曲タイプフィルター（クライアント側）
+    if (songTypeFilter.value === "original") {
+      filteredSongs = filteredSongs.filter((song) => song.is_original);
+    } else if (songTypeFilter.value === "cover") {
+      filteredSongs = filteredSongs.filter((song) => !song.is_original);
+    }
+
+    // 動画タイプフィルター（クライアント側）
+    if (videoTypeFilter.value === "music_video") {
+      filteredSongs = filteredSongs.filter((song) => !song.video?.is_stream);
+    } else if (videoTypeFilter.value === "stream") {
+      filteredSongs = filteredSongs.filter((song) => song.video?.is_stream);
+    }
 
     return filteredSongs;
   });
@@ -178,20 +268,6 @@
     // API呼び出しするのはソートのみ
     if (sortOrder.value) query.ordering = sortOrder.value;
 
-    // 楽曲タイプフィルタ（サーバー側）
-    if (selectedType.value === "original") {
-      query["filter{is_original}"] = true;
-    } else if (selectedType.value === "cover") {
-      query["filter{is_original}"] = false;
-    }
-
-    // 動画タイプフィルタ（サーバー側）
-    if (selectedVideoType.value === "music_video") {
-      query["filter{video.is_stream}"] = false;
-    } else if (selectedVideoType.value === "stream") {
-      query["filter{video.is_stream}"] = true;
-    }
-
     // 公開動画のみ取得
     query["filter{video.is_open}"] = true;
     query["filter{video.is_member_only}"] = false;
@@ -204,16 +280,11 @@
     loadSongs();
   };
 
-  // フィルタ変更時にAPI再取得
-  const handleFilterChange = () => {
-    loadSongs();
-  };
-
   const clearFilters = () => {
     searchQuery.value = "";
     selectedArtist.value = "";
-    selectedType.value = "";
-    selectedVideoType.value = "";
+    songTypeFilter.value = "all";
+    videoTypeFilter.value = "all";
     sortOrder.value = "-video.published_at,start_at"; // デフォルトソートに戻す
     loadSongs(); // ソート変更のためAPI再取得
   };
@@ -238,10 +309,5 @@
   // ライフサイクル
   onMounted(() => {
     loadSongs();
-  });
-
-  // フィルタ変更の監視（サーバー側フィルタのみ）
-  watch([selectedType, selectedVideoType], () => {
-    handleFilterChange();
   });
 </script>
