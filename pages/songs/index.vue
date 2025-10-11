@@ -18,15 +18,29 @@
 
         <!-- フィルター（モバイル対応） -->
         <div class="space-y-3">
-          <!-- アーティスト検索 -->
+          <!-- アーティスト検索（モーダルトリガー） -->
           <div>
-            <SearchableSelect
-              v-model="selectedArtist"
-              :options="uniqueArtists"
-              placeholder="アーティスト名で検索..."
-              all-option-text="全アーティスト"
-              input-class="w-full px-3 py-1.5 pr-20 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <button
+              class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+              @click="isArtistModalOpen = true"
+            >
+              <span :class="selectedArtist ? 'text-gray-900' : 'text-gray-500'">
+                {{ selectedArtist || '全アーティスト' }}
+              </span>
+              <svg
+                class="w-4 h-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
           </div>
 
           <!-- 楽曲タイプ、動画タイプ、並び順を横並び -->
@@ -190,6 +204,16 @@
         フィルターをクリア
       </button>
     </div>
+
+    <!-- アーティストクラウドモーダル -->
+    <ArtistCloudModal
+      :is-open="isArtistModalOpen"
+      :selected-artist="selectedArtist"
+      :artists="uniqueArtists"
+      :songs="songs"
+      @close="isArtistModalOpen = false"
+      @select="handleArtistSelect"
+    />
   </div>
 </template>
 
@@ -209,6 +233,7 @@
   // リアクティブデータ
   const searchQuery = ref(""); // クライアント側フィルタ
   const selectedArtist = ref(""); // クライアント側フィルタ
+  const isArtistModalOpen = ref(false); // アーティストモーダルの開閉状態
   // フィルター用（ラジオボタン式）
   const songTypeFilter = ref("all"); // 'all', 'original', 'cover'
   const videoTypeFilter = ref("all"); // 'all', 'music_video', 'stream'
@@ -304,6 +329,10 @@
   const handlePlayNow = () => {
     // SongRowコンポーネント内で直接プレイヤーと統合されているため
     // ここでは追加処理のみを行う（将来的にはトースト通知など）
+  };
+
+  const handleArtistSelect = (artistName) => {
+    selectedArtist.value = artistName;
   };
 
   // ライフサイクル
