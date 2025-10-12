@@ -3,7 +3,7 @@
     <Transition name="modal">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black bg-opacity-50"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80"
         @click.self="closeModal"
       >
         <div
@@ -11,9 +11,7 @@
         >
           <!-- ヘッダー -->
           <div class="flex items-center justify-between p-6 border-b">
-            <h2 class="text-xl font-bold text-gray-900">
-              アーティストを選択
-            </h2>
+            <h2 class="text-xl font-bold text-gray-900">アーティストを選択</h2>
             <button
               class="text-gray-400 hover:text-gray-600 transition-colors"
               @click="closeModal"
@@ -46,7 +44,10 @@
 
           <!-- タグクラウド -->
           <div class="flex-1 overflow-y-auto p-6">
-            <div v-if="filteredArtistsWithCount.length > 0" class="flex flex-wrap gap-2 justify-center">
+            <div
+              v-if="filteredArtistsWithCount.length > 0"
+              class="flex flex-wrap gap-2 justify-center"
+            >
               <!-- 「全アーティスト」ボタン -->
               <button
                 :class="[
@@ -59,7 +60,9 @@
                 @click="selectArtist('')"
               >
                 全アーティスト
-                <span class="text-xs opacity-75 ml-1">({{ totalSongCount }})</span>
+                <span class="text-xs opacity-75 ml-1"
+                  >({{ totalSongCount }})</span
+                >
               </button>
 
               <!-- アーティストボタン（楽曲数に応じてサイズ変更） -->
@@ -76,7 +79,9 @@
                 @click="selectArtist(artist.name)"
               >
                 {{ artist.name }}
-                <span class="text-xs opacity-75 ml-1">({{ artist.count }})</span>
+                <span class="text-xs opacity-75 ml-1"
+                  >({{ artist.count }})</span
+                >
               </button>
             </div>
             <div v-else class="text-center py-12 text-gray-500">

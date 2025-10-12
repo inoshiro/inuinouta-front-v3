@@ -24,7 +24,7 @@
           <!-- 再生状態インジケーター -->
           <div
             v-if="isActivelyPlaying"
-            class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded"
+            class="absolute inset-0 flex items-center justify-center bg-black/80 rounded"
           >
             <div class="playing-indicator">
               <div class="bar"></div>
@@ -34,7 +34,7 @@
           </div>
           <div
             v-else-if="isPaused"
-            class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded"
+            class="absolute inset-0 flex items-center justify-center bg-black/80 rounded"
           >
             <svg
               class="w-4 h-4 text-white"
@@ -145,7 +145,7 @@
         <!-- 再生状態インジケーター -->
         <div
           v-if="isActivelyPlaying"
-          class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded"
+          class="absolute inset-0 flex items-center justify-center bg-black/80 rounded"
         >
           <div class="playing-indicator">
             <div class="bar"></div>
@@ -155,7 +155,7 @@
         </div>
         <div
           v-else-if="isPaused"
-          class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded"
+          class="absolute inset-0 flex items-center justify-center bg-black/80 rounded"
         >
           <svg
             class="w-5 h-5 text-white"

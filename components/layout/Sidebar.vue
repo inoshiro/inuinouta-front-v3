@@ -18,7 +18,7 @@
     <!-- モバイル用オーバーレイ -->
     <div
       v-if="isOpen"
-      class="fixed inset-0 bg-black/50 z-40 md:hidden"
+      class="fixed inset-0 bg-black/80 z-40 md:hidden"
       @click="handleOverlayClick"
     />
 
