@@ -52,71 +52,68 @@
 
         <!-- 楽曲情報（モバイル） -->
         <div class="flex-1 min-w-0 cursor-pointer py-3 px-3" @click="clickSong">
-          <h3 class="text-sm font-medium text-gray-900 truncate mb-1">
-            {{ song.title }}
-          </h3>
+          <div class="flex items-center gap-2 mb-1">
+            <h3 class="text-sm font-medium text-gray-900 truncate">
+              {{ song.title }}
+            </h3>
+            <span
+              v-if="song.is_original"
+              class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 flex-shrink-0"
+            >
+              オリジナル
+            </span>
+          </div>
           <p class="text-xs text-gray-500 truncate mb-1">
             {{ song.artist }}
           </p>
-          <!-- バッジとアクション（モバイル） -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span
-                v-if="song.is_original"
-                class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
+          <!-- モバイル用アクション -->
+          <div class="flex items-center justify-end space-x-2" @click.stop>
+            <button
+              title="再生"
+              class="p-3 text-gray-400 hover:text-blue-600 rounded-full"
+              @click.stop="playNow"
+            >
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+            <button
+              title="キューに追加"
+              class="p-3 text-gray-400 hover:text-green-600 rounded-full"
+              @click.stop="addToQueue"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                オリジナル
-              </span>
-            </div>
-            <!-- モバイル用アクション -->
-            <div class="flex items-center space-x-2" @click.stop>
-              <button
-                title="再生"
-                class="p-3 text-gray-400 hover:text-blue-600 rounded-full"
-                @click.stop="playNow"
-              >
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fill-rule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </button>
-              <button
-                title="キューに追加"
-                class="p-3 text-gray-400 hover:text-green-600 rounded-full"
-                @click.stop="addToQueue"
-              >
-                <svg
-                  class="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-              </button>
-              <a
-                :href="youtubeUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="YouTubeで開く"
-                class="p-3 text-gray-400 hover:text-red-500 rounded-full"
-                @click.stop
-              >
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path
-                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
-                  />
-                </svg>
-              </a>
-            </div>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+            </button>
+            <a
+              :href="youtubeUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="YouTubeで開く"
+              class="p-3 text-gray-400 hover:text-red-500 rounded-full"
+              @click.stop
+            >
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+                />
+              </svg>
+            </a>
           </div>
         </div>
 
@@ -211,7 +208,10 @@
       </div>
 
       <!-- アクションボタン -->
-      <div class="flex-shrink-0 flex items-center space-x-3 py-4 pr-4" @click.stop>
+      <div
+        class="flex-shrink-0 flex items-center space-x-3 py-4 pr-4"
+        @click.stop
+      >
         <!-- 今すぐ再生ボタン -->
         <button
           title="今すぐ再生"
