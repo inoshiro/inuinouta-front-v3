@@ -118,25 +118,29 @@
         </div>
 
         <!-- 詳細ページへの遷移領域（モバイル） -->
-        <NuxtLink
-          :to="`/songs/${song.id}`"
-          class="flex-shrink-0 self-stretch flex items-center justify-center w-12 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors border-l border-gray-200"
-          @click.stop
+        <div
+          class="flex-shrink-0 self-stretch flex items-center justify-center px-3"
         >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+          <NuxtLink
+            :to="`/songs/${song.id}`"
+            class="px-3 py-10 bg-gray-200 hover:bg-gray-400 text-white rounded-lg transition-colors flex items-center justify-center"
+            @click.stop
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </NuxtLink>
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </NuxtLink>
+        </div>
       </div>
     </div>
 
@@ -266,25 +270,29 @@
       </div>
 
       <!-- 詳細ページへの遷移領域（デスクトップ） -->
-      <NuxtLink
-        :to="`/songs/${song.id}`"
-        class="flex-shrink-0 self-stretch flex items-center justify-center w-16 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors border-l border-gray-200"
-        @click.stop
+      <div
+        class="flex-shrink-0 self-stretch flex items-center justify-center px-4"
       >
-        <svg
-          class="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        <NuxtLink
+          :to="`/songs/${song.id}`"
+          class="px-4 py-6 bg-gray-200 hover:bg-gray-400 text-white rounded-lg transition-colors flex items-center justify-center"
+          @click.stop
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </NuxtLink>
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </NuxtLink>
+      </div>
     </div>
   </div>
 </template>
