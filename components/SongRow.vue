@@ -107,7 +107,7 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 title="YouTubeで開く"
-                class="p-3 text-gray-400 hover:text-red-600 rounded-full"
+                class="p-3 text-gray-400 hover:text-red-500 rounded-full"
                 @click.stop
               >
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -208,17 +208,6 @@
         <p class="text-sm text-gray-500 truncate">
           {{ song.artist }}
         </p>
-        <div class="flex items-center space-x-4 mt-1">
-          <a
-            :href="youtubeUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-xs text-blue-600 hover:text-blue-800"
-            @click.stop
-          >
-            YouTube で開く
-          </a>
-        </div>
       </div>
 
       <!-- アクションボタン -->
@@ -259,26 +248,21 @@
           </svg>
         </button>
 
-        <!-- プレイリストに追加ボタン -->
-        <button
-          title="プレイリストに追加"
-          class="p-3 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors duration-150"
-          @click.stop="$emit('add-to-playlist', song)"
+        <!-- YouTubeで開くボタン -->
+        <a
+          :href="youtubeUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="YouTubeで開く"
+          class="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors duration-150"
+          @click.stop
         >
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
             />
           </svg>
-        </button>
+        </a>
       </div>
 
       <!-- 詳細ページへの遷移領域（デスクトップ） -->
