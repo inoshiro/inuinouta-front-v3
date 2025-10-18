@@ -51,6 +51,7 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
 
     if (playerStore.ytPlayer) {
       playerStore.ytPlayer.destroy();
+      playerStore.isPlayerReady = false;
     }
 
     // 前の動画IDと楽曲IDをリセット
@@ -88,6 +89,14 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
   const onPlayerReady = (event: any) => {
     console.log("YouTube Player ready");
 
+    // プレイヤーが準備完了したことを明示的に設定
+    playerStore.isPlayerReady = true;
+
+    // ページロード時の自動再生を防ぐため、初期状態ではshouldAutoPlayをfalseに設定
+    playerStore.setShouldAutoPlay(false);
+
+    console.log("Player ready - autoplay disabled for initial load");
+
     // 保存された音量設定をYouTubeプレイヤーに適用
     if (playerStore.ytPlayer) {
       playerStore.ytPlayer.setVolume(playerStore.volume);
@@ -96,9 +105,9 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
       } else {
         playerStore.ytPlayer.unMute();
       }
-      console.log('YouTube Player初期化時に音量設定を適用:', { 
-        volume: playerStore.volume, 
-        muted: playerStore.isMuted 
+      console.log("YouTube Player初期化時に音量設定を適用:", {
+        volume: playerStore.volume,
+        muted: playerStore.isMuted,
       });
     }
 
@@ -276,13 +285,54 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
   // 実際の再生処理
   const executePlayCurrentTrack = async (isAutoPlay?: boolean) => {
     const currentTrack = queueStore.nowPlaying;
-    if (!currentTrack || !playerStore.ytPlayer) {
-      console.log("No current track or player not ready:", {
-        currentTrack,
-        player: playerStore.ytPlayer,
-      });
+    if (!currentTrack) {
+      console.log("No current track");
       return;
     }
+
+    // プレイヤーの準備状態を厳密にチェック
+    if (!playerStore.ytPlayer || !playerStore.isPlayerReady) {
+      console.log("Player not ready, waiting...", {
+        hasYtPlayer: !!playerStore.ytPlayer,
+        isPlayerReady: playerStore.isPlayerReady,
+      });
+
+      const isReady = await waitForPlayerReady();
+      if (!isReady) {
+        console.warn("Player initialization timeout");
+        return;
+      }
+    }
+
+    // プレイヤーメソッドの存在確認（重要: TypeError防止）
+    if (
+      typeof playerStore.ytPlayer?.loadVideoById !== "function" ||
+      typeof playerStore.ytPlayer?.seekTo !== "function" ||
+      typeof playerStore.ytPlayer?.playVideo !== "function"
+    ) {
+      console.error(
+        "YouTube Player methods are not available. Player may not be properly initialized.",
+        {
+          ytPlayer: playerStore.ytPlayer,
+          hasLoadVideoById: typeof playerStore.ytPlayer?.loadVideoById,
+          hasSeekTo: typeof playerStore.ytPlayer?.seekTo,
+          hasPlayVideo: typeof playerStore.ytPlayer?.playVideo,
+        }
+      );
+
+      // プレイヤーの再初期化を試みる
+      console.log("Attempting to reinitialize player...");
+      initializePlayer();
+
+      // 再初期化後に再度待機
+      const isReady = await waitForPlayerReady();
+      if (!isReady) {
+        console.error("Failed to reinitialize player");
+        return;
+      }
+    }
+
+    console.log("Player ready, continuing with playback");
 
     // 遷移理由に基づいて自動再生を決定
     const shouldAutoPlay =
@@ -506,7 +556,17 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
         oldIndex,
         previousSongId,
         transitionReason: playerStore.transitionReason,
+        isInitialLoad: oldValue === undefined,
       });
+
+      // 初回実行（ページロード時）の場合は自動再生しない
+      // キューの復元処理で既に楽曲情報とcueVideoByIdが設定されている
+      if (oldValue === undefined) {
+        console.log(
+          "Initial load detected, skipping auto-play (queue restoration handles this)"
+        );
+        return;
+      }
 
       if (newTrack) {
         // 新しいトラックがある場合の条件判定

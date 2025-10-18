@@ -15,7 +15,9 @@ export default defineNuxtConfig({
     djangoApiUrl: process.env.DJANGO_API_URL || "http://127.0.0.1:8000/api",
     // Public keys (exposed to the client side)
     public: {
-      // Add public env vars here if needed
+      siteUrl:
+        process.env.NUXT_PUBLIC_SITE_URL ||
+        "https://inuinouta-front-v3.vercel.app",
     },
   },
   vite: {
@@ -23,6 +25,7 @@ export default defineNuxtConfig({
   },
   // SEO設定
   app: {
+    keepalive: true, // ページの状態を保持
     head: {
       htmlAttrs: {
         lang: "ja",

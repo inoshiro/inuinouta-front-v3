@@ -149,7 +149,8 @@ export const usePlayerStore = defineStore("player", {
     },
     setPlayerInstance(player: any) {
       this.ytPlayer = player;
-      this.isPlayerReady = true;
+      // isPlayerReadyはonPlayerReadyコールバックで設定されるべき
+      // this.isPlayerReady = true; // この行を削除
     },
     setCurrentTime(time: number) {
       this.currentTime = time;

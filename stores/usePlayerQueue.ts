@@ -326,6 +326,9 @@ export const usePlayerQueue = defineStore("playerQueue", {
               // プレイヤーストアに現在のトラックを設定
               playerStore.setTrack(currentTrack);
 
+              // 自動再生フラグを明示的にfalseに設定（ページロード時は自動再生しない）
+              playerStore.setShouldAutoPlay(false);
+
               // YouTube Playerの初期化を待つため、遅延実行でロード処理を行う
               setTimeout(() => {
                 const updatedPlayerStore = usePlayerStore();

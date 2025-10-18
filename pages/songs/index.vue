@@ -25,7 +25,7 @@
               @click="isArtistModalOpen = true"
             >
               <span :class="selectedArtist ? 'text-gray-900' : 'text-gray-500'">
-                {{ selectedArtist || '全アーティスト' }}
+                {{ selectedArtist || "全アーティスト" }}
               </span>
               <svg
                 class="w-4 h-4 text-gray-400"
@@ -223,6 +223,7 @@
     title: "楽曲一覧",
     description:
       "いぬいのうたの楽曲一覧ページです。お気に入りの楽曲を見つけてプレイリストに追加しましょう。",
+    keepalive: true, // ページの状態を保持
   });
 
   // Composables
@@ -240,6 +241,32 @@
   const sortOrder = ref("-video.published_at,start_at"); // デフォルトソート
   const loadingMore = ref(false);
   const totalSongs = ref(0);
+
+  // スクロール位置を保存
+  const savedScrollPosition = ref(0);
+
+  // スクロール位置を保存する関数
+  const saveScrollPosition = () => {
+    const mainElement = document.querySelector("main");
+    if (mainElement) {
+      savedScrollPosition.value = mainElement.scrollTop;
+    }
+  };
+
+  // スクロール位置を復元する関数
+  const restoreScrollPosition = () => {
+    const mainElement = document.querySelector("main");
+    if (mainElement && savedScrollPosition.value > 0) {
+      // 複数のタイミングで試行
+      nextTick(() => {
+        mainElement.scrollTop = savedScrollPosition.value;
+      });
+      // さらに遅延させて確実に復元
+      setTimeout(() => {
+        mainElement.scrollTop = savedScrollPosition.value;
+      }, 100);
+    }
+  };
 
   // 計算プロパティ（クライアント側フィルタは検索とアーティストのみ）
   const displayedSongs = computed(() => {
@@ -338,5 +365,18 @@
   // ライフサイクル
   onMounted(() => {
     loadSongs();
+  });
+
+  // keepalive使用時: ページが再アクティブ化されたときに呼ばれる
+  onActivated(() => {
+    // 少し遅延させてから復元（レンダリング完了を待つ）
+    setTimeout(() => {
+      restoreScrollPosition();
+    }, 50);
+  });
+
+  // ルート遷移前にスクロール位置を保存
+  onBeforeRouteLeave((to, from) => {
+    saveScrollPosition();
   });
 </script>

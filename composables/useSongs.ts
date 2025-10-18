@@ -87,6 +87,22 @@ export const useSongs = () => {
     return fetchSongs({ is_original: true, ...options });
   };
 
+  const fetchSongById = async (id: number | string): Promise<Song | null> => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const song = await $fetch<Song>(`/api/songs/${id}`);
+      return song;
+    } catch (err: any) {
+      error.value = err.message || "Failed to fetch song";
+      console.error("Failed to fetch song:", err);
+      return null;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   // 既存のuseFetchベースの関数も残しておく（互換性のため）
   const useFetchSongs = () => {
     return useFetch<SongsResponse>("/api/songs");
@@ -98,6 +114,7 @@ export const useSongs = () => {
     error: readonly(error),
     fetchSongs,
     fetchRandomSong,
+    fetchSongById,
     searchSongs,
     getSongsByArtist,
     getOriginalSongs,
