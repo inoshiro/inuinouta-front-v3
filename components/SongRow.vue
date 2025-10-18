@@ -1,11 +1,11 @@
 <template>
   <div :class="rowClasses">
     <!-- モバイル表示 -->
-    <div class="block md:hidden p-3 min-h-[88px]">
-      <div class="flex items-start space-x-3">
+    <div class="block md:hidden">
+      <div class="flex items-stretch min-h-[88px]">
         <!-- サムネイル（モバイル） -->
         <div
-          class="flex-shrink-0 w-12 h-9 relative cursor-pointer"
+          class="flex-shrink-0 w-12 h-9 my-auto ml-3 relative cursor-pointer"
           @click="clickSong"
         >
           <div
@@ -51,7 +51,7 @@
         </div>
 
         <!-- 楽曲情報（モバイル） -->
-        <div class="flex-1 min-w-0 cursor-pointer" @click="clickSong">
+        <div class="flex-1 min-w-0 cursor-pointer py-3 px-3" @click="clickSong">
           <h3 class="text-sm font-medium text-gray-900 truncate mb-1">
             {{ song.title }}
           </h3>
@@ -116,37 +116,38 @@
                   />
                 </svg>
               </a>
-              <NuxtLink
-                :to="`/songs/${song.id}`"
-                title="詳細"
-                class="p-3 text-gray-400 hover:text-purple-600 rounded-full"
-                @click.stop
-              >
-                <svg
-                  class="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              </NuxtLink>
             </div>
           </div>
         </div>
+
+        <!-- 詳細ページへの遷移領域（モバイル） -->
+        <NuxtLink
+          :to="`/songs/${song.id}`"
+          class="flex-shrink-0 self-stretch flex items-center justify-center w-12 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors border-l border-gray-200"
+          @click.stop
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </NuxtLink>
       </div>
     </div>
 
     <!-- デスクトップ表示 -->
-    <div class="hidden md:flex items-center p-4 min-h-[80px]">
+    <div class="hidden md:flex items-stretch p-0 min-h-[80px]">
       <!-- サムネイル -->
       <div
-        class="flex-shrink-0 w-16 h-12 mr-4 relative cursor-pointer"
+        class="flex-shrink-0 w-16 h-12 my-auto ml-4 mr-4 relative cursor-pointer"
         @click="clickSong"
       >
         <div
@@ -192,7 +193,7 @@
       </div>
 
       <!-- 楽曲情報 -->
-      <div class="flex-1 min-w-0 cursor-pointer" @click="clickSong">
+      <div class="flex-1 min-w-0 cursor-pointer py-4" @click="clickSong">
         <div class="flex items-center space-x-2 mb-1">
           <h3 class="text-sm font-medium text-gray-900 truncate">
             {{ song.title }}
@@ -208,13 +209,6 @@
           {{ song.artist }}
         </p>
         <div class="flex items-center space-x-4 mt-1">
-          <NuxtLink
-            :to="`/songs/${song.id}`"
-            class="text-xs text-blue-600 hover:text-blue-800"
-            @click.stop
-          >
-            詳細を見る
-          </NuxtLink>
           <a
             :href="youtubeUrl"
             target="_blank"
@@ -228,7 +222,7 @@
       </div>
 
       <!-- アクションボタン -->
-      <div class="flex-shrink-0 flex items-center space-x-3" @click.stop>
+      <div class="flex-shrink-0 flex items-center space-x-3 py-4 pr-4" @click.stop>
         <!-- 今すぐ再生ボタン -->
         <button
           title="今すぐ再生"
@@ -286,6 +280,27 @@
           </svg>
         </button>
       </div>
+
+      <!-- 詳細ページへの遷移領域（デスクトップ） -->
+      <NuxtLink
+        :to="`/songs/${song.id}`"
+        class="flex-shrink-0 self-stretch flex items-center justify-center w-16 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors border-l border-gray-200"
+        @click.stop
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </NuxtLink>
     </div>
   </div>
 </template>
