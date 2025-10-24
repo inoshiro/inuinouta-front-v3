@@ -1,53 +1,346 @@
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import { usePlaylist } from "~/composables/usePlaylist";
-import { usePlayerQueue } from "~/stores/usePlayerQueue";
+import { mockPlaylists, getPlaylistSongs } from "~/utils/mockPlaylists";
+import type { Song } from "~/types/song";
 
 const route = useRoute();
-const id = Number(route.params.id);
-const { data: playlist, pending, error } = usePlaylist(id);
-const playerQueue = usePlayerQueue();
+const router = useRouter();
 
-const playPlaylist = () => {
-  if (playlist.value) {
-    playerQueue.setQueue(playlist.value.songs);
+// プレイリストIDを取得
+const playlistId = route.params.id as string;
+
+// ダミーデータから該当するプレイリストを取得
+const playlist = computed(() => {
+  return mockPlaylists.find((p) => p.id === playlistId);
+});
+
+// プレイリストの楽曲を取得
+const songs = computed(() => {
+  return playlist.value ? getPlaylistSongs(playlist.value) : [];
+});
+
+// 404エラー
+if (!playlist.value) {
+  throw createError({
+    statusCode: 404,
+    message: "プレイリストが見つかりません",
+  });
+}
+
+// 日付のフォーマット
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+// 合計再生時間を計算
+const totalDuration = computed(() => {
+  const totalSeconds = songs.value.reduce((sum, song) => {
+    const duration = (song.end_at || 0) - (song.start_at || 0);
+    return sum + duration;
+  }, 0);
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+  if (hours > 0) {
+    return `${hours}時間${minutes}分`;
+  }
+  return `${minutes}分`;
+});
+
+// 楽曲をクリックしたときの処理（ダミー）
+const handlePlaySong = (song: Song) => {
+  console.log("再生:", song.title);
+  // TODO: 実際の再生処理
+};
+
+// キューに追加（ダミー）
+const handleAddToQueue = (song: Song) => {
+  console.log("キューに追加:", song.title);
+  // TODO: 実際のキュー追加処理
+};
+
+// 楽曲を削除（ダミー）
+const handleRemoveSong = (song: Song) => {
+  console.log("削除:", song.title);
+  // TODO: 実際の削除処理
+};
+
+// 全曲再生（ダミー）
+const handlePlayAll = () => {
+  console.log("全曲再生:", playlist.value?.name);
+  // TODO: 実際の全曲再生処理
+};
+
+// プレイリスト編集（ダミー）
+const handleEdit = () => {
+  console.log("編集:", playlist.value?.name);
+  // TODO: 編集モーダル表示
+};
+
+// プレイリスト削除（ダミー）
+const handleDelete = () => {
+  if (confirm(`「${playlist.value?.name}」を削除しますか？`)) {
+    console.log("削除:", playlist.value?.name);
+    // TODO: 実際の削除処理
+    router.push("/playlists");
   }
 };
-const addSongToQueue = (song) => {
-  playerQueue.addToQueue(song);
+
+// 時間をフォーマット
+const formatDuration = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto p-4">
-    <div v-if="pending">読み込み中...</div>
-    <div v-else-if="error">エラーが発生しました</div>
-    <div v-else-if="playlist">
-      <h2 class="text-xl font-bold mb-2">{{ playlist.name }}</h2>
-      <button
-        class="mb-4 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-        @click="playPlaylist"
+  <div
+    v-if="playlist"
+    class="container mx-auto px-4 py-8 max-w-6xl"
+  >
+    <!-- 戻るボタン -->
+    <NuxtLink
+      to="/playlists"
+      class="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
       >
-        このプレイリストを再生
-      </button>
-      <ul>
-        <li
-          v-for="song in playlist.songs"
-          :key="song.id"
-          class="flex items-center justify-between border-b py-2"
-        >
-          <div>
-            <span class="font-semibold">{{ song.title }}</span>
-            <span class="text-xs text-gray-500 ml-2">{{ song.artist }}</span>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        />
+      </svg>
+      プレイリスト一覧に戻る
+    </NuxtLink>
+
+    <!-- プレイリスト情報 -->
+    <div class="bg-gray-800 rounded-lg p-6 mb-6">
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-2">
+            <svg
+              class="w-8 h-8 text-blue-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+              />
+            </svg>
+            <h1 class="text-3xl font-bold">{{ playlist.name }}</h1>
           </div>
-          <button
-            class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-            @click="addSongToQueue(song)"
+          <p
+            v-if="playlist.description"
+            class="text-gray-400 mb-3"
           >
-            キューに追加
+            {{ playlist.description }}
+          </p>
+          <div class="flex items-center gap-4 text-sm text-gray-400">
+            <span>{{ songs.length }}曲</span>
+            <span>•</span>
+            <span>{{ totalDuration }}</span>
+            <span>•</span>
+            <span>{{ formatDate(playlist.created_at) }}作成</span>
+          </div>
+        </div>
+
+        <!-- アクションボタン -->
+        <div class="flex items-center gap-2">
+          <button
+            @click="handleEdit"
+            class="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+            title="編集"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
           </button>
-        </li>
-      </ul>
+          <button
+            @click="handleDelete"
+            class="p-2 hover:bg-red-900/30 rounded-lg transition-colors text-red-400"
+            title="削除"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 全曲再生ボタン -->
+      <button
+        @click="handlePlayAll"
+        class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M8 5v14l11-7z"
+          />
+        </svg>
+        全曲再生
+      </button>
+    </div>
+
+    <!-- 楽曲リスト -->
+    <div class="bg-gray-800 rounded-lg overflow-hidden">
+      <div
+        v-if="songs.length > 0"
+        class="divide-y divide-gray-700"
+      >
+        <div
+          v-for="(song, index) in songs"
+          :key="song.id"
+          class="flex items-center gap-4 p-4 hover:bg-gray-700/50 transition-colors group"
+        >
+          <!-- 番号 -->
+          <div class="w-8 text-center text-gray-400 font-mono">
+            {{ index + 1 }}
+          </div>
+
+          <!-- サムネイル -->
+          <div class="w-20 h-12 flex-shrink-0">
+            <img
+              :src="song.video.thumbnail_path"
+              :alt="song.title"
+              class="w-full h-full object-cover rounded"
+            />
+          </div>
+
+          <!-- 楽曲情報 -->
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold truncate">{{ song.title }}</h3>
+            <p class="text-sm text-gray-400 truncate">{{ song.artist }}</p>
+          </div>
+
+          <!-- 再生時間 -->
+          <div class="text-sm text-gray-400 font-mono hidden sm:block">
+            {{
+              formatDuration((song.end_at || 0) - (song.start_at || 0))
+            }}
+          </div>
+
+          <!-- アクションボタン -->
+          <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              @click="handlePlaySong(song)"
+              class="p-2 hover:bg-gray-600 rounded-full transition-colors"
+              title="再生"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+            <button
+              @click="handleAddToQueue(song)"
+              class="p-2 hover:bg-gray-600 rounded-full transition-colors"
+              title="キューに追加"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+            </button>
+            <button
+              @click="handleRemoveSong(song)"
+              class="p-2 hover:bg-red-900/30 rounded-full transition-colors text-red-400"
+              title="削除"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 空の状態 -->
+      <div
+        v-else
+        class="text-center py-16"
+      >
+        <svg
+          class="w-16 h-16 text-gray-600 mx-auto mb-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+          />
+        </svg>
+        <h2 class="text-xl font-semibold text-gray-300 mb-2">
+          楽曲がありません
+        </h2>
+        <p class="text-gray-400">
+          楽曲一覧から楽曲を追加しましょう
+        </p>
+      </div>
     </div>
   </div>
 </template>
