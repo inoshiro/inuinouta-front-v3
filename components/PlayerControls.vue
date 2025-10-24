@@ -147,6 +147,21 @@
     playerStore.setUserInteracted(true);
     playerStore.cycleRepeatMode();
   };
+
+  // Xでシェア用のURL生成
+  const shareOnX = () => {
+    if (!currentTrack.value) return;
+
+    const songUrl = `${window.location.origin}/songs/${currentTrack.value.id}`;
+    const text = `Now playing...\n\n『${currentTrack.value.title} / ${
+      currentTrack.value.artist || "Unknown Artist"
+    }』\n#いぬいのうた\n\n${songUrl}`;
+
+    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      text
+    )}`;
+    window.open(tweetUrl, "_blank", "noopener,noreferrer");
+  };
 </script>
 
 <template>
@@ -340,6 +355,20 @@
               />
             </svg>
           </a>
+
+          <!-- Xでシェアボタン -->
+          <button
+            v-if="currentTrack"
+            @click="shareOnX"
+            class="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded-full transition-colors flex-shrink-0"
+            title="Xでシェア"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+              />
+            </svg>
+          </button>
 
           <!-- 音量コントロール -->
           <div class="flex items-center gap-2 min-w-0 flex-1">
@@ -551,6 +580,23 @@
               />
             </svg>
           </a>
+
+          <!-- Xでシェアボタン -->
+          <button
+            v-if="currentTrack"
+            @click="
+              shareOnX();
+              showMobileMenu = false;
+            "
+            class="p-3 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded-xl transition-colors"
+            title="Xでシェア"
+          >
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+              />
+            </svg>
+          </button>
         </div>
 
         <!-- 音量コントロール -->

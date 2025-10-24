@@ -348,7 +348,7 @@
         // Twitter Card
         {
           name: "twitter:card",
-          content: thumbnailPath ? "summary_large_image" : "summary",
+          content: "summary",
         },
         {
           name: "twitter:title",
