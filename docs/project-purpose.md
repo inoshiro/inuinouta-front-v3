@@ -12,9 +12,11 @@
 
 Django REST API から取得する主なデータ:
 
-- **Channel**: チャンネル情報（name, url, ...）
-- **Video**: 動画情報（id, channel, title, url, is_open, is_member_only, is_stream, published_at, ...）
-- **Song**: 楽曲情報（video, title, artist, is_original, start_at, end_at, ...）
+- **Video**: 動画情報（id, title, url, thumbnail_path, is_open, is_member_only, is_stream, unplayable, published_at, songs, ...）
+- **Song**: 楽曲情報（id, video, title, artist, is_original, start_at, end_at, ...）
+- **Playlist**: プレイリスト情報（id, name, description, created_at, items, ...）
+
+**注意**: 各楽曲（Song）は常にネストされた動画（Video）情報を含みます。
 
 ## 開発ガイド
 
@@ -34,14 +36,33 @@ Django REST API から取得する主なデータ:
 
 ## Copilot 向け情報
 
-- **API 仕様**: Django REST Framework で `/api/channels/`, `/api/videos/`, `/api/songs/` などのエンドポイントが提供されている前提で実装してください。
+- **API 仕様**: Django REST Framework + Dynamic REST で `/api/videos/`, `/api/songs/`, `/api/random/` などのエンドポイントが提供されている前提で実装してください。
 - **認証**: 現状、認証は不要（必要な場合は追記）
-- **データ取得例**: `fetch('https://<APIサーバ>/api/videos/')` などで動画一覧が取得可能
+- **データ取得例**: `fetch('http://127.0.0.1:8000/api/videos/')` などで動画一覧が取得可能
 - **型例**:
   ```ts
-  type Channel = { id: number; name: string; url: string; ... };
-  type Video = { id: string; channel: Channel; title: string; url: string; ... };
-  type Song = { id: number; video: Video; title: string; artist: string; ... };
+  type Video = {
+    id: string;
+    title: string;
+    url: string;
+    thumbnail_path: string;
+    is_open: boolean;
+    is_member_only: boolean;
+    is_stream: boolean;
+    unplayable: boolean;
+    published_at: string;
+    songs_count?: number; // リストエンドポイントのみ
+    songs?: Song[]; // 詳細エンドポイントのみ
+  };
+  type Song = {
+    id: number;
+    video: Video; // 常にネストされたVideoオブジェクト
+    title: string;
+    artist: string;
+    is_original: boolean;
+    start_at: number | null;
+    end_at: number | null;
+  };
   ```
 - **旧フロントエンドの移植**: `inuinouta-front` の UI/UX や機能を参考に、Nuxt3 流に最適化して移植してください。
 - **API エラー処理やローディング UI も考慮**

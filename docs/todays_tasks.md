@@ -66,17 +66,21 @@
 
 ### 🧱 プレイリスト API 実装タスク
 
-- [x] モデル確認 or 実装（`Playlist`, `PlaylistItem`）
-- [x] シリアライザ作成（`PlaylistSerializer`, `PlaylistItemSerializer`）
-- [x] ViewSet 実装（`PlaylistViewSet`）
-- [x] ルーティング登録（`urls.py`）
-- [x] API レスポンスの構造確認
+> ✅ **完了**: 2025-10-25 - Django 側の URL 設定にルーティングを追加し、プレイリスト API が正常に動作するようになりました。
+
+- [x] モデル確認 or 実装（`Playlist`, `PlaylistItem`）✅
+- [x] シリアライザ作成（`PlaylistSerializer`, `PlaylistItemSerializer`）✅
+- [x] ViewSet 実装（`PlaylistViewSet`）✅
+- [x] ルーティング登録（`urls.py`）✅ **修正完了**
+- [x] API レスポンスの構造確認 ✅
 
 ### 🧪 開発後の動作確認・メンテ
 
-- [x] `http://localhost:8000/api/playlists/` が期待通り動作するか確認
-- [x] Nuxt3 側からの `usePlaylist()` fetch テスト
-- [x] API のテスト or `curl`, `httpie` 等で最低限の確認
+> ✅ **完了**: プレイリスト API が正常に動作しています。
+
+- [x] `http://localhost:8000/api/playlists/` が期待通り動作するか確認 ✅
+- [x] Nuxt3 側からの `usePlaylist()` fetch テスト（準備完了）
+- [x] API のテスト or `curl`, `httpie` 等で最低限の確認 ✅
 - [x] 実装ログ・設計意図の追記（`docs/implementation-log.md`）
 
 ### 🎤 歌動画一覧プロトタイプ実装
