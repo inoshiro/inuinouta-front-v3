@@ -160,7 +160,7 @@
     const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       text
     )}`;
-    window.open(tweetUrl, "_blank", "noopener,noreferrer");
+    window.open(tweetUrl, "_blank");
   };
 </script>
 
