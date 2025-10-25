@@ -244,7 +244,9 @@
     <!-- プレイリスト情報 -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
       <!-- タイトルとボタン -->
-      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+      <div
+        class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3"
+      >
         <h1 class="text-3xl font-bold text-gray-900">
           {{ playlist.name }}
         </h1>
@@ -326,8 +328,8 @@
           :key="song.id"
           :class="SONG_ROW_STYLES.container.playlist"
         >
-          <!-- 番号 -->
-          <div :class="SONG_ROW_STYLES.index.wrapper">
+          <!-- 番号（デスクトップのみ表示） -->
+          <div :class="SONG_ROW_STYLES.index.wrapper" class="hidden md:flex">
             {{ index + 1 }}
           </div>
 

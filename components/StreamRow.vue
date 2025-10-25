@@ -282,30 +282,11 @@
         <div
           v-for="song in streamSongs"
           :key="song.id"
-          :class="SONG_ROW_STYLES.desktop.wrapper"
+          class="flex items-stretch p-0 min-h-[80px]"
         >
-          <!-- サムネイル（クリックで再生） -->
-          <div
-            :class="SONG_ROW_STYLES.thumbnail.wrapperDesktop"
-            @click="handlePlayNow(song)"
-          >
-            <div :class="SONG_ROW_STYLES.thumbnail.container">
-              <img
-                v-if="song.video?.thumbnail_path"
-                :src="song.video.thumbnail_path"
-                :alt="song.title"
-                :class="SONG_ROW_STYLES.thumbnail.image"
-                loading="lazy"
-              />
-              <span v-else :class="SONG_ROW_STYLES.thumbnail.placeholder"
-                >🎵</span
-              >
-            </div>
-          </div>
-
           <!-- 楽曲情報（クリックで再生） -->
           <div
-            :class="SONG_ROW_STYLES.info.wrapperDesktop"
+            class="flex-1 min-w-0 cursor-pointer py-4 pl-4"
             @click="handlePlayNow(song)"
           >
             <div :class="SONG_ROW_STYLES.info.titleContainer">
