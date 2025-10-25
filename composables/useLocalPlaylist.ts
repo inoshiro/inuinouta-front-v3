@@ -294,6 +294,11 @@ export const useLocalPlaylist = () => {
     error.value = null;
 
     try {
+      // LocalStorageからプレイリストを読み込む（まだ読み込んでいない場合）
+      if (playlists.value.length === 0) {
+        await loadPlaylists();
+      }
+
       const playlist = getPlaylistById(id);
       if (!playlist) {
         return null;
