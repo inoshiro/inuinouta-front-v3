@@ -31,22 +31,26 @@
     <!-- 楽曲詳細 -->
     <div v-else class="max-w-4xl mx-auto">
       <!-- パンくずリスト -->
-      <nav class="mb-6 text-sm text-gray-600">
-        <ol class="flex items-center space-x-2">
-          <li>
-            <NuxtLink to="/" class="hover:text-blue-600">ホーム</NuxtLink>
-          </li>
-          <li>/</li>
-          <li>
-            <NuxtLink to="/songs" class="hover:text-blue-600"
-              >楽曲一覧</NuxtLink
-            >
-          </li>
-          <li>/</li>
-          <li class="text-gray-900 font-medium truncate">{{ song.title }}</li>
-        </ol>
-      </nav>
-
+      <!-- 戻るボタン -->
+      <button
+        @click="handleGoBack"
+        class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+        戻る
+      </button>
       <!-- 楽曲情報カード -->
       <div
         class="bg-white rounded-lg shadow-lg overflow-hidden mb-6 border border-gray-300"
@@ -242,14 +246,13 @@
       </div>
 
       <!-- 戻るボタン -->
-      <!-- 戻るボタン -->
       <div class="flex justify-center">
-        <NuxtLink
-          to="/songs"
+        <button
+          @click="handleGoBack"
           class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
         >
-          楽曲一覧に戻る
-        </NuxtLink>
+          戻る
+        </button>
       </div>
     </div>
   </div>
@@ -266,12 +269,24 @@
   });
 
   const route = useRoute();
+  const router = useRouter();
   const songId = route.params.id as string;
   const config = useRuntimeConfig();
 
   const queue = usePlayerQueue();
   const player = usePlayerStore();
   const copied = ref(false);
+
+  // 戻るボタンの処理
+  const handleGoBack = () => {
+    // ブラウザ履歴があれば前のページに戻る
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      // 履歴がない場合は楽曲一覧に遷移
+      router.push("/songs");
+    }
+  };
 
   // ページマウント時にトップまでスクロール（mainタグをスクロール）
   onMounted(() => {
