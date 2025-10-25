@@ -21,4 +21,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   };
 
   nuxtApp.vueApp.use(Toast, options);
+
+  // Provide toast instance to nuxtApp - will be accessed via getCurrentInstance
 });

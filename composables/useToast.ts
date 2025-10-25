@@ -1,4 +1,21 @@
-import { useToast as useVueToastification } from "vue-toastification";
+// クライアントサイドのみで動的インポート
+let toastModule: any = null;
+
+async function getToastModule() {
+  if (toastModule) return toastModule;
+
+  if (process.client) {
+    try {
+      const module = await import("vue-toastification");
+      toastModule = module;
+      return module;
+    } catch (error) {
+      console.error("Failed to load vue-toastification:", error);
+      return null;
+    }
+  }
+  return null;
+}
 
 /**
  * トースト通知のオプション
@@ -20,6 +37,9 @@ interface ToastOptions {
 /**
  * トースト通知を表示するComposable
  *
+ * vue-toastificationのuseToastをラップしたもの
+ * サーバーサイドでは何もしないダミー関数を返す
+ *
  * 使用例:
  * ```ts
  * const toast = useToast();
@@ -30,49 +50,85 @@ interface ToastOptions {
  * ```
  */
 export const useToast = () => {
-  const toast = useVueToastification();
+  // サーバーサイドでは何もしない
+  if (import.meta.server) {
+    return {
+      success: () => {},
+      error: () => {},
+      warning: () => {},
+      info: () => {},
+      default: () => {},
+      clear: () => {},
+    };
+  }
+
+  // クライアントサイドでvue-toastificationのuseToastを動的インポート
 
   return {
     /**
      * 成功メッセージを表示
      */
-    success: (message: string, options?: ToastOptions) => {
-      toast.success(message, options as Parameters<typeof toast.success>[1]);
+    success: async (message: string, options?: ToastOptions) => {
+      const module = await getToastModule();
+      if (module?.useToast) {
+        const toast = module.useToast();
+        toast.success(message, options);
+      }
     },
 
     /**
      * エラーメッセージを表示
      */
-    error: (message: string, options?: ToastOptions) => {
-      toast.error(message, options as Parameters<typeof toast.error>[1]);
+    error: async (message: string, options?: ToastOptions) => {
+      const module = await getToastModule();
+      if (module?.useToast) {
+        const toast = module.useToast();
+        toast.error(message, options);
+      }
     },
 
     /**
      * 警告メッセージを表示
      */
-    warning: (message: string, options?: ToastOptions) => {
-      toast.warning(message, options as Parameters<typeof toast.warning>[1]);
+    warning: async (message: string, options?: ToastOptions) => {
+      const module = await getToastModule();
+      if (module?.useToast) {
+        const toast = module.useToast();
+        toast.warning(message, options);
+      }
     },
 
     /**
      * 情報メッセージを表示
      */
-    info: (message: string, options?: ToastOptions) => {
-      toast.info(message, options as Parameters<typeof toast.info>[1]);
+    info: async (message: string, options?: ToastOptions) => {
+      const module = await getToastModule();
+      if (module?.useToast) {
+        const toast = module.useToast();
+        toast.info(message, options);
+      }
     },
 
     /**
      * デフォルトメッセージを表示
      */
-    default: (message: string, options?: ToastOptions) => {
-      toast(message, options as Parameters<typeof toast>[1]);
+    default: async (message: string, options?: ToastOptions) => {
+      const module = await getToastModule();
+      if (module?.useToast) {
+        const toast = module.useToast();
+        toast(message, options);
+      }
     },
 
     /**
      * すべてのトーストを削除
      */
-    clear: () => {
-      toast.clear();
+    clear: async () => {
+      const module = await getToastModule();
+      if (module?.useToast) {
+        const toast = module.useToast();
+        toast.clear();
+      }
     },
   };
 };
