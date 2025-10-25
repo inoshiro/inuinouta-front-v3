@@ -184,24 +184,16 @@
           </div>
         </NuxtLink>
 
-        <div class="relative group cursor-not-allowed">
-          <div
-            class="bg-gradient-to-br from-gray-400 to-gray-500 text-white p-6 rounded-lg opacity-60"
-          >
-            <div class="text-center space-y-2">
-              <div class="text-3xl">📝</div>
-              <h3 class="font-bold text-lg">プレイリスト</h3>
-              <p class="text-sm opacity-90">お気に入りの楽曲をまとめて</p>
-              <div class="mt-3 pt-2 border-t border-gray-300">
-                <span
-                  class="inline-block bg-yellow-400 text-black text-xs font-semibold px-3 py-1 rounded-full"
-                >
-                  開発中
-                </span>
-              </div>
-            </div>
+        <NuxtLink
+          to="/playlists"
+          class="group bg-gradient-to-br from-slate-400 to-slate-500 text-white p-6 rounded-lg hover:from-slate-500 hover:to-slate-600 transition-all transform hover:scale-105"
+        >
+          <div class="text-center space-y-2">
+            <div class="text-3xl">📝</div>
+            <h3 class="font-bold text-lg">プレイリスト</h3>
+            <p class="text-sm opacity-90">お気に入りの楽曲をまとめて</p>
           </div>
-        </div>
+        </NuxtLink>
       </div>
     </section>
   </div>

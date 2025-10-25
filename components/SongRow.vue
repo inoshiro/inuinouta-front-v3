@@ -1,30 +1,30 @@
 <template>
   <div :class="rowClasses">
     <!-- モバイル表示 -->
-    <div class="block md:hidden">
-      <div class="flex items-stretch min-h-[88px]">
+    <div :class="SONG_ROW_STYLES.mobile.wrapper">
+      <div :class="SONG_ROW_STYLES.mobile.content">
         <!-- サムネイル（モバイル） -->
         <div
-          class="flex-shrink-0 w-12 h-9 my-auto ml-3 relative cursor-pointer"
+          :class="SONG_ROW_STYLES.thumbnail.wrapperMobile"
           @click="clickSong"
         >
-          <div
-            class="w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center overflow-hidden"
-          >
+          <div :class="SONG_ROW_STYLES.thumbnail.container">
             <img
               v-if="song.video.thumbnail_path"
               :src="song.video.thumbnail_path"
               :alt="song.title"
-              class="w-full h-full object-cover"
+              :class="SONG_ROW_STYLES.thumbnail.image"
               loading="lazy"
               @error="handleImageError"
             />
-            <span v-else class="text-xs text-gray-400">🎵</span>
+            <span v-else :class="SONG_ROW_STYLES.thumbnail.placeholder"
+              >🎵</span
+            >
           </div>
           <!-- 再生状態インジケーター -->
           <div
             v-if="isActivelyPlaying"
-            class="absolute inset-0 flex items-center justify-center bg-black/80 rounded"
+            :class="SONG_ROW_STYLES.thumbnail.playingIndicator"
           >
             <div class="playing-indicator">
               <div class="bar"></div>
@@ -34,7 +34,7 @@
           </div>
           <div
             v-else-if="isPaused"
-            class="absolute inset-0 flex items-center justify-center bg-black/80 rounded"
+            :class="SONG_ROW_STYLES.thumbnail.playingIndicator"
           >
             <svg
               class="w-4 h-4 text-white"
@@ -51,123 +51,62 @@
         </div>
 
         <!-- 楽曲情報（モバイル） -->
-        <div class="flex-1 min-w-0 cursor-pointer py-3 px-3" @click="clickSong">
-          <div class="flex items-center gap-2 mb-1">
-            <h3 class="text-sm font-medium text-gray-900 truncate">
+        <div :class="SONG_ROW_STYLES.info.wrapperMobile" @click="clickSong">
+          <div :class="SONG_ROW_STYLES.info.titleContainer">
+            <h3 :class="SONG_ROW_STYLES.info.titleMobile">
               {{ song.title }}
             </h3>
             <span
               v-if="song.is_original"
-              class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 flex-shrink-0"
+              :class="SONG_ROW_STYLES.info.badgeMobile"
             >
               オリジナル
             </span>
           </div>
-          <p class="text-xs text-gray-500 truncate mb-1">
+          <p :class="SONG_ROW_STYLES.info.artistMobile">
             {{ song.artist }}
           </p>
-          <!-- モバイル用アクション -->
-          <div class="flex items-center justify-end space-x-2" @click.stop>
-            <button
-              title="再生"
-              class="p-3 text-gray-400 hover:text-blue-600 rounded-full"
-              @click.stop="playNow"
-            >
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
-            <button
-              title="キューに追加"
-              class="p-3 text-gray-400 hover:text-green-600 rounded-full"
-              @click.stop="addToQueue"
-            >
-              <svg
-                class="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-            </button>
-            <a
-              :href="youtubeUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="YouTubeで開く"
-              class="p-3 text-gray-400 hover:text-red-500 rounded-full"
-              @click.stop
-            >
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
-                />
-              </svg>
-            </a>
-          </div>
         </div>
 
-        <!-- 詳細ページへの遷移領域（モバイル） -->
-        <div
-          class="flex-shrink-0 self-stretch flex items-center justify-center px-3"
-        >
-          <NuxtLink
-            :to="`/songs/${song.id}`"
-            class="px-3 py-10 bg-gray-200 hover:bg-gray-400 text-white rounded-lg transition-colors flex items-center justify-center"
-            @click.stop
+        <!-- モバイル用メニューボタン -->
+        <div :class="SONG_ROW_STYLES.menuButton.wrapperMobile" @click.stop>
+          <button
+            ref="mobileMenuButton"
+            @click="toggleMenu"
+            :class="SONG_ROW_STYLES.menuButton.buttonMobile"
+            title="メニューを開く"
           >
             <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
+              :class="SONG_ROW_STYLES.menuButton.iconMobile"
+              fill="currentColor"
               viewBox="0 0 24 24"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              />
+              <path :d="SONG_ROW_ICONS.menu" />
             </svg>
-          </NuxtLink>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- デスクトップ表示 -->
-    <div class="hidden md:flex items-stretch p-0 min-h-[80px]">
+    <div :class="SONG_ROW_STYLES.desktop.wrapper">
       <!-- サムネイル -->
-      <div
-        class="flex-shrink-0 w-16 h-12 my-auto ml-4 mr-4 relative cursor-pointer"
-        @click="clickSong"
-      >
-        <div
-          class="w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center overflow-hidden"
-        >
+      <div :class="SONG_ROW_STYLES.thumbnail.wrapperDesktop" @click="clickSong">
+        <div :class="SONG_ROW_STYLES.thumbnail.container">
           <img
             v-if="song.video.thumbnail_path"
             :src="song.video.thumbnail_path"
             :alt="song.title"
-            class="w-full h-full object-cover"
+            :class="SONG_ROW_STYLES.thumbnail.image"
             loading="lazy"
             @error="handleImageError"
           />
-          <span v-else class="text-xs text-gray-400">🎵</span>
+          <span v-else :class="SONG_ROW_STYLES.thumbnail.placeholder">🎵</span>
         </div>
         <!-- 再生状態インジケーター -->
         <div
           v-if="isActivelyPlaying"
-          class="absolute inset-0 flex items-center justify-center bg-black/80 rounded"
+          :class="SONG_ROW_STYLES.thumbnail.playingIndicator"
         >
           <div class="playing-indicator">
             <div class="bar"></div>
@@ -177,7 +116,7 @@
         </div>
         <div
           v-else-if="isPaused"
-          class="absolute inset-0 flex items-center justify-center bg-black/80 rounded"
+          :class="SONG_ROW_STYLES.thumbnail.playingIndicator"
         >
           <svg
             class="w-5 h-5 text-white"
@@ -194,51 +133,62 @@
       </div>
 
       <!-- 楽曲情報 -->
-      <div class="flex-1 min-w-0 cursor-pointer py-4" @click="clickSong">
-        <div class="flex items-center space-x-2 mb-1">
-          <h3 class="text-sm font-medium text-gray-900 truncate">
+      <div :class="SONG_ROW_STYLES.info.wrapperDesktop" @click="clickSong">
+        <div :class="SONG_ROW_STYLES.info.titleContainer">
+          <h3 :class="SONG_ROW_STYLES.info.titleDesktop">
             {{ song.title }}
           </h3>
-          <span
-            v-if="song.is_original"
-            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
-          >
+          <span v-if="song.is_original" :class="SONG_ROW_STYLES.info.badge">
             オリジナル
           </span>
         </div>
-        <p class="text-sm text-gray-500 truncate">
+        <p :class="SONG_ROW_STYLES.info.artistDesktop">
           {{ song.artist }}
         </p>
       </div>
 
-      <!-- アクションボタン -->
-      <div
-        class="flex-shrink-0 flex items-center space-x-3 py-4 pr-4"
-        @click.stop
-      >
-        <!-- 今すぐ再生ボタン -->
+      <!-- デスクトップ用メニューボタン -->
+      <div :class="SONG_ROW_STYLES.menuButton.wrapperDesktop" @click.stop>
         <button
-          title="今すぐ再生"
-          class="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors duration-150"
-          @click.stop="playNow"
-        >
-          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        </button>
-
-        <!-- キューに追加ボタン -->
-        <button
-          title="キューに追加"
-          class="p-3 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors duration-150"
-          @click.stop="addToQueue"
+          ref="desktopMenuButton"
+          @click="toggleMenu"
+          :class="SONG_ROW_STYLES.menuButton.buttonDesktop"
+          title="メニューを開く"
         >
           <svg
-            class="w-6 h-6"
+            :class="SONG_ROW_STYLES.menuButton.iconDesktop"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path :d="SONG_ROW_ICONS.menu" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- コンテキストメニュー（Teleportでbody直下にレンダリング） -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition ease-out duration-100"
+      enter-from-class="transform opacity-0 scale-95"
+      enter-to-class="transform opacity-100 scale-100"
+      leave-active-class="transition ease-in duration-75"
+      leave-from-class="transform opacity-100 scale-100"
+      leave-to-class="transform opacity-0 scale-95"
+    >
+      <div
+        v-if="showMenu"
+        :style="menuPosition"
+        :class="SONG_ROW_STYLES.contextMenu.container"
+        @click.stop
+      >
+        <button
+          @click="handleMenuAction(addToQueue)"
+          :class="SONG_ROW_STYLES.contextMenu.menuItem"
+        >
+          <svg
+            :class="SONG_ROW_STYLES.contextMenu.iconGreen"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -247,60 +197,90 @@
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              :d="SONG_ROW_ICONS.queue"
             />
           </svg>
+          <span>キューに追加</span>
         </button>
-
-        <!-- YouTubeで開くボタン -->
+        <button
+          @click="handleMenuAction(addToPlaylist)"
+          :class="SONG_ROW_STYLES.contextMenu.menuItem"
+        >
+          <svg
+            :class="SONG_ROW_STYLES.contextMenu.iconPurple"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              :d="SONG_ROW_ICONS.playlist"
+            />
+          </svg>
+          <span>プレイリストに追加</span>
+        </button>
+        <NuxtLink
+          :to="`/songs/${song.id}`"
+          @click="closeMenu"
+          :class="SONG_ROW_STYLES.contextMenu.menuItem"
+        >
+          <svg
+            :class="SONG_ROW_STYLES.contextMenu.iconBlue"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              :d="SONG_ROW_ICONS.info"
+            />
+          </svg>
+          <span>楽曲詳細を開く</span>
+        </NuxtLink>
         <a
           :href="youtubeUrl"
           target="_blank"
           rel="noopener noreferrer"
-          title="YouTubeで開く"
-          class="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors duration-150"
-          @click.stop
-        >
-          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path
-              d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
-            />
-          </svg>
-        </a>
-      </div>
-
-      <!-- 詳細ページへの遷移領域（デスクトップ） -->
-      <div
-        class="flex-shrink-0 self-stretch flex items-center justify-center px-4"
-      >
-        <NuxtLink
-          :to="`/songs/${song.id}`"
-          class="px-4 py-6 bg-gray-200 hover:bg-gray-400 text-white rounded-lg transition-colors flex items-center justify-center"
-          @click.stop
+          @click="closeMenu"
+          :class="SONG_ROW_STYLES.contextMenu.menuItem"
         >
           <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
+            :class="SONG_ROW_STYLES.contextMenu.iconRed"
+            fill="currentColor"
             viewBox="0 0 24 24"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 5l7 7-7 7"
-            />
+            <path :d="SONG_ROW_ICONS.youtube" />
           </svg>
-        </NuxtLink>
+          <span>YouTubeで開く</span>
+        </a>
       </div>
-    </div>
-  </div>
+    </Transition>
+  </Teleport>
+
+  <!-- プレイリスト追加モーダル（Teleportでbody直下にレンダリング） -->
+  <Teleport to="body">
+    <AddToPlaylistModal
+      :is-open="showAddToPlaylistModal"
+      :song="song"
+      @close="showAddToPlaylistModal = false"
+      @added="handlePlaylistAdded"
+    />
+  </Teleport>
 </template>
 
 <script setup>
-  import { computed } from "vue";
+  import { computed, ref, onMounted, onBeforeUnmount } from "vue";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
   import { usePlayerStore } from "~/stores/player";
+  import { SONG_ROW_STYLES, SONG_ROW_ICONS } from "~/constants/songRowStyles";
+
+  // グローバルな現在開いているメニューの管理
+  // （他のSongRowインスタンスと共有される）
+  const globalOpenMenuId = useState("songRowOpenMenuId", () => null);
 
   // Props
   const props = defineProps({
@@ -316,6 +296,124 @@
 
   // Emits（外部との互換性を保持）
   const emit = defineEmits(["play-now", "add-to-queue", "add-to-playlist"]);
+
+  // プレイリストモーダル
+  const showAddToPlaylistModal = ref(false);
+
+  // このコンポーネントインスタンスの一意なID
+  const instanceId = ref(Math.random().toString(36).substr(2, 9));
+
+  // メニュー表示状態（このインスタンスのメニューが開いているか）
+  const showMenu = computed(() => globalOpenMenuId.value === instanceId.value);
+
+  // メニューボタンの参照
+  const mobileMenuButton = ref(null);
+  const desktopMenuButton = ref(null);
+
+  // メニューの位置
+  const menuPosition = ref({});
+
+  // メニューの位置を計算
+  const calculateMenuPosition = () => {
+    // モバイルとデスクトップの両方のボタンをチェック
+    let button = null;
+
+    // まずモバイルボタンをチェック（表示されているか確認）
+    if (mobileMenuButton.value) {
+      const rect = mobileMenuButton.value.getBoundingClientRect();
+      // ボタンが実際に表示されている場合（幅と高さが0でない）
+      if (rect.width > 0 && rect.height > 0) {
+        button = mobileMenuButton.value;
+      }
+    }
+
+    // モバイルボタンが見つからない場合、デスクトップボタンをチェック
+    if (!button && desktopMenuButton.value) {
+      const rect = desktopMenuButton.value.getBoundingClientRect();
+      // ボタンが実際に表示されている場合（幅と高さが0でない）
+      if (rect.width > 0 && rect.height > 0) {
+        button = desktopMenuButton.value;
+      }
+    }
+
+    if (!button) {
+      console.error("Menu button not found or not visible");
+      return;
+    }
+
+    const rect = button.getBoundingClientRect();
+    const menuWidth = 224; // w-56 = 14rem = 224px
+    const menuHeight = 180; // 概算（3つのメニュー項目）
+
+    // 画面の右端に近い場合は左に表示
+    let left = rect.right - menuWidth;
+    if (left < 10) {
+      left = rect.left;
+    }
+
+    // 画面の下端に近い場合は上に表示
+    let top = rect.bottom + 4;
+    if (top + menuHeight > window.innerHeight) {
+      top = rect.top - menuHeight - 4;
+    }
+
+    // 念のため範囲チェック
+    if (left < 0) left = 10;
+    if (top < 0) top = 10;
+
+    menuPosition.value = {
+      left: `${left}px`,
+      top: `${top}px`,
+    };
+  };
+
+  // メニューの開閉
+  const toggleMenu = () => {
+    if (globalOpenMenuId.value === instanceId.value) {
+      // 既に開いている場合は閉じる
+      globalOpenMenuId.value = null;
+    } else {
+      // 他のメニューが開いている場合は閉じて、このメニューを開く
+      calculateMenuPosition();
+      globalOpenMenuId.value = instanceId.value;
+    }
+  };
+
+  const closeMenu = () => {
+    if (globalOpenMenuId.value === instanceId.value) {
+      globalOpenMenuId.value = null;
+    }
+  };
+
+  // メニューアクション実行後に閉じる
+  const handleMenuAction = (action) => {
+    action();
+    closeMenu();
+  };
+
+  // メニュー外クリックで閉じる
+  const handleClickOutside = (event) => {
+    if (showMenu.value) {
+      closeMenu();
+    }
+  };
+
+  // スクロール時にメニューを閉じる
+  const handleScroll = () => {
+    if (showMenu.value) {
+      closeMenu();
+    }
+  };
+
+  onMounted(() => {
+    document.addEventListener("click", handleClickOutside);
+    window.addEventListener("scroll", handleScroll, true);
+  });
+
+  onBeforeUnmount(() => {
+    document.removeEventListener("click", handleClickOutside);
+    window.removeEventListener("scroll", handleScroll, true);
+  });
 
   // 直接再生（前プロジェクトのclickSongを参考）
   const playNow = () => {
@@ -346,6 +444,19 @@
     console.log("Adding to queue:", props.song.title);
     queue.addToQueue(props.song);
     emit("add-to-queue", props.song);
+  };
+
+  // プレイリストに追加
+  const addToPlaylist = () => {
+    console.log("Opening playlist modal for:", props.song.title);
+    showAddToPlaylistModal.value = true;
+  };
+
+  // プレイリスト追加完了ハンドラ
+  const handlePlaylistAdded = (playlistId) => {
+    console.log("Song added to playlist:", playlistId);
+    showAddToPlaylistModal.value = false;
+    emit("add-to-playlist", { song: props.song, playlistId });
   };
 
   // 現在再生中の楽曲かどうか（シンプルな判定）
@@ -379,12 +490,11 @@
   });
 
   // CSS動的クラス（前プロジェクトのようにシンプルに）
-  const rowClasses = computed(() => [
-    "song-row border-b border-gray-200 transition-colors duration-150",
+  const rowClasses = computed(() =>
     isCurrentlyPlaying.value
-      ? "bg-blue-50 hover:bg-blue-100 -active"
-      : "bg-white hover:bg-gray-50",
-  ]);
+      ? `${SONG_ROW_STYLES.container.base} ${SONG_ROW_STYLES.container.active} -active`
+      : SONG_ROW_STYLES.container.base
+  );
 
   // 画像読み込みエラーハンドリング
   const handleImageError = (event) => {
@@ -460,7 +570,7 @@
   /* モバイルでの高さ調整 */
   @media (max-width: 768px) {
     .song-row {
-      min-height: 88px; /* モバイル */
+      min-height: 72px; /* モバイル */
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
