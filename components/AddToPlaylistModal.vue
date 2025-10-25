@@ -129,7 +129,19 @@
             class="p-2 rounded-md hover:bg-gray-700 transition-colors text-gray-400 hover:text-white"
             aria-label="閉じる"
           >
-            <Icon name="mdi:close" class="w-5 h-5" />
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
         </div>
 
@@ -180,10 +192,19 @@
 
           <!-- プレイリストが空の場合 -->
           <div v-else class="text-center py-8 text-gray-400">
-            <Icon
-              name="mdi:playlist-music"
+            <svg
               class="w-16 h-16 mx-auto mb-3 text-gray-600"
-            />
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+              />
+            </svg>
             <p>プレイリストがありません</p>
             <p class="text-sm mt-1">新しいプレイリストを作成してください</p>
           </div>
