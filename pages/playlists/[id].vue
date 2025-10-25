@@ -56,6 +56,11 @@
     await loadPlaylistData();
   });
 
+  // keepaliveでページが再度アクティブになったときにデータを再読み込み
+  onActivated(async () => {
+    await loadPlaylistData();
+  });
+
   const playlist = computed(() => playlistData.value?.playlist);
   const songs = computed(() => playlistData.value?.songs || []);
 
