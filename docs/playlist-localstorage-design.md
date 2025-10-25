@@ -6,6 +6,8 @@
 
 **実装方針**:
 - LocalStorageにプレイリストデータを保存
+- **楽曲情報はLocalStorageに保存せず、楽曲IDのみを保存**してサイズを最小化
+- 表示時にDjango APIから楽曲情報を取得（`filter{id.in}`で一括取得）
 - 将来の認証API実装後、同じインターフェースでバックエンドAPIに切り替え可能な設計
 - ユーザーには「ローカル保存」であることを明示
 
@@ -50,6 +52,18 @@
 
 ## 🗂️ データ構造
 
+### 設計方針
+
+**LocalStorageには楽曲IDのみを保存**:
+- LocalStorageの容量制限（約5MB）を考慮
+- 楽曲情報（タイトル、アーティスト、動画情報など）は保存しない
+- 表示時にDjango APIから取得（`filter{id.in}`で一括取得）
+
+**メリット**:
+- ストレージ使用量を最小化（1プレイリスト約1KB程度）
+- 楽曲情報の更新（タイトル修正など）が自動的に反映される
+- シンプルなデータ構造
+
 ### LocalStorage キー
 
 ```typescript
@@ -73,6 +87,7 @@ interface LocalPlaylistItem {
   song_id: number; // 楽曲ID（Djangoのデータベースと一致）
   order: number; // 並び順（0始まり）
   added_at: string; // ISO 8601 形式
+  // 注意: 楽曲情報（Song型）はここに保存しない
 }
 
 // LocalStorageに保存される形式
@@ -120,7 +135,7 @@ interface LocalPlaylistsData {
 
 ### 1. Composable: `useLocalPlaylist.ts`
 
-**責務**: LocalStorage の CRUD 操作を提供
+**責務**: LocalStorage の CRUD 操作と楽曲情報の取得を提供
 
 ```typescript
 // composables/useLocalPlaylist.ts
@@ -159,7 +174,47 @@ interface PlaylistWithSongs {
 }
 ```
 
+**楽曲情報の取得方法**:
+
+```typescript
+// プレイリスト詳細表示時に楽曲情報を一括取得
+const getPlaylistWithSongs = async (id: string): Promise<PlaylistWithSongs | null> => {
+  const playlist = getPlaylistById(id);
+  if (!playlist) return null;
+
+  // 楽曲IDを抽出
+  const songIds = playlist.items.map(item => item.song_id);
+  
+  if (songIds.length === 0) {
+    return { playlist, songs: [] };
+  }
+
+  // Django APIから一括取得（filter{id.in}を使用）
+  const params = new URLSearchParams();
+  songIds.forEach(id => {
+    params.append('filter{id.in}', id.toString());
+  });
+
+  try {
+    const response = await $fetch(`/api/songs?${params.toString()}`);
+    const songs = response.songs || response; // レスポンス形式に応じて調整
+    
+    // プレイリストの並び順でソート
+    const sortedSongs = playlist.items
+      .map(item => songs.find((s: Song) => s.id === item.song_id))
+      .filter((song): song is Song => song !== undefined);
+    
+    return { playlist, songs: sortedSongs };
+  } catch (error) {
+    console.error('Failed to fetch songs:', error);
+    throw error;
+  }
+};
+```
+
 **主要な実装ポイント**:
+- LocalStorageには楽曲IDのみを保存（軽量化）
+- 表示時にDjango APIから楽曲情報を一括取得（N+1問題を回避）
 - すべての操作は非同期（async/await）で統一
 - 将来のAPI実装と同じインターフェース
 - エラーハンドリングを適切に実装

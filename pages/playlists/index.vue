@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { mockPlaylists } from "~/utils/mockPlaylists";
+const { playlists, loading, error, loadPlaylists } = useLocalPlaylist();
 
-// ダミーデータを使用
-const playlists = ref(mockPlaylists);
+// プレイリスト一覧を読み込む
+onMounted(async () => {
+  await loadPlaylists();
+});
 
 // 日付のフォーマット
 const formatDate = (dateString: string) => {
@@ -13,33 +15,26 @@ const formatDate = (dateString: string) => {
     day: "2-digit",
   });
 };
+
+// プレイリスト作成モーダル
+const showCreateModal = ref(false);
+
 </script>
 
 <template>
   <div class="container mx-auto px-4 py-8 max-w-7xl">
     <!-- ヘッダー -->
     <div class="mb-8">
-      <div class="flex items-center justify-between mb-4">
-        <h1 class="text-3xl font-bold">プレイリスト</h1>
-        <button
-          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold flex items-center gap-2 transition-colors"
-        >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          新規作成
-        </button>
-      </div>
+          <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">プレイリスト</h1>
+      <button
+        @click="showCreateModal = true"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+      >
+        <Icon name="mdi:plus" class="w-5 h-5" />
+        新規作成
+      </button>
+    </div>
 
       <!-- 注意書き -->
       <div
@@ -69,9 +64,23 @@ const formatDate = (dateString: string) => {
       </div>
     </div>
 
+    <!-- ローディング表示 -->
+    <div v-if="loading" class="text-center py-16">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <p class="mt-4 text-gray-400">読み込み中...</p>
+    </div>
+
+    <!-- エラー表示 -->
+    <div v-else-if="error" class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-6">
+      <div class="flex items-center gap-2 text-red-300">
+        <Icon name="mdi:alert-circle" class="w-5 h-5" />
+        <p>{{ error }}</p>
+      </div>
+    </div>
+
     <!-- プレイリスト一覧 -->
     <div
-      v-if="playlists.length > 0"
+      v-else-if="playlists.length > 0"
       class="bg-gray-800 rounded-lg overflow-hidden"
     >
       <div class="divide-y divide-gray-700">

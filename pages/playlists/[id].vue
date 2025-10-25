@@ -1,30 +1,38 @@
 <script setup lang="ts">
-import { mockPlaylists, getPlaylistSongs } from "~/utils/mockPlaylists";
 import type { Song } from "~/types/song";
 
 const route = useRoute();
 const router = useRouter();
 
+const { getPlaylistWithSongs, removeSongFromPlaylist, loading, error } = useLocalPlaylist();
+
 // プレイリストIDを取得
 const playlistId = route.params.id as string;
 
-// ダミーデータから該当するプレイリストを取得
-const playlist = computed(() => {
-  return mockPlaylists.find((p) => p.id === playlistId);
+// プレイリストと楽曲を取得
+const playlistData = ref<{ playlist: any; songs: Song[] } | null>(null);
+
+onMounted(async () => {
+  try {
+    playlistData.value = await getPlaylistWithSongs(playlistId);
+    
+    if (!playlistData.value) {
+      throw createError({
+        statusCode: 404,
+        message: "プレイリストが見つかりません",
+      });
+    }
+  } catch (e) {
+    console.error('Failed to load playlist:', e);
+    throw createError({
+      statusCode: 404,
+      message: "プレイリストが見つかりません",
+    });
+  }
 });
 
-// プレイリストの楽曲を取得
-const songs = computed(() => {
-  return playlist.value ? getPlaylistSongs(playlist.value) : [];
-});
-
-// 404エラー
-if (!playlist.value) {
-  throw createError({
-    statusCode: 404,
-    message: "プレイリストが見つかりません",
-  });
-}
+const playlist = computed(() => playlistData.value?.playlist);
+const songs = computed(() => playlistData.value?.songs || []);
 
 // 日付のフォーマット
 const formatDate = (dateString: string) => {
@@ -64,10 +72,23 @@ const handleAddToQueue = (song: Song) => {
   // TODO: 実際のキュー追加処理
 };
 
-// 楽曲を削除（ダミー）
-const handleRemoveSong = (song: Song) => {
-  console.log("削除:", song.title);
-  // TODO: 実際の削除処理
+// 楽曲を削除
+const handleRemoveSong = async (song: Song) => {
+  if (!playlist.value) return;
+  
+  try {
+    // プレイリストアイテムを見つける
+    const item = playlist.value.items.find((item: any) => item.song_id === song.id);
+    if (!item) return;
+    
+    await removeSongFromPlaylist(playlistId, item.id);
+    
+    // データを再読み込み
+    playlistData.value = await getPlaylistWithSongs(playlistId);
+  } catch (e) {
+    console.error('Failed to remove song:', e);
+    alert('楽曲の削除に失敗しました');
+  }
 };
 
 // 全曲再生（ダミー）
@@ -82,12 +103,19 @@ const handleEdit = () => {
   // TODO: 編集モーダル表示
 };
 
-// プレイリスト削除（ダミー）
-const handleDelete = () => {
-  if (confirm(`「${playlist.value?.name}」を削除しますか？`)) {
-    console.log("削除:", playlist.value?.name);
-    // TODO: 実際の削除処理
-    router.push("/playlists");
+// プレイリスト削除
+const handleDelete = async () => {
+  if (!playlist.value) return;
+  
+  if (confirm(`「${playlist.value.name}」を削除しますか？`)) {
+    const { deletePlaylist } = useLocalPlaylist();
+    try {
+      await deletePlaylist(playlistId);
+      router.push("/playlists");
+    } catch (e) {
+      console.error('Failed to delete playlist:', e);
+      alert('プレイリストの削除に失敗しました');
+    }
   }
 };
 
@@ -101,7 +129,27 @@ const formatDuration = (seconds: number) => {
 
 <template>
   <div
-    v-if="playlist"
+    v-if="loading"
+    class="container mx-auto px-4 py-8 max-w-6xl text-center"
+  >
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <p class="mt-4 text-gray-400">読み込み中...</p>
+  </div>
+
+  <div
+    v-else-if="error"
+    class="container mx-auto px-4 py-8 max-w-6xl"
+  >
+    <div class="bg-red-900/30 border border-red-700 rounded-lg p-4">
+      <div class="flex items-center gap-2 text-red-300">
+        <Icon name="mdi:alert-circle" class="w-5 h-5" />
+        <p>{{ error }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div
+    v-else-if="playlist"
     class="container mx-auto px-4 py-8 max-w-6xl"
   >
     <!-- 戻るボタン -->
