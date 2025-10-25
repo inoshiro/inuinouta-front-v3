@@ -1,11 +1,28 @@
 <script setup lang="ts">
   import type { Song } from "~/types/song";
+  import {
+    SONG_ROW_STYLES,
+    songRowUtils,
+    SONG_ROW_ICONS,
+  } from "~/constants/songRowStyles";
+
+  // Meta設定
+  definePageMeta({
+    keepalive: false, // プレイリスト詳細画面では常に最新データを取得
+  });
 
   const route = useRoute();
   const router = useRouter();
 
-  const { getPlaylistWithSongs, removeSongFromPlaylist, loading, error } =
-    useLocalPlaylist();
+  const {
+    getPlaylistWithSongs,
+    removeSongFromPlaylist,
+    deletePlaylist,
+    loading,
+    error,
+  } = useLocalPlaylist();
+  const playerStore = usePlayerStore();
+  const queueStore = usePlayerQueue();
   const toast = useToast();
 
   // プレイリストIDを取得
@@ -14,7 +31,8 @@
   // プレイリストと楽曲を取得
   const playlistData = ref<{ playlist: any; songs: Song[] } | null>(null);
 
-  onMounted(async () => {
+  // プレイリストデータを読み込む関数
+  const loadPlaylistData = async () => {
     try {
       playlistData.value = await getPlaylistWithSongs(playlistId);
 
@@ -31,6 +49,11 @@
         message: "プレイリストが見つかりません",
       });
     }
+  };
+
+  // 初回読み込み
+  onMounted(async () => {
+    await loadPlaylistData();
   });
 
   const playlist = computed(() => playlistData.value?.playlist);
@@ -62,16 +85,26 @@
     return `${minutes}分`;
   });
 
-  // 楽曲をクリックしたときの処理（ダミー）
+  // 楽曲をクリックしたときの処理（今すぐ再生）
   const handlePlaySong = (song: Song) => {
-    console.log("再生:", song.title);
-    // TODO: 実際の再生処理
+    // ユーザーインタラクション記録
+    playerStore.setUserInteracted(true);
+
+    // 新しいキューとして設定して即座に再生
+    queueStore.setQueue([song]);
+    queueStore.play(0);
+
+    // 再生コマンドを確実に実行
+    setTimeout(() => {
+      if (playerStore.ytPlayer && playerStore.isPlayerReady) {
+        playerStore.play();
+      }
+    }, 100);
   };
 
-  // キューに追加（ダミー）
+  // キューに追加
   const handleAddToQueue = (song: Song) => {
-    console.log("キューに追加:", song.title);
-    // TODO: 実際のキュー追加処理
+    queueStore.addToQueue(song);
   };
 
   // 楽曲を削除
@@ -88,19 +121,32 @@
       await removeSongFromPlaylist(playlistId, item.id);
 
       // データを再読み込み
-      playlistData.value = await getPlaylistWithSongs(playlistId);
-
-      toast.success("楽曲をプレイリストから削除しました");
+      await loadPlaylistData();
     } catch (e) {
       console.error("Failed to remove song:", e);
       toast.error("楽曲の削除に失敗しました");
     }
   };
 
-  // 全曲再生（ダミー）
+  // 全曲再生
   const handlePlayAll = () => {
-    console.log("全曲再生:", playlist.value?.name);
-    // TODO: 実際の全曲再生処理
+    if (songs.value.length === 0) {
+      return;
+    }
+
+    // ユーザーインタラクション記録
+    playerStore.setUserInteracted(true);
+
+    // プレイリストの全曲をキューに設定して最初から再生
+    queueStore.setQueue(songs.value);
+    queueStore.play(0);
+
+    // 再生コマンドを確実に実行
+    setTimeout(() => {
+      if (playerStore.ytPlayer && playerStore.isPlayerReady) {
+        playerStore.play();
+      }
+    }, 100);
   };
 
   // プレイリスト編集モーダル
@@ -113,7 +159,7 @@
   const handlePlaylistUpdated = async () => {
     showEditModal.value = false;
     // データを再読み込み
-    playlistData.value = await getPlaylistWithSongs(playlistId);
+    await loadPlaylistData();
   };
 
   // プレイリスト削除
@@ -121,7 +167,6 @@
     if (!playlist.value) return;
 
     if (confirm(`「${playlist.value.name}」を削除しますか？`)) {
-      const { deletePlaylist } = useLocalPlaylist();
       try {
         await deletePlaylist(playlistId);
         toast.success("プレイリストを削除しました");
@@ -133,11 +178,9 @@
     }
   };
 
-  // 時間をフォーマット
+  // 時間をフォーマット（songRowUtilsを使用）
   const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+    return songRowUtils.formatDuration(seconds);
   };
 </script>
 
@@ -269,57 +312,59 @@
 
     <!-- 楽曲リスト -->
     <div class="bg-gray-800 rounded-lg overflow-hidden">
-      <div v-if="songs.length > 0" class="divide-y divide-gray-700">
+      <div v-if="songs.length > 0" :class="SONG_ROW_STYLES.divider">
         <div
           v-for="(song, index) in songs"
           :key="song.id"
-          class="flex items-center gap-4 p-4 hover:bg-gray-700/50 transition-colors group"
+          :class="SONG_ROW_STYLES.container.base"
         >
           <!-- 番号 -->
-          <div class="w-8 text-center text-gray-400 font-mono">
+          <div :class="SONG_ROW_STYLES.index.wrapper">
             {{ index + 1 }}
           </div>
 
           <!-- サムネイル -->
-          <div class="w-20 h-12 flex-shrink-0">
+          <div :class="SONG_ROW_STYLES.thumbnail.wrapper">
             <img
               :src="song.video.thumbnail_path"
               :alt="song.title"
-              class="w-full h-full object-cover rounded"
+              :class="SONG_ROW_STYLES.thumbnail.image"
             />
           </div>
 
           <!-- 楽曲情報 -->
-          <div class="flex-1 min-w-0">
-            <h3 class="font-semibold truncate">{{ song.title }}</h3>
-            <p class="text-sm text-gray-400 truncate">{{ song.artist }}</p>
+          <div :class="SONG_ROW_STYLES.info.wrapper">
+            <h3 :class="SONG_ROW_STYLES.info.title">{{ song.title }}</h3>
+            <p :class="SONG_ROW_STYLES.info.artist">{{ song.artist }}</p>
           </div>
 
           <!-- 再生時間 -->
-          <div class="text-sm text-gray-400 font-mono hidden sm:block">
+          <div :class="SONG_ROW_STYLES.duration.wrapper">
             {{ formatDuration((song.end_at || 0) - (song.start_at || 0)) }}
           </div>
 
           <!-- アクションボタン -->
-          <div
-            class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
+          <div :class="SONG_ROW_STYLES.actions.wrapper">
             <button
               @click="handlePlaySong(song)"
-              class="p-2 hover:bg-gray-600 rounded-full transition-colors"
+              :class="SONG_ROW_STYLES.actions.button.play"
               title="再生"
             >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
+              <svg
+                :class="SONG_ROW_STYLES.actions.icon"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path :d="SONG_ROW_ICONS.play" />
               </svg>
             </button>
             <button
               @click="handleAddToQueue(song)"
-              class="p-2 hover:bg-gray-600 rounded-full transition-colors"
+              :class="SONG_ROW_STYLES.actions.button.queue"
               title="キューに追加"
             >
               <svg
-                class="w-5 h-5"
+                :class="SONG_ROW_STYLES.actions.icon"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -328,17 +373,17 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M12 4v16m8-8H4"
+                  :d="SONG_ROW_ICONS.queue"
                 />
               </svg>
             </button>
             <button
               @click="handleRemoveSong(song)"
-              class="p-2 hover:bg-red-900/30 rounded-full transition-colors text-red-400"
+              :class="SONG_ROW_STYLES.actions.button.remove"
               title="削除"
             >
               <svg
-                class="w-5 h-5"
+                :class="SONG_ROW_STYLES.actions.icon"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -347,7 +392,7 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
+                  :d="SONG_ROW_ICONS.remove"
                 />
               </svg>
             </button>

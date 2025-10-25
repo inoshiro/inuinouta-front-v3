@@ -2,7 +2,7 @@
   <div :class="rowClasses">
     <!-- モバイル表示 -->
     <div class="block md:hidden">
-      <div class="flex items-stretch min-h-[88px]">
+      <div class="flex items-stretch min-h-[72px]">
         <!-- サムネイル（モバイル） -->
         <div
           class="flex-shrink-0 w-12 h-9 my-auto ml-3 relative cursor-pointer"
@@ -51,7 +51,7 @@
         </div>
 
         <!-- 楽曲情報（モバイル） -->
-        <div class="flex-1 min-w-0 cursor-pointer py-3 px-3" @click="clickSong">
+        <div class="flex-1 min-w-0 cursor-pointer py-2 px-3" @click="clickSong">
           <div class="flex items-center gap-2 mb-1">
             <h3 class="text-sm font-medium text-gray-900 truncate">
               {{ song.title }}
@@ -66,99 +66,22 @@
           <p class="text-xs text-gray-500 truncate mb-1">
             {{ song.artist }}
           </p>
-          <!-- モバイル用アクション -->
-          <div class="flex items-center justify-end space-x-2" @click.stop>
-            <button
-              title="再生"
-              class="p-3 text-gray-400 hover:text-blue-600 rounded-full"
-              @click.stop="playNow"
-            >
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
-            <button
-              title="キューに追加"
-              class="p-3 text-gray-400 hover:text-green-600 rounded-full"
-              @click.stop="addToQueue"
-            >
-              <svg
-                class="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-            </button>
-            <button
-              title="プレイリストに追加"
-              class="p-3 text-gray-400 hover:text-purple-600 rounded-full"
-              @click.stop="addToPlaylist"
-            >
-              <svg
-                class="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                />
-              </svg>
-            </button>
-            <a
-              :href="youtubeUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="YouTubeで開く"
-              class="p-3 text-gray-400 hover:text-red-500 rounded-full"
-              @click.stop
-            >
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
-                />
-              </svg>
-            </a>
-          </div>
         </div>
 
-        <!-- 詳細ページへの遷移領域（モバイル） -->
-        <div
-          class="flex-shrink-0 self-stretch flex items-center justify-center px-3"
-        >
-          <NuxtLink
-            :to="`/songs/${song.id}`"
-            class="px-3 py-10 bg-gray-200 hover:bg-gray-400 text-white rounded-lg transition-colors flex items-center justify-center"
-            @click.stop
+        <!-- モバイル用メニューボタン -->
+        <div class="flex-shrink-0 flex items-center pr-2" @click.stop>
+          <button
+            ref="mobileMenuButton"
+            @click="toggleMenu"
+            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            title="メニューを開く"
           >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
               <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
+                d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
               />
             </svg>
-          </NuxtLink>
+          </button>
         </div>
       </div>
     </div>
@@ -230,34 +153,46 @@
         </p>
       </div>
 
-      <!-- アクションボタン -->
-      <div
-        class="flex-shrink-0 flex items-center space-x-3 py-4 pr-4"
-        @click.stop
-      >
-        <!-- 今すぐ再生ボタン -->
+      <!-- デスクトップ用メニューボタン -->
+      <div class="flex-shrink-0 flex items-center py-4 pr-4" @click.stop>
         <button
-          title="今すぐ再生"
-          class="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors duration-150"
-          @click.stop="playNow"
+          ref="desktopMenuButton"
+          @click="toggleMenu"
+          class="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-150"
+          title="メニューを開く"
         >
-          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
             <path
-              fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-              clip-rule="evenodd"
+              d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
             />
           </svg>
         </button>
+      </div>
+    </div>
+  </div>
 
-        <!-- キューに追加ボタン -->
+  <!-- コンテキストメニュー（Teleportでbody直下にレンダリング） -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition ease-out duration-100"
+      enter-from-class="transform opacity-0 scale-95"
+      enter-to-class="transform opacity-100 scale-100"
+      leave-active-class="transition ease-in duration-75"
+      leave-from-class="transform opacity-100 scale-100"
+      leave-to-class="transform opacity-0 scale-95"
+    >
+      <div
+        v-if="showMenu"
+        :style="menuPosition"
+        class="fixed w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[9999]"
+        @click.stop
+      >
         <button
-          title="キューに追加"
-          class="p-3 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors duration-150"
-          @click.stop="addToQueue"
+          @click="handleMenuAction(addToQueue)"
+          class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
         >
           <svg
-            class="w-6 h-6"
+            class="w-5 h-5 text-green-600"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -269,16 +204,14 @@
               d="M12 6v6m0 0v6m0-6h6m-6 0H6"
             />
           </svg>
+          <span>キューに追加</span>
         </button>
-
-        <!-- プレイリストに追加ボタン -->
         <button
-          title="プレイリストに追加"
-          class="p-3 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors duration-150"
-          @click.stop="addToPlaylist"
+          @click="handleMenuAction(addToPlaylist)"
+          class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
         >
           <svg
-            class="w-6 h-6"
+            class="w-5 h-5 text-purple-600"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -290,36 +223,15 @@
               d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
             />
           </svg>
+          <span>プレイリストに追加</span>
         </button>
-
-        <!-- YouTubeで開くボタン -->
-        <a
-          :href="youtubeUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="YouTubeで開く"
-          class="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors duration-150"
-          @click.stop
-        >
-          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path
-              d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
-            />
-          </svg>
-        </a>
-      </div>
-
-      <!-- 詳細ページへの遷移領域（デスクトップ） -->
-      <div
-        class="flex-shrink-0 self-stretch flex items-center justify-center px-4"
-      >
         <NuxtLink
           :to="`/songs/${song.id}`"
-          class="px-4 py-6 bg-gray-200 hover:bg-gray-400 text-white rounded-lg transition-colors flex items-center justify-center"
-          @click.stop
+          @click="closeMenu"
+          class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
         >
           <svg
-            class="w-5 h-5"
+            class="w-5 h-5 text-blue-600"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -328,13 +240,32 @@
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M9 5l7 7-7 7"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
+          <span>楽曲詳細を開く</span>
         </NuxtLink>
+        <a
+          :href="youtubeUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          @click="closeMenu"
+          class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+        >
+          <svg
+            class="w-5 h-5 text-red-500"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+            />
+          </svg>
+          <span>YouTubeで開く</span>
+        </a>
       </div>
-    </div>
-  </div>
+    </Transition>
+  </Teleport>
 
   <!-- プレイリスト追加モーダル（Teleportでbody直下にレンダリング） -->
   <Teleport to="body">
@@ -348,9 +279,13 @@
 </template>
 
 <script setup>
-  import { computed, ref } from "vue";
+  import { computed, ref, onMounted, onBeforeUnmount } from "vue";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
   import { usePlayerStore } from "~/stores/player";
+
+  // グローバルな現在開いているメニューの管理
+  // （他のSongRowインスタンスと共有される）
+  const globalOpenMenuId = useState("songRowOpenMenuId", () => null);
 
   // Props
   const props = defineProps({
@@ -369,6 +304,121 @@
 
   // プレイリストモーダル
   const showAddToPlaylistModal = ref(false);
+
+  // このコンポーネントインスタンスの一意なID
+  const instanceId = ref(Math.random().toString(36).substr(2, 9));
+
+  // メニュー表示状態（このインスタンスのメニューが開いているか）
+  const showMenu = computed(() => globalOpenMenuId.value === instanceId.value);
+
+  // メニューボタンの参照
+  const mobileMenuButton = ref(null);
+  const desktopMenuButton = ref(null);
+
+  // メニューの位置
+  const menuPosition = ref({});
+
+  // メニューの位置を計算
+  const calculateMenuPosition = () => {
+    // モバイルとデスクトップの両方のボタンをチェック
+    let button = null;
+
+    // まずモバイルボタンをチェック（表示されているか確認）
+    if (mobileMenuButton.value) {
+      const rect = mobileMenuButton.value.getBoundingClientRect();
+      // ボタンが実際に表示されている場合（幅と高さが0でない）
+      if (rect.width > 0 && rect.height > 0) {
+        button = mobileMenuButton.value;
+      }
+    }
+
+    // モバイルボタンが見つからない場合、デスクトップボタンをチェック
+    if (!button && desktopMenuButton.value) {
+      const rect = desktopMenuButton.value.getBoundingClientRect();
+      // ボタンが実際に表示されている場合（幅と高さが0でない）
+      if (rect.width > 0 && rect.height > 0) {
+        button = desktopMenuButton.value;
+      }
+    }
+
+    if (!button) {
+      console.error("Menu button not found or not visible");
+      return;
+    }
+
+    const rect = button.getBoundingClientRect();
+    const menuWidth = 224; // w-56 = 14rem = 224px
+    const menuHeight = 180; // 概算（3つのメニュー項目）
+
+    // 画面の右端に近い場合は左に表示
+    let left = rect.right - menuWidth;
+    if (left < 10) {
+      left = rect.left;
+    }
+
+    // 画面の下端に近い場合は上に表示
+    let top = rect.bottom + 4;
+    if (top + menuHeight > window.innerHeight) {
+      top = rect.top - menuHeight - 4;
+    }
+
+    // 念のため範囲チェック
+    if (left < 0) left = 10;
+    if (top < 0) top = 10;
+
+    menuPosition.value = {
+      left: `${left}px`,
+      top: `${top}px`,
+    };
+  };
+
+  // メニューの開閉
+  const toggleMenu = () => {
+    if (globalOpenMenuId.value === instanceId.value) {
+      // 既に開いている場合は閉じる
+      globalOpenMenuId.value = null;
+    } else {
+      // 他のメニューが開いている場合は閉じて、このメニューを開く
+      calculateMenuPosition();
+      globalOpenMenuId.value = instanceId.value;
+    }
+  };
+
+  const closeMenu = () => {
+    if (globalOpenMenuId.value === instanceId.value) {
+      globalOpenMenuId.value = null;
+    }
+  };
+
+  // メニューアクション実行後に閉じる
+  const handleMenuAction = (action) => {
+    action();
+    closeMenu();
+  };
+
+  // メニュー外クリックで閉じる
+  const handleClickOutside = (event) => {
+    if (showMenu.value) {
+      closeMenu();
+    }
+  };
+
+  // スクロール時にメニューを閉じる
+  const handleScroll = () => {
+    if (showMenu.value) {
+      closeMenu();
+    }
+  };
+
+  onMounted(() => {
+    document.addEventListener("click", handleClickOutside);
+    window.addEventListener("scroll", handleScroll, true);
+  });
+
+  onBeforeUnmount(() => {
+    document.removeEventListener("click", handleClickOutside);
+    window.removeEventListener("scroll", handleScroll, true);
+  });
 
   // 直接再生（前プロジェクトのclickSongを参考）
   const playNow = () => {
@@ -526,7 +576,7 @@
   /* モバイルでの高さ調整 */
   @media (max-width: 768px) {
     .song-row {
-      min-height: 88px; /* モバイル */
+      min-height: 72px; /* モバイル */
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }

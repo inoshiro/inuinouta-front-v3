@@ -25,9 +25,11 @@ interface PlaylistWithSongs {
  * - LocalStorageには楽曲IDのみを保存（軽量化）
  * - 表示時にAPIから楽曲情報を一括取得（N+1問題を回避）
  * - 将来のAPI実装と同じインターフェースを提供
+ * - useStateを使用してアプリ全体で状態を共有
  */
 export const useLocalPlaylist = () => {
-  const playlists = ref<LocalPlaylist[]>([]);
+  // グローバルな状態として共有（複数のコンポーネントで同じ参照を使用）
+  const playlists = useState<LocalPlaylist[]>("local_playlists", () => []);
   const loading = ref(false);
   const error = ref<string | null>(null);
 

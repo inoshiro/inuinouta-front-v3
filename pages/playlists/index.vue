@@ -1,4 +1,9 @@
 <script setup lang="ts">
+  // Meta設定
+  definePageMeta({
+    keepalive: false, // プレイリスト画面では常に最新データを取得
+  });
+
   const { playlists, loading, error, loadPlaylists } = useLocalPlaylist();
 
   // プレイリスト一覧を読み込む

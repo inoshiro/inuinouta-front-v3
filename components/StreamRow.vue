@@ -278,61 +278,113 @@
       </div>
 
       <!-- 楽曲一覧 -->
-      <div v-else-if="streamSongs.length > 0" class="divide-y divide-gray-200">
+      <div v-else-if="streamSongs.length > 0" :class="SONG_ROW_STYLES.divider">
         <div
           v-for="song in streamSongs"
           :key="song.id"
-          class="px-4 py-3 hover:bg-white transition-colors"
+          :class="SONG_ROW_STYLES.container.base"
         >
-          <div class="flex items-center justify-between">
-            <div class="flex-1 min-w-0">
-              <!-- 楽曲情報を横並びに配置 -->
-              <div class="flex items-center space-x-2 mb-1">
-                <h4 class="text-sm font-medium text-gray-900 truncate">
-                  {{ song.title }}
-                </h4>
-                <span
-                  v-if="song.is_original"
-                  class="inline-flex items-center px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-medium flex-shrink-0"
-                  >オリジナル</span
-                >
-              </div>
-
-              <div class="flex items-center space-x-3 text-xs text-gray-500">
-                <span class="truncate">{{ song.artist }}</span>
-                <span
-                  v-if="song.start_at || song.end_at"
-                  class="text-gray-400 flex-shrink-0"
-                >
-                  <span v-if="song.start_at">{{
-                    formatTime(song.start_at)
-                  }}</span>
-                  <span v-if="song.start_at && song.end_at"> - </span>
-                  <span v-if="song.end_at">{{ formatTime(song.end_at) }}</span>
-                </span>
-              </div>
+          <!-- サムネイル（クリックで再生） -->
+          <div
+            :class="SONG_ROW_STYLES.thumbnail.wrapper"
+            class="cursor-pointer"
+            @click="handlePlayNow(song)"
+          >
+            <img
+              v-if="song.video?.thumbnail_path"
+              :src="song.video.thumbnail_path"
+              :alt="song.title"
+              :class="SONG_ROW_STYLES.thumbnail.image"
+            />
+            <div v-else :class="SONG_ROW_STYLES.thumbnail.placeholder">
+              <span class="text-xs text-gray-400">🎵</span>
             </div>
+          </div>
 
-            <div class="flex items-center space-x-1 ml-3">
-              <!-- 今すぐ再生ボタン -->
-              <button
-                class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                title="今すぐ再生"
-                @click="handlePlayNow(song)"
+          <!-- 楽曲情報（クリックで再生） -->
+          <div
+            :class="SONG_ROW_STYLES.info.wrapper"
+            class="cursor-pointer"
+            @click="handlePlayNow(song)"
+          >
+            <div class="flex items-center gap-2 mb-1">
+              <h4 :class="SONG_ROW_STYLES.info.title">
+                {{ song.title }}
+              </h4>
+              <span v-if="song.is_original" :class="SONG_ROW_STYLES.info.badge">
+                オリジナル
+              </span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span :class="SONG_ROW_STYLES.info.artist">{{
+                song.artist
+              }}</span>
+              <span
+                v-if="song.start_at || song.end_at"
+                :class="SONG_ROW_STYLES.duration.time"
               >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </button>
+                {{
+                  songRowUtils.formatTimeRange(
+                    song.start_at ?? undefined,
+                    song.end_at ?? undefined
+                  )
+                }}
+              </span>
+            </div>
+          </div>
 
-              <!-- キューに追加ボタン -->
+          <!-- 再生時間 -->
+          <div :class="SONG_ROW_STYLES.duration.wrapper">
+            {{
+              songRowUtils.formatSongDuration(
+                song.start_at ?? undefined,
+                song.end_at ?? undefined
+              )
+            }}
+          </div>
+
+          <!-- コンテキストメニューボタン -->
+          <div :class="SONG_ROW_STYLES.menuButton.wrapper">
+            <button
+              :class="SONG_ROW_STYLES.menuButton.button"
+              @click.stop="openMenu(song.id, $event)"
+              :aria-label="`${song.title}のメニュー`"
+            >
+              <svg
+                :class="SONG_ROW_STYLES.menuButton.icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  :d="SONG_ROW_ICONS.menu"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <!-- コンテキストメニュー（Teleport） -->
+          <Teleport to="body">
+            <div
+              v-if="isMenuOpen(song.id)"
+              :style="{
+                top: `${menuPosition.top}px`,
+                left: `${menuPosition.left}px`,
+              }"
+              class="fixed w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[9999]"
+              @click.stop
+              data-song-menu
+            >
+              <!-- キューに追加 -->
               <button
-                class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors"
-                title="キューに追加"
-                @click="handleAddToQueue(song)"
+                @click="handleMenuAction(() => handleAddToQueue(song))"
+                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
               >
                 <svg
-                  class="w-4 h-4"
+                  class="w-5 h-5 text-green-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -341,12 +393,74 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    :d="SONG_ROW_ICONS.queue"
                   />
                 </svg>
+                <span>キューに追加</span>
               </button>
+
+              <!-- プレイリストに追加 -->
+              <button
+                @click="handleMenuAction(() => addToPlaylist(song))"
+                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <svg
+                  class="w-5 h-5 text-purple-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    :d="SONG_ROW_ICONS.playlist"
+                  />
+                </svg>
+                <span>プレイリストに追加</span>
+              </button>
+
+              <!-- 楽曲詳細を開く -->
+              <NuxtLink
+                :to="`/songs/${song.id}`"
+                @click="closeMenu"
+                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <svg
+                  class="w-5 h-5 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    :d="SONG_ROW_ICONS.info"
+                  />
+                </svg>
+                <span>楽曲詳細を開く</span>
+              </NuxtLink>
+
+              <!-- YouTubeで開く -->
+              <a
+                :href="getStreamYoutubeUrl(song)"
+                target="_blank"
+                rel="noopener noreferrer"
+                @click="closeMenu"
+                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <svg
+                  class="w-5 h-5 text-red-500"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path :d="SONG_ROW_ICONS.youtube" />
+                </svg>
+                <span>YouTubeで開く</span>
+              </a>
             </div>
-          </div>
+          </Teleport>
         </div>
       </div>
 
@@ -361,6 +475,17 @@
       </div>
     </div>
   </div>
+
+  <!-- プレイリスト追加モーダル -->
+  <Teleport to="body">
+    <AddToPlaylistModal
+      v-if="showPlaylistModal && selectedSong"
+      :is-open="showPlaylistModal"
+      :song="selectedSong"
+      @close="showPlaylistModal = false"
+      @added="handlePlaylistAdded"
+    />
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -368,6 +493,15 @@
   import { usePlayerStore } from "~/stores/player";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
   import type { Song } from "~/types/song";
+  import {
+    SONG_ROW_STYLES,
+    songRowUtils,
+    SONG_ROW_ICONS,
+  } from "~/constants/songRowStyles";
+  import {
+    useSongRowMenu,
+    useSongRowActions,
+  } from "~/composables/useSongRowMenu";
 
   const props = defineProps({
     stream: {
@@ -389,6 +523,27 @@
   // ストア
   const playerStore = usePlayerStore();
   const queueStore = usePlayerQueue();
+
+  // コンテキストメニュー管理（共通化）
+  const {
+    openMenuId,
+    menuPosition,
+    showPlaylistModal,
+    selectedSong,
+    openMenu,
+    closeMenu,
+    handleMenuAction,
+    openPlaylistModal,
+    handlePlaylistAdded,
+    isMenuOpen,
+  } = useSongRowMenu("streamSongMenuId");
+
+  // 楽曲操作（共通化）
+  const {
+    playNow,
+    addToQueue: addToQueueCommon,
+    getYoutubeUrl,
+  } = useSongRowActions();
 
   // 展開/折りたたみ切り替え
   const toggleExpanded = async () => {
@@ -494,11 +649,45 @@
       addedFrom: "stream" as const,
     };
 
-    queueStore.addToQueue(songWithVideo, true); // toTop = true で最優先で追加
+    // ユーザーインタラクション記録
+    playerStore.setUserInteracted(true);
 
-    // プレイヤーで楽曲設定して再生開始
-    playerStore.setTrack(songWithVideo);
-    playerStore.play();
+    // 新しいキューとして設定して即座に再生
+    queueStore.setQueue([songWithVideo]);
+    queueStore.play(0);
+
+    // 再生コマンドを確実に実行
+    setTimeout(() => {
+      if (playerStore.ytPlayer && playerStore.isPlayerReady) {
+        playerStore.play();
+      }
+    }, 100);
+  };
+
+  // プレイリストに追加（composableのopenPlaylistModalを使用）
+  const addToPlaylist = (song: Song) => {
+    // video情報を補完
+    const songWithVideo = {
+      ...song,
+      video: {
+        id: props.stream.id,
+        title: props.stream.title,
+        thumbnail_path: props.stream.thumbnail_path,
+        url: props.stream.url,
+        is_open: props.stream.is_open,
+        is_member_only: props.stream.is_member_only,
+        is_stream: props.stream.is_stream,
+        unplayable: props.stream.unplayable,
+        published_at: props.stream.published_at,
+      },
+      addedFrom: "stream" as const,
+    };
+    openPlaylistModal(songWithVideo);
+  };
+
+  // YouTube URL生成（StreamRow専用：開始時間付き）
+  const getStreamYoutubeUrl = (song: Song) => {
+    return getYoutubeUrl(props.stream.url, song.start_at);
   };
 
   // 楽曲をキューに追加
@@ -547,16 +736,6 @@
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  // 時間フォーマット関数（秒を HH:mm:ss 形式に変換）
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours.toString().padStart(2, "0")}:${mins
-      .toString()
-      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   // 画像読み込みエラーハンドリング

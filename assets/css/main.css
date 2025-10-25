@@ -51,3 +51,26 @@
     bottom: var(--player-height-desktop);
   }
 }
+
+/* トーストのサイズ調整 */
+.Vue-Toastification__toast {
+  font-size: 0.875rem; /* 14px */
+  padding: 0.75rem 1rem;
+  min-height: 3rem;
+  max-width: 400px;
+}
+
+.Vue-Toastification__toast-body {
+  padding: 0;
+}
+
+.Vue-Toastification__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.75rem;
+}
+
+.Vue-Toastification__close-button {
+  width: 1rem;
+  height: 1rem;
+}

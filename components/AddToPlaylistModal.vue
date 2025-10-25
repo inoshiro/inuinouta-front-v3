@@ -29,7 +29,8 @@
         await loadPlaylists();
         selectedPlaylistId.value = null;
       }
-    }
+    },
+    { immediate: true }
   );
 
   // プレイリストに追加
