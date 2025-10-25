@@ -243,27 +243,12 @@
 
     <!-- プレイリスト情報 -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-      <div class="flex items-start justify-between mb-4">
-        <div class="flex-1">
-          <div class="flex items-center gap-3 mb-2">
-            <h1 class="text-3xl font-bold text-gray-900">
-              {{ playlist.name }}
-            </h1>
-          </div>
-          <p v-if="playlist.description" class="text-gray-600 mb-3">
-            {{ playlist.description }}
-          </p>
-          <div class="flex items-center gap-4 text-sm text-gray-500">
-            <span>{{ songs.length }}曲</span>
-            <span>•</span>
-            <span>{{ totalDuration }}</span>
-            <span>•</span>
-            <span>{{ formatDate(playlist.created_at) }}作成</span>
-          </div>
-        </div>
-
-        <!-- アクションボタン -->
-        <div class="flex items-center gap-2">
+      <!-- タイトルとボタン -->
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+        <h1 class="text-3xl font-bold text-gray-900">
+          {{ playlist.name }}
+        </h1>
+        <div class="flex items-center gap-2 sm:flex-shrink-0">
           <button
             @click="handleEdit"
             class="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
@@ -303,6 +288,20 @@
             </svg>
           </button>
         </div>
+      </div>
+
+      <!-- 説明 -->
+      <p v-if="playlist.description" class="text-gray-600 mb-3">
+        {{ playlist.description }}
+      </p>
+
+      <!-- メタ情報 -->
+      <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
+        <span>{{ songs.length }}曲</span>
+        <span>/</span>
+        <span>{{ totalDuration }}</span>
+        <span>/</span>
+        <span>{{ formatDate(playlist.created_at) }}作成</span>
       </div>
 
       <!-- 全曲再生ボタン -->
