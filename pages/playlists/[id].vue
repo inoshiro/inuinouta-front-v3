@@ -1,145 +1,155 @@
 <script setup lang="ts">
-import type { Song } from "~/types/song";
+  import type { Song } from "~/types/song";
 
-const route = useRoute();
-const router = useRouter();
+  const route = useRoute();
+  const router = useRouter();
 
-const { getPlaylistWithSongs, removeSongFromPlaylist, loading, error } = useLocalPlaylist();
+  const { getPlaylistWithSongs, removeSongFromPlaylist, loading, error } =
+    useLocalPlaylist();
+  const toast = useToast();
 
-// プレイリストIDを取得
-const playlistId = route.params.id as string;
+  // プレイリストIDを取得
+  const playlistId = route.params.id as string;
 
-// プレイリストと楽曲を取得
-const playlistData = ref<{ playlist: any; songs: Song[] } | null>(null);
+  // プレイリストと楽曲を取得
+  const playlistData = ref<{ playlist: any; songs: Song[] } | null>(null);
 
-onMounted(async () => {
-  try {
-    playlistData.value = await getPlaylistWithSongs(playlistId);
-    
-    if (!playlistData.value) {
+  onMounted(async () => {
+    try {
+      playlistData.value = await getPlaylistWithSongs(playlistId);
+
+      if (!playlistData.value) {
+        throw createError({
+          statusCode: 404,
+          message: "プレイリストが見つかりません",
+        });
+      }
+    } catch (e) {
+      console.error("Failed to load playlist:", e);
       throw createError({
         statusCode: 404,
         message: "プレイリストが見つかりません",
       });
     }
-  } catch (e) {
-    console.error('Failed to load playlist:', e);
-    throw createError({
-      statusCode: 404,
-      message: "プレイリストが見つかりません",
-    });
-  }
-});
-
-const playlist = computed(() => playlistData.value?.playlist);
-const songs = computed(() => playlistData.value?.songs || []);
-
-// 日付のフォーマット
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
   });
-};
 
-// 合計再生時間を計算
-const totalDuration = computed(() => {
-  const totalSeconds = songs.value.reduce((sum, song) => {
-    const duration = (song.end_at || 0) - (song.start_at || 0);
-    return sum + duration;
-  }, 0);
+  const playlist = computed(() => playlistData.value?.playlist);
+  const songs = computed(() => playlistData.value?.songs || []);
 
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  // 日付のフォーマット
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ja-JP", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
-  if (hours > 0) {
-    return `${hours}時間${minutes}分`;
-  }
-  return `${minutes}分`;
-});
+  // 合計再生時間を計算
+  const totalDuration = computed(() => {
+    const totalSeconds = songs.value.reduce((sum, song) => {
+      const duration = (song.end_at || 0) - (song.start_at || 0);
+      return sum + duration;
+    }, 0);
 
-// 楽曲をクリックしたときの処理（ダミー）
-const handlePlaySong = (song: Song) => {
-  console.log("再生:", song.title);
-  // TODO: 実際の再生処理
-};
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
 
-// キューに追加（ダミー）
-const handleAddToQueue = (song: Song) => {
-  console.log("キューに追加:", song.title);
-  // TODO: 実際のキュー追加処理
-};
+    if (hours > 0) {
+      return `${hours}時間${minutes}分`;
+    }
+    return `${minutes}分`;
+  });
 
-// 楽曲を削除
-const handleRemoveSong = async (song: Song) => {
-  if (!playlist.value) return;
-  
-  try {
-    // プレイリストアイテムを見つける
-    const item = playlist.value.items.find((item: any) => item.song_id === song.id);
-    if (!item) return;
-    
-    await removeSongFromPlaylist(playlistId, item.id);
-    
+  // 楽曲をクリックしたときの処理（ダミー）
+  const handlePlaySong = (song: Song) => {
+    console.log("再生:", song.title);
+    // TODO: 実際の再生処理
+  };
+
+  // キューに追加（ダミー）
+  const handleAddToQueue = (song: Song) => {
+    console.log("キューに追加:", song.title);
+    // TODO: 実際のキュー追加処理
+  };
+
+  // 楽曲を削除
+  const handleRemoveSong = async (song: Song) => {
+    if (!playlist.value) return;
+
+    try {
+      // プレイリストアイテムを見つける
+      const item = playlist.value.items.find(
+        (item: any) => item.song_id === song.id
+      );
+      if (!item) return;
+
+      await removeSongFromPlaylist(playlistId, item.id);
+
+      // データを再読み込み
+      playlistData.value = await getPlaylistWithSongs(playlistId);
+      
+      toast.success('楽曲をプレイリストから削除しました');
+    } catch (e) {
+      console.error("Failed to remove song:", e);
+      toast.error('楽曲の削除に失敗しました');
+    }
+  };
+
+  // 全曲再生（ダミー）
+  const handlePlayAll = () => {
+    console.log("全曲再生:", playlist.value?.name);
+    // TODO: 実際の全曲再生処理
+  };
+
+  // プレイリスト編集モーダル
+  const showEditModal = ref(false);
+
+  const handleEdit = () => {
+    showEditModal.value = true;
+  };
+
+  const handlePlaylistUpdated = async () => {
+    showEditModal.value = false;
     // データを再読み込み
     playlistData.value = await getPlaylistWithSongs(playlistId);
-  } catch (e) {
-    console.error('Failed to remove song:', e);
-    alert('楽曲の削除に失敗しました');
-  }
-};
+  };
 
-// 全曲再生（ダミー）
-const handlePlayAll = () => {
-  console.log("全曲再生:", playlist.value?.name);
-  // TODO: 実際の全曲再生処理
-};
+  // プレイリスト削除
+  const handleDelete = async () => {
+    if (!playlist.value) return;
 
-// プレイリスト編集（ダミー）
-const handleEdit = () => {
-  console.log("編集:", playlist.value?.name);
-  // TODO: 編集モーダル表示
-};
-
-// プレイリスト削除
-const handleDelete = async () => {
-  if (!playlist.value) return;
-  
-  if (confirm(`「${playlist.value.name}」を削除しますか？`)) {
-    const { deletePlaylist } = useLocalPlaylist();
-    try {
-      await deletePlaylist(playlistId);
-      router.push("/playlists");
-    } catch (e) {
-      console.error('Failed to delete playlist:', e);
-      alert('プレイリストの削除に失敗しました');
+    if (confirm(`「${playlist.value.name}」を削除しますか？`)) {
+      const { deletePlaylist } = useLocalPlaylist();
+      try {
+        await deletePlaylist(playlistId);
+        toast.success('プレイリストを削除しました');
+        router.push("/playlists");
+      } catch (e) {
+        console.error("Failed to delete playlist:", e);
+        toast.error('プレイリストの削除に失敗しました');
+      }
     }
-  }
-};
+  };
 
-// 時間をフォーマット
-const formatDuration = (seconds: number) => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
-};
+  // 時間をフォーマット
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 </script>
 
 <template>
-  <div
-    v-if="loading"
-    class="container mx-auto px-4 py-8 max-w-6xl text-center"
-  >
-    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  <div v-if="loading" class="container mx-auto px-4 py-8 max-w-6xl text-center">
+    <div
+      class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+    ></div>
     <p class="mt-4 text-gray-400">読み込み中...</p>
   </div>
 
-  <div
-    v-else-if="error"
-    class="container mx-auto px-4 py-8 max-w-6xl"
-  >
+  <div v-else-if="error" class="container mx-auto px-4 py-8 max-w-6xl">
     <div class="bg-red-900/30 border border-red-700 rounded-lg p-4">
       <div class="flex items-center gap-2 text-red-300">
         <Icon name="mdi:alert-circle" class="w-5 h-5" />
@@ -148,10 +158,7 @@ const formatDuration = (seconds: number) => {
     </div>
   </div>
 
-  <div
-    v-else-if="playlist"
-    class="container mx-auto px-4 py-8 max-w-6xl"
-  >
+  <div v-else-if="playlist" class="container mx-auto px-4 py-8 max-w-6xl">
     <!-- 戻るボタン -->
     <NuxtLink
       to="/playlists"
@@ -193,10 +200,7 @@ const formatDuration = (seconds: number) => {
             </svg>
             <h1 class="text-3xl font-bold">{{ playlist.name }}</h1>
           </div>
-          <p
-            v-if="playlist.description"
-            class="text-gray-400 mb-3"
-          >
+          <p v-if="playlist.description" class="text-gray-400 mb-3">
             {{ playlist.description }}
           </p>
           <div class="flex items-center gap-4 text-sm text-gray-400">
@@ -256,14 +260,8 @@ const formatDuration = (seconds: number) => {
         @click="handlePlayAll"
         class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
       >
-        <svg
-          class="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M8 5v14l11-7z"
-          />
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z" />
         </svg>
         全曲再生
       </button>
@@ -271,10 +269,7 @@ const formatDuration = (seconds: number) => {
 
     <!-- 楽曲リスト -->
     <div class="bg-gray-800 rounded-lg overflow-hidden">
-      <div
-        v-if="songs.length > 0"
-        class="divide-y divide-gray-700"
-      >
+      <div v-if="songs.length > 0" class="divide-y divide-gray-700">
         <div
           v-for="(song, index) in songs"
           :key="song.id"
@@ -302,23 +297,19 @@ const formatDuration = (seconds: number) => {
 
           <!-- 再生時間 -->
           <div class="text-sm text-gray-400 font-mono hidden sm:block">
-            {{
-              formatDuration((song.end_at || 0) - (song.start_at || 0))
-            }}
+            {{ formatDuration((song.end_at || 0) - (song.start_at || 0)) }}
           </div>
 
           <!-- アクションボタン -->
-          <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div
+            class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
             <button
               @click="handlePlaySong(song)"
               class="p-2 hover:bg-gray-600 rounded-full transition-colors"
               title="再生"
             >
-              <svg
-                class="w-5 h-5"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
             </button>
@@ -365,10 +356,7 @@ const formatDuration = (seconds: number) => {
       </div>
 
       <!-- 空の状態 -->
-      <div
-        v-else
-        class="text-center py-16"
-      >
+      <div v-else class="text-center py-16">
         <svg
           class="w-16 h-16 text-gray-600 mx-auto mb-4"
           fill="none"
@@ -385,10 +373,19 @@ const formatDuration = (seconds: number) => {
         <h2 class="text-xl font-semibold text-gray-300 mb-2">
           楽曲がありません
         </h2>
-        <p class="text-gray-400">
+                <p class="text-gray-400">
           楽曲一覧から楽曲を追加しましょう
         </p>
       </div>
     </div>
+
+    <!-- プレイリスト編集モーダル -->
+    <PlaylistEditModal
+      v-if="playlist"
+      :is-open="showEditModal"
+      :playlist="playlist"
+      @close="showEditModal = false"
+      @updated="handlePlaylistUpdated"
+    />
   </div>
 </template>

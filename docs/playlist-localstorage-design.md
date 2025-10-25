@@ -1,14 +1,15 @@
-# プレイリスト機能設計書（LocalStorage版）
+# プレイリスト機能設計書（LocalStorage 版）
 
 ## 📋 概要
 
-ユーザー認証機能が実装されるまでの暫定措置として、LocalStorageを使用したプレイリスト機能を実装します。
+ユーザー認証機能が実装されるまでの暫定措置として、LocalStorage を使用したプレイリスト機能を実装します。
 
 **実装方針**:
-- LocalStorageにプレイリストデータを保存
-- **楽曲情報はLocalStorageに保存せず、楽曲IDのみを保存**してサイズを最小化
-- 表示時にDjango APIから楽曲情報を取得（`filter{id.in}`で一括取得）
-- 将来の認証API実装後、同じインターフェースでバックエンドAPIに切り替え可能な設計
+
+- LocalStorage にプレイリストデータを保存
+- **楽曲情報は LocalStorage に保存せず、楽曲 ID のみを保存**してサイズを最小化
+- 表示時に Django API から楽曲情報を取得（`filter{id.in}`で一括取得）
+- 将来の認証 API 実装後、同じインターフェースでバックエンド API に切り替え可能な設計
 - ユーザーには「ローカル保存」であることを明示
 
 ---
@@ -18,29 +19,35 @@
 ### 基本機能
 
 1. **プレイリスト一覧表示**
+
    - 作成したプレイリストのリスト表示
    - プレイリスト名、説明、楽曲数、作成日時を表示
 
 2. **プレイリスト作成**
+
    - プレイリスト名（必須）
    - 説明文（任意）
    - 作成日時は自動生成
 
 3. **プレイリスト詳細表示**
+
    - プレイリスト内の楽曲リスト表示
    - 楽曲の並び替え（ドラッグ&ドロップ）
    - 楽曲の削除
 
 4. **楽曲の追加**
+
    - 楽曲一覧画面から追加
    - 楽曲詳細画面から追加
    - プレイヤーから追加（現在再生中の楽曲）
 
 5. **プレイリスト編集**
+
    - プレイリスト名の変更
    - 説明文の変更
 
 6. **プレイリスト削除**
+
    - 確認ダイアログ表示
    - 削除実行
 
@@ -54,20 +61,22 @@
 
 ### 設計方針
 
-**LocalStorageには楽曲IDのみを保存**:
-- LocalStorageの容量制限（約5MB）を考慮
+**LocalStorage には楽曲 ID のみを保存**:
+
+- LocalStorage の容量制限（約 5MB）を考慮
 - 楽曲情報（タイトル、アーティスト、動画情報など）は保存しない
-- 表示時にDjango APIから取得（`filter{id.in}`で一括取得）
+- 表示時に Django API から取得（`filter{id.in}`で一括取得）
 
 **メリット**:
-- ストレージ使用量を最小化（1プレイリスト約1KB程度）
+
+- ストレージ使用量を最小化（1 プレイリスト約 1KB 程度）
 - 楽曲情報の更新（タイトル修正など）が自動的に反映される
 - シンプルなデータ構造
 
 ### LocalStorage キー
 
 ```typescript
-const STORAGE_KEY = 'inuinouta_playlists';
+const STORAGE_KEY = "inuinouta_playlists";
 ```
 
 ### データ形式
@@ -99,6 +108,7 @@ interface LocalPlaylistsData {
 ```
 
 **保存例**:
+
 ```json
 {
   "version": "1.0",
@@ -149,11 +159,18 @@ interface UseLocalPlaylistReturn {
   // Actions
   loadPlaylists: () => Promise<void>;
   createPlaylist: (data: CreatePlaylistData) => Promise<LocalPlaylist>;
-  updatePlaylist: (id: string, data: UpdatePlaylistData) => Promise<LocalPlaylist>;
+  updatePlaylist: (
+    id: string,
+    data: UpdatePlaylistData
+  ) => Promise<LocalPlaylist>;
   deletePlaylist: (id: string) => Promise<void>;
   addSongToPlaylist: (playlistId: string, songId: number) => Promise<void>;
   removeSongFromPlaylist: (playlistId: string, itemId: string) => Promise<void>;
-  reorderPlaylistItems: (playlistId: string, fromIndex: number, toIndex: number) => Promise<void>;
+  reorderPlaylistItems: (
+    playlistId: string,
+    fromIndex: number,
+    toIndex: number
+  ) => Promise<void>;
   getPlaylistById: (id: string) => LocalPlaylist | null;
   getPlaylistWithSongs: (id: string) => Promise<PlaylistWithSongs | null>;
 }
@@ -178,64 +195,69 @@ interface PlaylistWithSongs {
 
 ```typescript
 // プレイリスト詳細表示時に楽曲情報を一括取得
-const getPlaylistWithSongs = async (id: string): Promise<PlaylistWithSongs | null> => {
+const getPlaylistWithSongs = async (
+  id: string
+): Promise<PlaylistWithSongs | null> => {
   const playlist = getPlaylistById(id);
   if (!playlist) return null;
 
   // 楽曲IDを抽出
-  const songIds = playlist.items.map(item => item.song_id);
-  
+  const songIds = playlist.items.map((item) => item.song_id);
+
   if (songIds.length === 0) {
     return { playlist, songs: [] };
   }
 
   // Django APIから一括取得（filter{id.in}を使用）
   const params = new URLSearchParams();
-  songIds.forEach(id => {
-    params.append('filter{id.in}', id.toString());
+  songIds.forEach((id) => {
+    params.append("filter{id.in}", id.toString());
   });
 
   try {
     const response = await $fetch(`/api/songs?${params.toString()}`);
     const songs = response.songs || response; // レスポンス形式に応じて調整
-    
+
     // プレイリストの並び順でソート
     const sortedSongs = playlist.items
-      .map(item => songs.find((s: Song) => s.id === item.song_id))
+      .map((item) => songs.find((s: Song) => s.id === item.song_id))
       .filter((song): song is Song => song !== undefined);
-    
+
     return { playlist, songs: sortedSongs };
   } catch (error) {
-    console.error('Failed to fetch songs:', error);
+    console.error("Failed to fetch songs:", error);
     throw error;
   }
 };
 ```
 
 **主要な実装ポイント**:
-- LocalStorageには楽曲IDのみを保存（軽量化）
-- 表示時にDjango APIから楽曲情報を一括取得（N+1問題を回避）
+
+- LocalStorage には楽曲 ID のみを保存（軽量化）
+- 表示時に Django API から楽曲情報を一括取得（N+1 問題を回避）
 - すべての操作は非同期（async/await）で統一
-- 将来のAPI実装と同じインターフェース
+- 将来の API 実装と同じインターフェース
 - エラーハンドリングを適切に実装
-- LocalStorage のサイズ制限（約5MB）を考慮
+- LocalStorage のサイズ制限（約 5MB）を考慮
 
 ### 2. ページコンポーネント
 
 #### `pages/playlists/index.vue` - プレイリスト一覧
 
 **表示内容**:
+
 - プレイリスト一覧（カード形式）
 - 各カードに表示:
   - プレイリスト名
-  - 説明文（最初の100文字）
+  - 説明文（最初の 100 文字）
   - 楽曲数
   - 作成日時
-  - サムネイル（最初の4曲のサムネイルをグリッド表示）
+  - サムネイル（最初の 4 曲のサムネイルをグリッド表示）
 - 「新規作成」ボタン
-- LocalStorage使用の注意書き
+- LocalStorage 使用の注意書き
 
 **アクション**:
+
 - プレイリストをクリック → 詳細ページへ遷移
 - 「新規作成」ボタン → 作成モーダル表示
 - 各カードにメニュー（編集/削除）
@@ -243,6 +265,7 @@ const getPlaylistWithSongs = async (id: string): Promise<PlaylistWithSongs | nul
 #### `pages/playlists/[id].vue` - プレイリスト詳細
 
 **表示内容**:
+
 - プレイリスト情報（名前、説明、楽曲数）
 - 楽曲リスト（SongList コンポーネント再利用）
 - 「全曲再生」ボタン
@@ -250,6 +273,7 @@ const getPlaylistWithSongs = async (id: string): Promise<PlaylistWithSongs | nul
 - 「削除」ボタン
 
 **アクション**:
+
 - 楽曲をクリック → 再生
 - 楽曲をキューに追加
 - 楽曲を削除（プレイリストから）
@@ -261,6 +285,7 @@ const getPlaylistWithSongs = async (id: string): Promise<PlaylistWithSongs | nul
 #### `components/PlaylistCard.vue`
 
 **Props**:
+
 ```typescript
 interface Props {
   playlist: LocalPlaylist;
@@ -269,6 +294,7 @@ interface Props {
 ```
 
 **表示内容**:
+
 - プレイリスト名
 - 説明文（省略表示）
 - 楽曲数
@@ -279,26 +305,29 @@ interface Props {
 #### `components/PlaylistCreateModal.vue`
 
 **Props**:
+
 ```typescript
 interface Props {
   isOpen: boolean;
 }
 
 const emit = defineEmits<{
-  'close': [];
-  'created': [playlist: LocalPlaylist];
+  close: [];
+  created: [playlist: LocalPlaylist];
 }>();
 ```
 
 **フォーム項目**:
-- プレイリスト名（必須、最大100文字）
-- 説明文（任意、最大500文字）
+
+- プレイリスト名（必須、最大 100 文字）
+- 説明文（任意、最大 500 文字）
 - 「作成」ボタン
 - 「キャンセル」ボタン
 
 #### `components/PlaylistEditModal.vue`
 
 **Props**:
+
 ```typescript
 interface Props {
   isOpen: boolean;
@@ -306,14 +335,15 @@ interface Props {
 }
 
 const emit = defineEmits<{
-  'close': [];
-  'updated': [playlist: LocalPlaylist];
+  close: [];
+  updated: [playlist: LocalPlaylist];
 }>();
 ```
 
 #### `components/AddToPlaylistModal.vue`
 
 **Props**:
+
 ```typescript
 interface Props {
   isOpen: boolean;
@@ -321,12 +351,13 @@ interface Props {
 }
 
 const emit = defineEmits<{
-  'close': [];
-  'added': [playlistId: string];
+  close: [];
+  added: [playlistId: string];
 }>();
 ```
 
 **表示内容**:
+
 - プレイリスト一覧（ラジオボタン選択）
 - 「新規プレイリストを作成」オプション
 - 「追加」ボタン
@@ -337,29 +368,31 @@ const emit = defineEmits<{
 #### `components/SongRow.vue`
 
 **追加する機能**:
+
 - 「プレイリストに追加」ボタン
 - クリックで AddToPlaylistModal を表示
 
 **実装**:
+
 ```vue
 <script setup lang="ts">
-// 既存のコード...
+  // 既存のコード...
 
-const showAddToPlaylist = ref(false);
+  const showAddToPlaylist = ref(false);
 
-const handleAddToPlaylist = () => {
-  showAddToPlaylist.value = true;
-};
+  const handleAddToPlaylist = () => {
+    showAddToPlaylist.value = true;
+  };
 
-const handlePlaylistAdded = (playlistId: string) => {
-  showAddToPlaylist.value = false;
-  // トースト通知: "プレイリストに追加しました"
-};
+  const handlePlaylistAdded = (playlistId: string) => {
+    showAddToPlaylist.value = false;
+    // トースト通知: "プレイリストに追加しました"
+  };
 </script>
 
 <template>
   <!-- 既存のUI... -->
-  
+
   <button
     @click="handleAddToPlaylist"
     class="p-2 hover:bg-gray-600 rounded-full"
@@ -380,6 +413,7 @@ const handlePlaylistAdded = (playlistId: string) => {
 #### `components/PlayerControls.vue` または `PlayerTrackInfo.vue`
 
 **追加する機能**:
+
 - 現在再生中の楽曲を「プレイリストに追加」ボタン
 
 ---
@@ -389,6 +423,7 @@ const handlePlaylistAdded = (playlistId: string) => {
 ### レイアウト
 
 #### プレイリスト一覧ページ
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  📱 いぬいのうた                          [ユーザー]    │
@@ -414,6 +449,7 @@ const handlePlaylistAdded = (playlistId: string) => {
 ```
 
 #### プレイリスト詳細ページ
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  📱 いぬいのうた                          [ユーザー]    │
@@ -441,6 +477,7 @@ const handlePlaylistAdded = (playlistId: string) => {
 ```
 
 #### プレイリスト作成モーダル
+
 ```
 ┌─────────────────────────────────────────┐
 │  プレイリストを作成                [×]  │
@@ -464,6 +501,7 @@ const handlePlaylistAdded = (playlistId: string) => {
 ```
 
 #### プレイリストに追加モーダル
+
 ```
 ┌─────────────────────────────────────────┐
 │  プレイリストに追加                [×]  │
@@ -487,7 +525,7 @@ const handlePlaylistAdded = (playlistId: string) => {
 ### カラースキーム
 
 - **プライマリカラー**: 既存のテーマに合わせる
-- **警告表示**: オレンジ系（LocalStorage使用の注意）
+- **警告表示**: オレンジ系（LocalStorage 使用の注意）
 - **成功表示**: グリーン系（追加完了などのトースト）
 - **危険操作**: レッド系（削除ボタン）
 
@@ -507,18 +545,23 @@ const handlePlaylistAdded = (playlistId: string) => {
 ### トースト通知が必要な操作
 
 1. **プレイリスト作成完了**
+
    - "プレイリスト「{name}」を作成しました"
 
 2. **プレイリスト更新完了**
+
    - "プレイリストを更新しました"
 
 3. **プレイリスト削除完了**
+
    - "プレイリストを削除しました"
 
 4. **楽曲追加完了**
+
    - "「{song_title}」をプレイリストに追加しました"
 
 5. **楽曲削除完了**
+
    - "楽曲をプレイリストから削除しました"
 
 6. **エラー発生時**
@@ -529,7 +572,7 @@ const handlePlaylistAdded = (playlistId: string) => {
 ```typescript
 // composables/useToast.ts (新規作成)
 interface ToastOptions {
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: "success" | "error" | "warning" | "info";
   duration?: number; // ms
 }
 
@@ -548,24 +591,27 @@ export const useToast = () => {
 
 ### LocalStorage の制限
 
-1. **容量制限**: 約5MB（ブラウザによって異なる）
-   - 1プレイリストあたり約100曲まで推奨
-   - 合計20プレイリスト程度が上限の目安
+1. **容量制限**: 約 5MB（ブラウザによって異なる）
+
+   - 1 プレイリストあたり約 100 曲まで推奨
+   - 合計 20 プレイリスト程度が上限の目安
 
 2. **データ永続性**:
+
    - ブラウザのデータクリアで消失
    - プライベートブラウジングでは保存されない
    - 別のブラウザ・デバイスでは共有されない
 
 3. **セキュリティ**:
    - LocalStorage は平文保存
-   - 個人情報は保存しない（楽曲IDのみ）
+   - 個人情報は保存しない（楽曲 ID のみ）
 
 ### ユーザーへの注意表示
 
 以下の場所で注意書きを表示:
 
 1. **プレイリスト一覧ページ（常時表示）**
+
    ```
    ⚠️ プレイリストはこのブラウザにのみ保存されます
    別のデバイスやブラウザでは表示されません
@@ -579,15 +625,17 @@ export const useToast = () => {
 
 ---
 
-## 🔄 将来のAPI移行計画
+## 🔄 将来の API 移行計画
 
 ### 移行時の対応
 
 1. **インターフェースの統一**
-   - `useLocalPlaylist` と将来の `usePlaylist` (API版) は同じインターフェース
+
+   - `useLocalPlaylist` と将来の `usePlaylist` (API 版) は同じインターフェース
    - コンポーネントコードの変更は最小限
 
 2. **データ移行機能**
+
    ```typescript
    // composables/usePlaylistMigration.ts
    export const usePlaylistMigration = () => {
@@ -598,14 +646,14 @@ export const useToast = () => {
        }
        clearLocalStorage();
      };
-     
+
      return { migrateLocalToApi };
    };
    ```
 
-3. **移行UI**
+3. **移行 UI**
    - 認証機能実装後、移行バナーを表示
-   - 「LocalStorageのプレイリストをアカウントに移行」ボタン
+   - 「LocalStorage のプレイリストをアカウントに移行」ボタン
 
 ---
 
@@ -652,25 +700,25 @@ export const useToast = () => {
 ### エッジケース
 
 - [ ] プレイリスト名が空の場合はエラー表示
-- [ ] 同じ楽曲を複数回追加できる（重複OK）
+- [ ] 同じ楽曲を複数回追加できる（重複 OK）
 - [ ] 空のプレイリストを作成できる
-- [ ] プレイリストが0件の場合の表示
-- [ ] LocalStorageが無効な場合のエラーハンドリング
-- [ ] LocalStorageが満杯の場合のエラー表示
+- [ ] プレイリストが 0 件の場合の表示
+- [ ] LocalStorage が無効な場合のエラーハンドリング
+- [ ] LocalStorage が満杯の場合のエラー表示
 
 ### パフォーマンス
 
-- [ ] 100曲入りプレイリストでも快適に動作
-- [ ] 20個のプレイリストでも一覧表示が高速
+- [ ] 100 曲入りプレイリストでも快適に動作
+- [ ] 20 個のプレイリストでも一覧表示が高速
 
 ---
 
 ## 📊 成功指標
 
-1. **機能性**: すべての基本CRUD操作が動作する
+1. **機能性**: すべての基本 CRUD 操作が動作する
 2. **UX**: 直感的で使いやすいインターフェース
-3. **パフォーマンス**: 操作のレスポンスが100ms以内
-4. **保守性**: 将来のAPI移行がスムーズに行える
+3. **パフォーマンス**: 操作のレスポンスが 100ms 以内
+4. **保守性**: 将来の API 移行がスムーズに行える
 5. **エラーハンドリング**: 適切なエラーメッセージ表示
 
 ---
@@ -679,23 +727,28 @@ export const useToast = () => {
 
 以下の点について、ご意見をお聞かせください：
 
-1. **UIデザイン**
+1. **UI デザイン**
+
    - プレイリストカードのレイアウトは適切ですか？
    - サムネイルのグリッド表示（2x2）で良いですか？
 
 2. **機能仕様**
+
    - 同じ楽曲を複数回追加できる仕様で良いですか？
    - プレイリストの並び替え（作成日時順、名前順など）は必要ですか？
 
 3. **制限事項**
-   - 1プレイリストあたり100曲の制限で十分ですか？
-   - 合計20プレイリストの上限で問題ないですか？
+
+   - 1 プレイリストあたり 100 曲の制限で十分ですか？
+   - 合計 20 プレイリストの上限で問題ないですか？
 
 4. **優先度**
-   - Phase 3の機能（ドラッグ&ドロップなど）は後回しで良いですか？
-   - 先にPhase 1, 2を完成させることに同意いただけますか？
+
+   - Phase 3 の機能（ドラッグ&ドロップなど）は後回しで良いですか？
+   - 先に Phase 1, 2 を完成させることに同意いただけますか？
 
 5. **トースト通知**
+
    - 簡易的なトースト実装（`vue-toastification`等のライブラリ使用）で良いですか？
    - それとも自作しますか？
 

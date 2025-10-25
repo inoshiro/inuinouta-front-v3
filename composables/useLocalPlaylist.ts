@@ -1,7 +1,7 @@
-import type { LocalPlaylist, LocalPlaylistItem } from '~/types/playlist';
-import type { Song } from '~/types';
+import type { LocalPlaylist, LocalPlaylistItem } from "~/types/playlist";
+import type { Song } from "~/types";
 
-const STORAGE_KEY = 'local_playlists';
+const STORAGE_KEY = "local_playlists";
 
 interface CreatePlaylistData {
   name: string;
@@ -20,7 +20,7 @@ interface PlaylistWithSongs {
 
 /**
  * LocalStorageベースのプレイリスト管理Composable
- * 
+ *
  * 設計方針:
  * - LocalStorageには楽曲IDのみを保存（軽量化）
  * - 表示時にAPIから楽曲情報を一括取得（N+1問題を回避）
@@ -46,8 +46,8 @@ export const useLocalPlaylist = () => {
         playlists.value = [];
       }
     } catch (e) {
-      error.value = 'プレイリストの読み込みに失敗しました';
-      console.error('Failed to load playlists:', e);
+      error.value = "プレイリストの読み込みに失敗しました";
+      console.error("Failed to load playlists:", e);
       playlists.value = [];
     } finally {
       loading.value = false;
@@ -61,8 +61,8 @@ export const useLocalPlaylist = () => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(playlists.value));
     } catch (e) {
-      error.value = 'プレイリストの保存に失敗しました';
-      console.error('Failed to save playlists:', e);
+      error.value = "プレイリストの保存に失敗しました";
+      console.error("Failed to save playlists:", e);
       throw e;
     }
   };
@@ -70,7 +70,9 @@ export const useLocalPlaylist = () => {
   /**
    * 新しいプレイリストを作成
    */
-  const createPlaylist = async (data: CreatePlaylistData): Promise<LocalPlaylist> => {
+  const createPlaylist = async (
+    data: CreatePlaylistData
+  ): Promise<LocalPlaylist> => {
     loading.value = true;
     error.value = null;
 
@@ -78,7 +80,7 @@ export const useLocalPlaylist = () => {
       const newPlaylist: LocalPlaylist = {
         id: `local_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
         name: data.name,
-        description: data.description || '',
+        description: data.description || "",
         items: [],
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -89,8 +91,8 @@ export const useLocalPlaylist = () => {
 
       return newPlaylist;
     } catch (e) {
-      error.value = 'プレイリストの作成に失敗しました';
-      console.error('Failed to create playlist:', e);
+      error.value = "プレイリストの作成に失敗しました";
+      console.error("Failed to create playlist:", e);
       throw e;
     } finally {
       loading.value = false;
@@ -100,14 +102,17 @@ export const useLocalPlaylist = () => {
   /**
    * プレイリストを更新
    */
-  const updatePlaylist = async (id: string, data: UpdatePlaylistData): Promise<LocalPlaylist> => {
+  const updatePlaylist = async (
+    id: string,
+    data: UpdatePlaylistData
+  ): Promise<LocalPlaylist> => {
     loading.value = true;
     error.value = null;
 
     try {
-      const index = playlists.value.findIndex(p => p.id === id);
+      const index = playlists.value.findIndex((p) => p.id === id);
       if (index === -1) {
-        throw new Error('Playlist not found');
+        throw new Error("Playlist not found");
       }
 
       const updatedPlaylist: LocalPlaylist = {
@@ -121,8 +126,8 @@ export const useLocalPlaylist = () => {
 
       return updatedPlaylist;
     } catch (e) {
-      error.value = 'プレイリストの更新に失敗しました';
-      console.error('Failed to update playlist:', e);
+      error.value = "プレイリストの更新に失敗しました";
+      console.error("Failed to update playlist:", e);
       throw e;
     } finally {
       loading.value = false;
@@ -137,16 +142,16 @@ export const useLocalPlaylist = () => {
     error.value = null;
 
     try {
-      const index = playlists.value.findIndex(p => p.id === id);
+      const index = playlists.value.findIndex((p) => p.id === id);
       if (index === -1) {
-        throw new Error('Playlist not found');
+        throw new Error("Playlist not found");
       }
 
       playlists.value.splice(index, 1);
       savePlaylists();
     } catch (e) {
-      error.value = 'プレイリストの削除に失敗しました';
-      console.error('Failed to delete playlist:', e);
+      error.value = "プレイリストの削除に失敗しました";
+      console.error("Failed to delete playlist:", e);
       throw e;
     } finally {
       loading.value = false;
@@ -156,19 +161,22 @@ export const useLocalPlaylist = () => {
   /**
    * プレイリストに楽曲を追加
    */
-  const addSongToPlaylist = async (playlistId: string, songId: number): Promise<void> => {
+  const addSongToPlaylist = async (
+    playlistId: string,
+    songId: number
+  ): Promise<void> => {
     loading.value = true;
     error.value = null;
 
     try {
-      const playlist = playlists.value.find(p => p.id === playlistId);
+      const playlist = playlists.value.find((p) => p.id === playlistId);
       if (!playlist) {
-        throw new Error('Playlist not found');
+        throw new Error("Playlist not found");
       }
 
       // 既に追加済みかチェック
-      if (playlist.items.some(item => item.song_id === songId)) {
-        error.value = 'この曲は既にプレイリストに追加されています';
+      if (playlist.items.some((item) => item.song_id === songId)) {
+        error.value = "この曲は既にプレイリストに追加されています";
         return;
       }
 
@@ -184,8 +192,8 @@ export const useLocalPlaylist = () => {
       playlist.updated_at = new Date().toISOString();
       savePlaylists();
     } catch (e) {
-      error.value = '楽曲の追加に失敗しました';
-      console.error('Failed to add song to playlist:', e);
+      error.value = "楽曲の追加に失敗しました";
+      console.error("Failed to add song to playlist:", e);
       throw e;
     } finally {
       loading.value = false;
@@ -195,19 +203,22 @@ export const useLocalPlaylist = () => {
   /**
    * プレイリストから楽曲を削除
    */
-  const removeSongFromPlaylist = async (playlistId: string, itemId: string): Promise<void> => {
+  const removeSongFromPlaylist = async (
+    playlistId: string,
+    itemId: string
+  ): Promise<void> => {
     loading.value = true;
     error.value = null;
 
     try {
-      const playlist = playlists.value.find(p => p.id === playlistId);
+      const playlist = playlists.value.find((p) => p.id === playlistId);
       if (!playlist) {
-        throw new Error('Playlist not found');
+        throw new Error("Playlist not found");
       }
 
-      const itemIndex = playlist.items.findIndex(item => item.id === itemId);
+      const itemIndex = playlist.items.findIndex((item) => item.id === itemId);
       if (itemIndex === -1) {
-        throw new Error('Item not found');
+        throw new Error("Item not found");
       }
 
       playlist.items.splice(itemIndex, 1);
@@ -220,8 +231,8 @@ export const useLocalPlaylist = () => {
       playlist.updated_at = new Date().toISOString();
       savePlaylists();
     } catch (e) {
-      error.value = '楽曲の削除に失敗しました';
-      console.error('Failed to remove song from playlist:', e);
+      error.value = "楽曲の削除に失敗しました";
+      console.error("Failed to remove song from playlist:", e);
       throw e;
     } finally {
       loading.value = false;
@@ -240,9 +251,9 @@ export const useLocalPlaylist = () => {
     error.value = null;
 
     try {
-      const playlist = playlists.value.find(p => p.id === playlistId);
+      const playlist = playlists.value.find((p) => p.id === playlistId);
       if (!playlist) {
-        throw new Error('Playlist not found');
+        throw new Error("Playlist not found");
       }
 
       // 配列を並び替え
@@ -257,8 +268,8 @@ export const useLocalPlaylist = () => {
       playlist.updated_at = new Date().toISOString();
       savePlaylists();
     } catch (e) {
-      error.value = '曲順の変更に失敗しました';
-      console.error('Failed to reorder playlist items:', e);
+      error.value = "曲順の変更に失敗しました";
+      console.error("Failed to reorder playlist items:", e);
       throw e;
     } finally {
       loading.value = false;
@@ -269,14 +280,16 @@ export const useLocalPlaylist = () => {
    * IDでプレイリストを取得
    */
   const getPlaylistById = (id: string): LocalPlaylist | null => {
-    return playlists.value.find(p => p.id === id) || null;
+    return playlists.value.find((p) => p.id === id) || null;
   };
 
   /**
    * プレイリストと楽曲情報を一括取得
    * LocalStorageには楽曲IDのみ保存し、APIから楽曲情報を取得
    */
-  const getPlaylistWithSongs = async (id: string): Promise<PlaylistWithSongs | null> => {
+  const getPlaylistWithSongs = async (
+    id: string
+  ): Promise<PlaylistWithSongs | null> => {
     loading.value = true;
     error.value = null;
 
@@ -287,7 +300,7 @@ export const useLocalPlaylist = () => {
       }
 
       // 楽曲IDを抽出
-      const songIds = playlist.items.map(item => item.song_id);
+      const songIds = playlist.items.map((item) => item.song_id);
 
       if (songIds.length === 0) {
         return { playlist, songs: [] };
@@ -295,22 +308,24 @@ export const useLocalPlaylist = () => {
 
       // Django APIから一括取得（filter{id.in}を使用）
       const params = new URLSearchParams();
-      songIds.forEach(songId => {
-        params.append('filter{id.in}', songId.toString());
+      songIds.forEach((songId) => {
+        params.append("filter{id.in}", songId.toString());
       });
 
-      const response = await $fetch<{ songs: Song[] } | Song[]>(`/api/songs?${params.toString()}`);
+      const response = await $fetch<{ songs: Song[] } | Song[]>(
+        `/api/songs?${params.toString()}`
+      );
       const songs = Array.isArray(response) ? response : response.songs;
 
       // プレイリストの並び順でソート
       const sortedSongs = playlist.items
-        .map(item => songs.find((s: Song) => s.id === item.song_id))
+        .map((item) => songs.find((s: Song) => s.id === item.song_id))
         .filter((song): song is Song => song !== undefined);
 
       return { playlist, songs: sortedSongs };
     } catch (e) {
-      error.value = '楽曲情報の取得に失敗しました';
-      console.error('Failed to fetch songs:', e);
+      error.value = "楽曲情報の取得に失敗しました";
+      console.error("Failed to fetch songs:", e);
       throw e;
     } finally {
       loading.value = false;
