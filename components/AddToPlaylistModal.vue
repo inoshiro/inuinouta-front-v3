@@ -21,6 +21,16 @@
   // 新規作成モーダル
   const showCreateModal = ref(false);
 
+  // モーダルを閉じる
+  const handleClose = () => {
+    selectedPlaylistId.value = null;
+    emit("close");
+  };
+
+  // モーダル背景クリック処理
+  const { handleMouseDown, handleMouseUp, handleMouseLeave } =
+    useModalBackdropClose(handleClose);
+
   // モーダルが開いたらプレイリスト一覧を読み込む
   watch(
     () => props.isOpen,
@@ -80,12 +90,6 @@
     await handleAdd();
   };
 
-  // モーダルを閉じる
-  const handleClose = () => {
-    selectedPlaylistId.value = null;
-    emit("close");
-  };
-
   // Escapeキーで閉じる
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape" && !showCreateModal.value) {
@@ -106,7 +110,9 @@
     <div
       v-if="isOpen"
       class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4"
-      @click.self="handleClose"
+      @mousedown="handleMouseDown"
+      @mouseup="handleMouseUp"
+      @mouseleave="handleMouseLeave"
       @keydown="handleKeyDown"
     >
       <div

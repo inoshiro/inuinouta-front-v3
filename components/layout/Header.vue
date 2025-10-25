@@ -25,7 +25,7 @@
     { to: "/", label: "ホーム", icon: "🏠" },
     { to: "/songs", label: "楽曲一覧", icon: "🎶" },
     { to: "/streams", label: "歌枠一覧", icon: "📺" },
-    { to: "/playlists", label: "プレイリスト", icon: "🎵" },
+    { to: "/playlists", label: "プレイリスト", icon: "📝" },
   ];
 </script>
 

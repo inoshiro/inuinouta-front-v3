@@ -18,6 +18,18 @@
   const description = ref("");
   const nameError = ref("");
 
+  // モーダルを閉じる
+  const handleClose = () => {
+    name.value = "";
+    description.value = "";
+    nameError.value = "";
+    emit("close");
+  };
+
+  // モーダル背景クリック処理
+  const { handleMouseDown, handleMouseUp, handleMouseLeave } =
+    useModalBackdropClose(handleClose);
+
   // バリデーション
   const validateName = () => {
     if (!name.value.trim()) {
@@ -53,14 +65,6 @@
     }
   };
 
-  // モーダルを閉じる
-  const handleClose = () => {
-    name.value = "";
-    description.value = "";
-    nameError.value = "";
-    emit("close");
-  };
-
   // Escapeキーで閉じる
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -93,7 +97,9 @@
     <div
       v-if="isOpen"
       class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4"
-      @click.self="handleClose"
+      @mousedown="handleMouseDown"
+      @mouseup="handleMouseUp"
+      @mouseleave="handleMouseLeave"
       @keydown="handleKeyDown"
     >
       <div class="bg-gray-800 rounded-lg shadow-xl max-w-md w-full" @click.stop>

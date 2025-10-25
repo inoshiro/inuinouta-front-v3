@@ -32,11 +32,11 @@
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8 max-w-7xl">
+  <div class="container mx-auto px-4 py-8 pb-32 max-w-7xl">
     <!-- ヘッダー -->
     <div class="mb-8">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">プレイリスト</h1>
+        <h1 class="text-2xl font-bold text-gray-900">プレイリスト</h1>
         <button
           @click="showCreateModal = true"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -48,10 +48,10 @@
 
       <!-- 注意書き -->
       <div
-        class="bg-orange-900/30 border border-orange-700 rounded-lg p-4 flex items-start gap-3"
+        class="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-start gap-3"
       >
         <svg
-          class="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5"
+          class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -64,10 +64,10 @@
           />
         </svg>
         <div class="text-sm">
-          <p class="text-orange-300 font-semibold mb-1">
+          <p class="text-orange-800 font-semibold mb-1">
             プレイリストはこのブラウザにのみ保存されます
           </p>
-          <p class="text-orange-200/80">
+          <p class="text-orange-700">
             別のデバイスやブラウザでは表示されません。ブラウザのデータを削除すると失われますのでご注意ください。
           </p>
         </div>
@@ -79,15 +79,15 @@
       <div
         class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
       ></div>
-      <p class="mt-4 text-gray-400">読み込み中...</p>
+      <p class="mt-4 text-gray-600">読み込み中...</p>
     </div>
 
     <!-- エラー表示 -->
     <div
       v-else-if="error"
-      class="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-6"
+      class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
     >
-      <div class="flex items-center gap-2 text-red-300">
+      <div class="flex items-center gap-2 text-red-800">
         <Icon name="mdi:alert-circle" class="w-5 h-5" />
         <p>{{ error }}</p>
       </div>
@@ -96,47 +96,32 @@
     <!-- プレイリスト一覧 -->
     <div
       v-else-if="playlists.length > 0"
-      class="bg-gray-800 rounded-lg overflow-hidden"
+      class="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200"
     >
-      <div class="divide-y divide-gray-700">
+      <div class="divide-y divide-gray-200">
         <NuxtLink
           v-for="playlist in playlists"
           :key="playlist.id"
           :to="`/playlists/${playlist.id}`"
-          class="flex items-center gap-4 p-4 hover:bg-gray-700 transition-colors group"
+          class="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors group"
         >
           <!-- アイコン -->
-          <div class="flex-shrink-0">
-            <svg
-              class="w-10 h-10 text-blue-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-              />
-            </svg>
-          </div>
 
           <!-- プレイリスト情報 -->
           <div class="flex-1 min-w-0">
-            <h3 class="font-semibold text-lg mb-1 truncate">
+            <h3 class="font-semibold text-lg mb-1 truncate text-gray-900">
               {{ playlist.name }}
             </h3>
             <p
               v-if="playlist.description"
-              class="text-sm text-gray-400 truncate"
+              class="text-sm text-gray-600 truncate"
             >
               {{ playlist.description }}
             </p>
           </div>
 
           <!-- メタ情報 -->
-          <div class="flex items-center gap-6 text-sm text-gray-400">
+          <div class="flex items-center gap-6 text-sm text-gray-500">
             <div class="flex items-center gap-2">
               <svg
                 class="w-4 h-4"
@@ -183,7 +168,7 @@
     <!-- 空の状態 -->
     <div v-else class="text-center py-20">
       <svg
-        class="w-24 h-24 text-gray-600 mx-auto mb-4"
+        class="w-24 h-24 text-gray-400 mx-auto mb-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -195,15 +180,15 @@
           d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
         />
       </svg>
-      <h2 class="text-xl font-semibold text-gray-300 mb-2">
+      <h2 class="text-xl font-semibold text-gray-900 mb-2">
         プレイリストがありません
       </h2>
-      <p class="text-gray-400 mb-6">
+      <p class="text-gray-600 mb-6">
         最初のプレイリストを作成してお気に入りの楽曲をまとめましょう
       </p>
       <button
         @click="showCreateModal = true"
-        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold inline-flex items-center gap-2 transition-colors"
+        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold inline-flex items-center gap-2 transition-colors"
       >
         <svg
           class="w-5 h-5"

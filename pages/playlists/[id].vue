@@ -111,6 +111,10 @@
   const handleRemoveSong = async (song: Song) => {
     if (!playlist.value) return;
 
+    if (!confirm(`「${song.title}」をプレイリストから削除しますか？`)) {
+      return;
+    }
+
     try {
       // プレイリストアイテムを見つける
       const item = playlist.value.items.find(
@@ -177,11 +181,6 @@
       }
     }
   };
-
-  // 時間をフォーマット（songRowUtilsを使用）
-  const formatDuration = (seconds: number) => {
-    return songRowUtils.formatDuration(seconds);
-  };
 </script>
 
 <template>
@@ -189,23 +188,23 @@
     <div
       class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
     ></div>
-    <p class="mt-4 text-gray-400">読み込み中...</p>
+    <p class="mt-4 text-gray-600">読み込み中...</p>
   </div>
 
   <div v-else-if="error" class="container mx-auto px-4 py-8 max-w-6xl">
-    <div class="bg-red-900/30 border border-red-700 rounded-lg p-4">
-      <div class="flex items-center gap-2 text-red-300">
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 text-red-800">
         <Icon name="mdi:alert-circle" class="w-5 h-5" />
         <p>{{ error }}</p>
       </div>
     </div>
   </div>
 
-  <div v-else-if="playlist" class="container mx-auto px-4 py-8 max-w-6xl">
+  <div v-else-if="playlist" class="container mx-auto px-4 py-8 pb-32 max-w-6xl">
     <!-- 戻るボタン -->
     <NuxtLink
       to="/playlists"
-      class="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
+      class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
     >
       <svg
         class="w-5 h-5"
@@ -224,29 +223,18 @@
     </NuxtLink>
 
     <!-- プレイリスト情報 -->
-    <div class="bg-gray-800 rounded-lg p-6 mb-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
       <div class="flex items-start justify-between mb-4">
         <div class="flex-1">
           <div class="flex items-center gap-3 mb-2">
-            <svg
-              class="w-8 h-8 text-blue-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-              />
-            </svg>
-            <h1 class="text-3xl font-bold">{{ playlist.name }}</h1>
+            <h1 class="text-3xl font-bold text-gray-900">
+              {{ playlist.name }}
+            </h1>
           </div>
-          <p v-if="playlist.description" class="text-gray-400 mb-3">
+          <p v-if="playlist.description" class="text-gray-600 mb-3">
             {{ playlist.description }}
           </p>
-          <div class="flex items-center gap-4 text-sm text-gray-400">
+          <div class="flex items-center gap-4 text-sm text-gray-500">
             <span>{{ songs.length }}曲</span>
             <span>•</span>
             <span>{{ totalDuration }}</span>
@@ -259,7 +247,7 @@
         <div class="flex items-center gap-2">
           <button
             @click="handleEdit"
-            class="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+            class="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
             title="編集"
           >
             <svg
@@ -278,7 +266,7 @@
           </button>
           <button
             @click="handleDelete"
-            class="p-2 hover:bg-red-900/30 rounded-lg transition-colors text-red-400"
+            class="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-600"
             title="削除"
           >
             <svg
@@ -301,7 +289,7 @@
       <!-- 全曲再生ボタン -->
       <button
         @click="handlePlayAll"
-        class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
+        class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
       >
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
           <path d="M8 5v14l11-7z" />
@@ -311,12 +299,14 @@
     </div>
 
     <!-- 楽曲リスト -->
-    <div class="bg-gray-800 rounded-lg overflow-hidden">
+    <div
+      class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+    >
       <div v-if="songs.length > 0" :class="SONG_ROW_STYLES.divider">
         <div
           v-for="(song, index) in songs"
           :key="song.id"
-          :class="SONG_ROW_STYLES.container.base"
+          :class="SONG_ROW_STYLES.container.playlist"
         >
           <!-- 番号 -->
           <div :class="SONG_ROW_STYLES.index.wrapper">
@@ -324,42 +314,40 @@
           </div>
 
           <!-- サムネイル -->
-          <div :class="SONG_ROW_STYLES.thumbnail.wrapper">
-            <img
-              :src="song.video.thumbnail_path"
-              :alt="song.title"
-              :class="SONG_ROW_STYLES.thumbnail.image"
-            />
+          <div
+            :class="SONG_ROW_STYLES.thumbnail.wrapperDesktop"
+            @click="handlePlaySong(song)"
+          >
+            <div :class="SONG_ROW_STYLES.thumbnail.container">
+              <img
+                :src="song.video.thumbnail_path"
+                :alt="song.title"
+                :class="SONG_ROW_STYLES.thumbnail.image"
+                loading="lazy"
+              />
+            </div>
           </div>
 
           <!-- 楽曲情報 -->
-          <div :class="SONG_ROW_STYLES.info.wrapper">
-            <h3 :class="SONG_ROW_STYLES.info.title">{{ song.title }}</h3>
-            <p :class="SONG_ROW_STYLES.info.artist">{{ song.artist }}</p>
-          </div>
-
-          <!-- 再生時間 -->
-          <div :class="SONG_ROW_STYLES.duration.wrapper">
-            {{ formatDuration((song.end_at || 0) - (song.start_at || 0)) }}
+          <div
+            :class="SONG_ROW_STYLES.info.wrapperDesktop"
+            @click="handlePlaySong(song)"
+          >
+            <div :class="SONG_ROW_STYLES.info.titleContainer">
+              <h3 :class="SONG_ROW_STYLES.info.titleDesktop">
+                {{ song.title }}
+              </h3>
+              <span v-if="song.is_original" :class="SONG_ROW_STYLES.info.badge">
+                オリジナル
+              </span>
+            </div>
+            <p :class="SONG_ROW_STYLES.info.artistDesktop">{{ song.artist }}</p>
           </div>
 
           <!-- アクションボタン -->
-          <div :class="SONG_ROW_STYLES.actions.wrapper">
+          <div :class="SONG_ROW_STYLES.actions.wrapperVisible">
             <button
-              @click="handlePlaySong(song)"
-              :class="SONG_ROW_STYLES.actions.button.play"
-              title="再生"
-            >
-              <svg
-                :class="SONG_ROW_STYLES.actions.icon"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path :d="SONG_ROW_ICONS.play" />
-              </svg>
-            </button>
-            <button
-              @click="handleAddToQueue(song)"
+              @click.stop="handleAddToQueue(song)"
               :class="SONG_ROW_STYLES.actions.button.queue"
               title="キューに追加"
             >
@@ -378,7 +366,7 @@
               </svg>
             </button>
             <button
-              @click="handleRemoveSong(song)"
+              @click.stop="handleRemoveSong(song)"
               :class="SONG_ROW_STYLES.actions.button.remove"
               title="削除"
             >
@@ -403,7 +391,7 @@
       <!-- 空の状態 -->
       <div v-else class="text-center py-16">
         <svg
-          class="w-16 h-16 text-gray-600 mx-auto mb-4"
+          class="w-16 h-16 text-gray-400 mx-auto mb-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -415,10 +403,10 @@
             d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
           />
         </svg>
-        <h2 class="text-xl font-semibold text-gray-300 mb-2">
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">
           楽曲がありません
         </h2>
-        <p class="text-gray-400">楽曲一覧から楽曲を追加しましょう</p>
+        <p class="text-gray-600">楽曲一覧から楽曲を追加しましょう</p>
       </div>
     </div>
 

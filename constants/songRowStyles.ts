@@ -4,76 +4,104 @@
  */
 
 export const SONG_ROW_STYLES = {
-  // コンテナ
+  // コンテナ（行全体）
   container: {
-    base: "flex items-center gap-4 p-4 hover:bg-gray-700/50 transition-colors group",
-    mobile: "min-h-[72px] py-2",
+    base: "song-row border-b border-gray-200 bg-white hover:bg-gray-50 transition-colors duration-150",
+    active: "bg-blue-50 hover:bg-blue-100", // 再生中の状態
+    playlist:
+      "song-row border-b border-gray-200 bg-white hover:bg-gray-50 transition-colors duration-150 flex items-stretch min-h-[80px]", // プレイリスト詳細用（番号付き）
+  },
+
+  // モバイル表示用
+  mobile: {
+    wrapper: "block md:hidden",
+    content: "flex items-stretch min-h-[72px]",
+  },
+
+  // デスクトップ表示用
+  desktop: {
+    wrapper: "hidden md:flex items-stretch p-0 min-h-[80px]",
   },
 
   // 番号表示（プレイリスト詳細用）
   index: {
-    wrapper: "w-8 text-center text-gray-400 font-mono flex-shrink-0",
+    wrapper:
+      "flex-shrink-0 w-12 flex items-center justify-center text-sm text-gray-500",
   },
 
   // サムネイル
   thumbnail: {
-    wrapper: "w-20 h-12 flex-shrink-0 relative",
-    mobile: "w-12 h-9",
-    image: "w-full h-full object-cover rounded",
-    placeholder:
-      "w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center",
+    wrapperMobile:
+      "flex-shrink-0 w-12 h-9 my-auto ml-3 relative cursor-pointer",
+    wrapperDesktop:
+      "flex-shrink-0 w-16 h-12 my-auto ml-4 mr-4 relative cursor-pointer",
+    container:
+      "w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center overflow-hidden",
+    image: "w-full h-full object-cover",
+    placeholder: "text-xs text-gray-400",
     playingIndicator:
       "absolute inset-0 flex items-center justify-center bg-black/80 rounded",
   },
 
   // 楽曲情報
   info: {
-    wrapper: "flex-1 min-w-0",
-    title: "font-semibold truncate text-gray-100",
-    titleMobile: "text-sm",
-    artist: "text-sm text-gray-400 truncate",
-    artistMobile: "text-xs",
+    wrapperMobile: "flex-1 min-w-0 cursor-pointer py-2 px-3",
+    wrapperDesktop: "flex-1 min-w-0 cursor-pointer py-4",
+    titleContainer: "flex items-center gap-2 mb-1",
+    titleMobile: "text-sm font-medium text-gray-900 truncate",
+    titleDesktop: "text-sm font-medium text-gray-900 truncate",
+    artistMobile: "text-xs text-gray-500 truncate mb-1",
+    artistDesktop: "text-sm text-gray-500 truncate",
     badge:
-      "inline-flex items-center px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-medium",
+      "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 flex-shrink-0",
+    badgeMobile:
+      "inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 flex-shrink-0",
   },
 
   // 時間表示
   duration: {
-    wrapper: "text-sm text-gray-400 font-mono hidden sm:block flex-shrink-0",
+    wrapper: "text-sm text-gray-500 font-mono hidden sm:block flex-shrink-0",
     time: "text-xs text-gray-500",
   },
 
   // アクションボタン
   actions: {
-    wrapper:
-      "flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity",
-    wrapperVisible: "flex items-center gap-2", // 常に表示する場合
+    wrapperVisible: "flex-shrink-0 flex items-center gap-2 py-4 pr-4",
     button: {
-      base: "p-2 hover:bg-gray-600 rounded-full transition-colors",
-      play: "p-2 hover:bg-blue-900/30 rounded-full transition-colors text-blue-400",
       queue:
-        "p-2 hover:bg-green-900/30 rounded-full transition-colors text-green-400",
-      playlist:
-        "p-2 hover:bg-purple-900/30 rounded-full transition-colors text-purple-400",
+        "p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors duration-150",
       remove:
-        "p-2 hover:bg-red-900/30 rounded-full transition-colors text-red-400",
-      youtube:
-        "p-2 hover:bg-red-900/30 rounded-full transition-colors text-red-500",
+        "p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors duration-150",
     },
     icon: "w-5 h-5",
-    iconSmall: "w-4 h-4",
   },
 
   // 3点メニューボタン
   menuButton: {
-    wrapper: "flex-shrink-0",
-    button:
-      "p-2 hover:bg-gray-700 rounded-full transition-colors text-gray-400 hover:text-white",
-    icon: "w-5 h-5",
+    wrapperMobile: "flex-shrink-0 flex items-center pr-2",
+    wrapperDesktop: "flex-shrink-0 flex items-center py-4 pr-4",
+    buttonMobile:
+      "p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors",
+    buttonDesktop:
+      "p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-150",
+    iconMobile: "w-6 h-6",
+    iconDesktop: "w-6 h-6",
   },
 
   // 区切り線
-  divider: "divide-y divide-gray-700",
+  divider: "divide-y divide-gray-200",
+
+  // コンテキストメニュー
+  contextMenu: {
+    container:
+      "fixed w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[9999]",
+    menuItem:
+      "w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors",
+    iconGreen: "w-5 h-5 text-green-600",
+    iconPurple: "w-5 h-5 text-purple-600",
+    iconBlue: "w-5 h-5 text-blue-600",
+    iconRed: "w-5 h-5 text-red-500",
+  },
 } as const;
 
 /**
@@ -146,6 +174,6 @@ export const SONG_ROW_ICONS = {
   remove: "M6 18L18 6M6 6l12 12",
   youtube:
     "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z",
-  menu: "M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z",
+  menu: "M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z",
   info: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
 } as const;

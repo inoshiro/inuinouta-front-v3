@@ -282,86 +282,59 @@
         <div
           v-for="song in streamSongs"
           :key="song.id"
-          :class="SONG_ROW_STYLES.container.base"
+          :class="SONG_ROW_STYLES.desktop.wrapper"
         >
           <!-- サムネイル（クリックで再生） -->
           <div
-            :class="SONG_ROW_STYLES.thumbnail.wrapper"
-            class="cursor-pointer"
+            :class="SONG_ROW_STYLES.thumbnail.wrapperDesktop"
             @click="handlePlayNow(song)"
           >
-            <img
-              v-if="song.video?.thumbnail_path"
-              :src="song.video.thumbnail_path"
-              :alt="song.title"
-              :class="SONG_ROW_STYLES.thumbnail.image"
-            />
-            <div v-else :class="SONG_ROW_STYLES.thumbnail.placeholder">
-              <span class="text-xs text-gray-400">🎵</span>
+            <div :class="SONG_ROW_STYLES.thumbnail.container">
+              <img
+                v-if="song.video?.thumbnail_path"
+                :src="song.video.thumbnail_path"
+                :alt="song.title"
+                :class="SONG_ROW_STYLES.thumbnail.image"
+                loading="lazy"
+              />
+              <span v-else :class="SONG_ROW_STYLES.thumbnail.placeholder"
+                >🎵</span
+              >
             </div>
           </div>
 
           <!-- 楽曲情報（クリックで再生） -->
           <div
-            :class="SONG_ROW_STYLES.info.wrapper"
-            class="cursor-pointer"
+            :class="SONG_ROW_STYLES.info.wrapperDesktop"
             @click="handlePlayNow(song)"
           >
-            <div class="flex items-center gap-2 mb-1">
-              <h4 :class="SONG_ROW_STYLES.info.title">
+            <div :class="SONG_ROW_STYLES.info.titleContainer">
+              <h3 :class="SONG_ROW_STYLES.info.titleDesktop">
                 {{ song.title }}
-              </h4>
+              </h3>
               <span v-if="song.is_original" :class="SONG_ROW_STYLES.info.badge">
                 オリジナル
               </span>
             </div>
-            <div class="flex items-center gap-3">
-              <span :class="SONG_ROW_STYLES.info.artist">{{
-                song.artist
-              }}</span>
-              <span
-                v-if="song.start_at || song.end_at"
-                :class="SONG_ROW_STYLES.duration.time"
-              >
-                {{
-                  songRowUtils.formatTimeRange(
-                    song.start_at ?? undefined,
-                    song.end_at ?? undefined
-                  )
-                }}
-              </span>
-            </div>
-          </div>
-
-          <!-- 再生時間 -->
-          <div :class="SONG_ROW_STYLES.duration.wrapper">
-            {{
-              songRowUtils.formatSongDuration(
-                song.start_at ?? undefined,
-                song.end_at ?? undefined
-              )
-            }}
+            <p :class="SONG_ROW_STYLES.info.artistDesktop">
+              {{ song.artist }}
+            </p>
           </div>
 
           <!-- コンテキストメニューボタン -->
-          <div :class="SONG_ROW_STYLES.menuButton.wrapper">
+          <div :class="SONG_ROW_STYLES.menuButton.wrapperDesktop" @click.stop>
             <button
-              :class="SONG_ROW_STYLES.menuButton.button"
+              :class="SONG_ROW_STYLES.menuButton.buttonDesktop"
               @click.stop="openMenu(song.id, $event)"
               :aria-label="`${song.title}のメニュー`"
+              :title="'メニューを開く'"
             >
               <svg
-                :class="SONG_ROW_STYLES.menuButton.icon"
-                fill="none"
-                stroke="currentColor"
+                :class="SONG_ROW_STYLES.menuButton.iconDesktop"
+                fill="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  :d="SONG_ROW_ICONS.menu"
-                />
+                <path :d="SONG_ROW_ICONS.menu" />
               </svg>
             </button>
           </div>
@@ -374,17 +347,17 @@
                 top: `${menuPosition.top}px`,
                 left: `${menuPosition.left}px`,
               }"
-              class="fixed w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[9999]"
+              :class="SONG_ROW_STYLES.contextMenu.container"
               @click.stop
               data-song-menu
             >
               <!-- キューに追加 -->
               <button
                 @click="handleMenuAction(() => handleAddToQueue(song))"
-                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                :class="SONG_ROW_STYLES.contextMenu.menuItem"
               >
                 <svg
-                  class="w-5 h-5 text-green-600"
+                  :class="SONG_ROW_STYLES.contextMenu.iconGreen"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -402,10 +375,10 @@
               <!-- プレイリストに追加 -->
               <button
                 @click="handleMenuAction(() => addToPlaylist(song))"
-                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                :class="SONG_ROW_STYLES.contextMenu.menuItem"
               >
                 <svg
-                  class="w-5 h-5 text-purple-600"
+                  :class="SONG_ROW_STYLES.contextMenu.iconPurple"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -424,10 +397,10 @@
               <NuxtLink
                 :to="`/songs/${song.id}`"
                 @click="closeMenu"
-                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                :class="SONG_ROW_STYLES.contextMenu.menuItem"
               >
                 <svg
-                  class="w-5 h-5 text-blue-600"
+                  :class="SONG_ROW_STYLES.contextMenu.iconBlue"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -448,10 +421,10 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 @click="closeMenu"
-                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                :class="SONG_ROW_STYLES.contextMenu.menuItem"
               >
                 <svg
-                  class="w-5 h-5 text-red-500"
+                  :class="SONG_ROW_STYLES.contextMenu.iconRed"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
