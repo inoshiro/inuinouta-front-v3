@@ -89,11 +89,11 @@
 
       // データを再読み込み
       playlistData.value = await getPlaylistWithSongs(playlistId);
-      
-      toast.success('楽曲をプレイリストから削除しました');
+
+      toast.success("楽曲をプレイリストから削除しました");
     } catch (e) {
       console.error("Failed to remove song:", e);
-      toast.error('楽曲の削除に失敗しました');
+      toast.error("楽曲の削除に失敗しました");
     }
   };
 
@@ -124,11 +124,11 @@
       const { deletePlaylist } = useLocalPlaylist();
       try {
         await deletePlaylist(playlistId);
-        toast.success('プレイリストを削除しました');
+        toast.success("プレイリストを削除しました");
         router.push("/playlists");
       } catch (e) {
         console.error("Failed to delete playlist:", e);
-        toast.error('プレイリストの削除に失敗しました');
+        toast.error("プレイリストの削除に失敗しました");
       }
     }
   };
@@ -373,9 +373,7 @@
         <h2 class="text-xl font-semibold text-gray-300 mb-2">
           楽曲がありません
         </h2>
-                <p class="text-gray-400">
-          楽曲一覧から楽曲を追加しましょう
-        </p>
+        <p class="text-gray-400">楽曲一覧から楽曲を追加しましょう</p>
       </div>
     </div>
 

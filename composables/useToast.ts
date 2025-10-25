@@ -1,4 +1,4 @@
-import { useToast as useVueToastification } from 'vue-toastification';
+import { useToast as useVueToastification } from "vue-toastification";
 
 /**
  * トースト通知のオプション
@@ -12,14 +12,14 @@ interface ToastOptions {
   draggablePercent?: number;
   showCloseButtonOnHover?: boolean;
   hideProgressBar?: boolean;
-  closeButton?: boolean | 'button';
+  closeButton?: boolean | "button";
   icon?: boolean | string;
   rtl?: boolean;
 }
 
 /**
  * トースト通知を表示するComposable
- * 
+ *
  * 使用例:
  * ```ts
  * const toast = useToast();

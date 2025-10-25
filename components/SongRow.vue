@@ -100,6 +100,25 @@
                 />
               </svg>
             </button>
+            <button
+              title="プレイリストに追加"
+              class="p-3 text-gray-400 hover:text-purple-600 rounded-full"
+              @click.stop="addToPlaylist"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                />
+              </svg>
+            </button>
             <a
               :href="youtubeUrl"
               target="_blank"
@@ -252,6 +271,27 @@
           </svg>
         </button>
 
+        <!-- プレイリストに追加ボタン -->
+        <button
+          title="プレイリストに追加"
+          class="p-3 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors duration-150"
+          @click.stop="addToPlaylist"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+            />
+          </svg>
+        </button>
+
         <!-- YouTubeで開くボタン -->
         <a
           :href="youtubeUrl"
@@ -295,10 +335,20 @@
       </div>
     </div>
   </div>
+
+  <!-- プレイリスト追加モーダル（Teleportでbody直下にレンダリング） -->
+  <Teleport to="body">
+    <AddToPlaylistModal
+      :is-open="showAddToPlaylistModal"
+      :song="song"
+      @close="showAddToPlaylistModal = false"
+      @added="handlePlaylistAdded"
+    />
+  </Teleport>
 </template>
 
 <script setup>
-  import { computed } from "vue";
+  import { computed, ref } from "vue";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
   import { usePlayerStore } from "~/stores/player";
 
@@ -316,6 +366,9 @@
 
   // Emits（外部との互換性を保持）
   const emit = defineEmits(["play-now", "add-to-queue", "add-to-playlist"]);
+
+  // プレイリストモーダル
+  const showAddToPlaylistModal = ref(false);
 
   // 直接再生（前プロジェクトのclickSongを参考）
   const playNow = () => {
@@ -346,6 +399,19 @@
     console.log("Adding to queue:", props.song.title);
     queue.addToQueue(props.song);
     emit("add-to-queue", props.song);
+  };
+
+  // プレイリストに追加
+  const addToPlaylist = () => {
+    console.log("Opening playlist modal for:", props.song.title);
+    showAddToPlaylistModal.value = true;
+  };
+
+  // プレイリスト追加完了ハンドラ
+  const handlePlaylistAdded = (playlistId) => {
+    console.log("Song added to playlist:", playlistId);
+    showAddToPlaylistModal.value = false;
+    emit("add-to-playlist", { song: props.song, playlistId });
   };
 
   // 現在再生中の楽曲かどうか（シンプルな判定）

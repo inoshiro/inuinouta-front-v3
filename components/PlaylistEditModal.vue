@@ -1,88 +1,95 @@
 <script setup lang="ts">
-import type { LocalPlaylist } from '~/types/playlist';
+  import type { LocalPlaylist } from "~/types/playlist";
 
-const props = defineProps<{
-  isOpen: boolean;
-  playlist: LocalPlaylist;
-}>();
+  const props = defineProps<{
+    isOpen: boolean;
+    playlist: LocalPlaylist;
+  }>();
 
-const emit = defineEmits<{
-  close: [];
-  updated: [playlist: LocalPlaylist];
-}>();
+  const emit = defineEmits<{
+    close: [];
+    updated: [playlist: LocalPlaylist];
+  }>();
 
-const { updatePlaylist, loading } = useLocalPlaylist();
-const toast = useToast();
+  const { updatePlaylist, loading } = useLocalPlaylist();
+  const toast = useToast();
 
-// フォームデータ
-const name = ref('');
-const description = ref('');
-const nameError = ref('');
+  // フォームデータ
+  const name = ref("");
+  const description = ref("");
+  const nameError = ref("");
 
-// プレイリストが変わったらフォームを更新
-watch(() => props.playlist, (playlist) => {
-  if (playlist) {
-    name.value = playlist.name;
-    description.value = playlist.description || '';
-  }
-}, { immediate: true });
+  // プレイリストが変わったらフォームを更新
+  watch(
+    () => props.playlist,
+    (playlist) => {
+      if (playlist) {
+        name.value = playlist.name;
+        description.value = playlist.description || "";
+      }
+    },
+    { immediate: true }
+  );
 
-// バリデーション
-const validateName = () => {
-  if (!name.value.trim()) {
-    nameError.value = 'プレイリスト名を入力してください';
-    return false;
-  }
-  if (name.value.length > 100) {
-    nameError.value = 'プレイリスト名は100文字以内で入力してください';
-    return false;
-  }
-  nameError.value = '';
-  return true;
-};
+  // バリデーション
+  const validateName = () => {
+    if (!name.value.trim()) {
+      nameError.value = "プレイリスト名を入力してください";
+      return false;
+    }
+    if (name.value.length > 100) {
+      nameError.value = "プレイリスト名は100文字以内で入力してください";
+      return false;
+    }
+    nameError.value = "";
+    return true;
+  };
 
-// フォーム送信
-const handleSubmit = async () => {
-  if (!validateName()) {
-    return;
-  }
+  // フォーム送信
+  const handleSubmit = async () => {
+    if (!validateName()) {
+      return;
+    }
 
-  try {
-    const updatedPlaylist = await updatePlaylist(props.playlist.id, {
-      name: name.value.trim(),
-      description: description.value.trim() || undefined,
-    });
+    try {
+      const updatedPlaylist = await updatePlaylist(props.playlist.id, {
+        name: name.value.trim(),
+        description: description.value.trim() || undefined,
+      });
 
-    toast.success('プレイリストを更新しました');
-    emit('updated', updatedPlaylist);
-    handleClose();
-  } catch (e) {
-    console.error('Failed to update playlist:', e);
-    toast.error('プレイリストの更新に失敗しました');
-  }
-};
+      toast.success("プレイリストを更新しました");
+      emit("updated", updatedPlaylist);
+      handleClose();
+    } catch (e) {
+      console.error("Failed to update playlist:", e);
+      toast.error("プレイリストの更新に失敗しました");
+    }
+  };
 
-// モーダルを閉じる
-const handleClose = () => {
-  nameError.value = '';
-  emit('close');
-};
+  // モーダルを閉じる
+  const handleClose = () => {
+    nameError.value = "";
+    emit("close");
+  };
 
-// Escapeキーで閉じる
-const handleKeyDown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') {
-    handleClose();
-  }
-};
+  // Escapeキーで閉じる
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      handleClose();
+    }
+  };
 
-// モーダルが開いたときにフォーカス
-watch(() => props.isOpen, (isOpen) => {
-  if (isOpen) {
-    nextTick(() => {
-      document.getElementById('playlist-edit-name-input')?.focus();
-    });
-  }
-});
+  // モーダルが開いたときにフォーカス
+  watch(
+    () => props.isOpen,
+    (isOpen) => {
+      if (isOpen) {
+        nextTick(() => {
+          document.getElementById("playlist-edit-name-input")?.focus();
+        });
+      }
+    }
+  );
 </script>
 
 <template>
@@ -100,12 +107,11 @@ watch(() => props.isOpen, (isOpen) => {
       @click.self="handleClose"
       @keydown="handleKeyDown"
     >
-      <div
-        class="bg-gray-800 rounded-lg shadow-xl max-w-md w-full"
-        @click.stop
-      >
+      <div class="bg-gray-800 rounded-lg shadow-xl max-w-md w-full" @click.stop>
         <!-- ヘッダー -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700">
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-gray-700"
+        >
           <h2 class="text-xl font-bold text-white">プレイリストを編集</h2>
           <button
             @click="handleClose"
@@ -120,7 +126,10 @@ watch(() => props.isOpen, (isOpen) => {
         <form @submit.prevent="handleSubmit" class="px-6 py-6 space-y-5">
           <!-- プレイリスト名 -->
           <div>
-            <label for="playlist-edit-name-input" class="block text-sm font-medium text-gray-200 mb-2">
+            <label
+              for="playlist-edit-name-input"
+              class="block text-sm font-medium text-gray-200 mb-2"
+            >
               プレイリスト名 <span class="text-red-400">*</span>
             </label>
             <input
@@ -132,7 +141,10 @@ watch(() => props.isOpen, (isOpen) => {
               class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
               @blur="validateName"
             />
-            <div v-if="nameError" class="mt-1 text-sm text-red-400 flex items-center gap-1">
+            <div
+              v-if="nameError"
+              class="mt-1 text-sm text-red-400 flex items-center gap-1"
+            >
               <Icon name="mdi:alert-circle" class="w-4 h-4" />
               {{ nameError }}
             </div>
@@ -143,7 +155,10 @@ watch(() => props.isOpen, (isOpen) => {
 
           <!-- 説明 -->
           <div>
-            <label for="playlist-edit-description-input" class="block text-sm font-medium text-gray-200 mb-2">
+            <label
+              for="playlist-edit-description-input"
+              class="block text-sm font-medium text-gray-200 mb-2"
+            >
               説明（任意）
             </label>
             <textarea
@@ -174,7 +189,10 @@ watch(() => props.isOpen, (isOpen) => {
               class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               :disabled="loading || !name.trim()"
             >
-              <span v-if="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+              <span
+                v-if="loading"
+                class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"
+              ></span>
               <Icon v-else name="mdi:content-save" class="w-5 h-5" />
               保存
             </button>

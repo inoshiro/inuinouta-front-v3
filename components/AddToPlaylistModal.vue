@@ -1,86 +1,96 @@
 <script setup lang="ts">
-import type { Song } from '~/types/song';
+  import type { Song } from "~/types/song";
 
-const props = defineProps<{
-  isOpen: boolean;
-  song: Song;
-}>();
+  const props = defineProps<{
+    isOpen: boolean;
+    song: Song;
+  }>();
 
-const emit = defineEmits<{
-  close: [];
-  added: [playlistId: string];
-}>();
+  const emit = defineEmits<{
+    close: [];
+    added: [playlistId: string];
+  }>();
 
-const { playlists, loadPlaylists, addSongToPlaylist, loading } = useLocalPlaylist();
-const toast = useToast();
+  const { playlists, loadPlaylists, addSongToPlaylist, loading } =
+    useLocalPlaylist();
+  const toast = useToast();
 
-// 選択されたプレイリスト
-const selectedPlaylistId = ref<string | null>(null);
+  // 選択されたプレイリスト
+  const selectedPlaylistId = ref<string | null>(null);
 
-// 新規作成モーダル
-const showCreateModal = ref(false);
+  // 新規作成モーダル
+  const showCreateModal = ref(false);
 
-// モーダルが開いたらプレイリスト一覧を読み込む
-watch(() => props.isOpen, async (isOpen) => {
-  if (isOpen) {
-    await loadPlaylists();
-    selectedPlaylistId.value = null;
-  }
-});
-
-// プレイリストに追加
-const handleAdd = async () => {
-  if (!selectedPlaylistId.value) {
-    toast.warning('プレイリストを選択してください');
-    return;
-  }
-
-  try {
-    await addSongToPlaylist(selectedPlaylistId.value, props.song.id);
-    
-    const playlist = playlists.value.find(p => p.id === selectedPlaylistId.value);
-    toast.success(`「${props.song.title}」を${playlist ? `「${playlist.name}」に` : 'プレイリストに'}追加しました`);
-    
-    emit('added', selectedPlaylistId.value);
-    handleClose();
-  } catch (e) {
-    console.error('Failed to add song to playlist:', e);
-    // エラーメッセージがある場合は表示
-    if (e instanceof Error && e.message) {
-      toast.error(e.message);
-    } else {
-      toast.error('プレイリストへの追加に失敗しました');
+  // モーダルが開いたらプレイリスト一覧を読み込む
+  watch(
+    () => props.isOpen,
+    async (isOpen) => {
+      if (isOpen) {
+        await loadPlaylists();
+        selectedPlaylistId.value = null;
+      }
     }
-  }
-};
+  );
 
-// 新規プレイリスト作成
-const handleShowCreateModal = () => {
-  showCreateModal.value = true;
-};
+  // プレイリストに追加
+  const handleAdd = async () => {
+    if (!selectedPlaylistId.value) {
+      toast.warning("プレイリストを選択してください");
+      return;
+    }
 
-// 新規プレイリスト作成完了
-const handlePlaylistCreated = async (playlist: any) => {
-  showCreateModal.value = false;
-  await loadPlaylists();
-  selectedPlaylistId.value = playlist.id;
-  
-  // 自動的に追加
-  await handleAdd();
-};
+    try {
+      await addSongToPlaylist(selectedPlaylistId.value, props.song.id);
 
-// モーダルを閉じる
-const handleClose = () => {
-  selectedPlaylistId.value = null;
-  emit('close');
-};
+      const playlist = playlists.value.find(
+        (p) => p.id === selectedPlaylistId.value
+      );
+      toast.success(
+        `「${props.song.title}」を${
+          playlist ? `「${playlist.name}」に` : "プレイリストに"
+        }追加しました`
+      );
 
-// Escapeキーで閉じる
-const handleKeyDown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape' && !showCreateModal.value) {
-    handleClose();
-  }
-};
+      emit("added", selectedPlaylistId.value);
+      handleClose();
+    } catch (e) {
+      console.error("Failed to add song to playlist:", e);
+      // エラーメッセージがある場合は表示
+      if (e instanceof Error && e.message) {
+        toast.error(e.message);
+      } else {
+        toast.error("プレイリストへの追加に失敗しました");
+      }
+    }
+  };
+
+  // 新規プレイリスト作成
+  const handleShowCreateModal = () => {
+    showCreateModal.value = true;
+  };
+
+  // 新規プレイリスト作成完了
+  const handlePlaylistCreated = async (playlist: any) => {
+    showCreateModal.value = false;
+    await loadPlaylists();
+    selectedPlaylistId.value = playlist.id;
+
+    // 自動的に追加
+    await handleAdd();
+  };
+
+  // モーダルを閉じる
+  const handleClose = () => {
+    selectedPlaylistId.value = null;
+    emit("close");
+  };
+
+  // Escapeキーで閉じる
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape" && !showCreateModal.value) {
+      handleClose();
+    }
+  };
 </script>
 
 <template>
@@ -103,7 +113,9 @@ const handleKeyDown = (e: KeyboardEvent) => {
         @click.stop
       >
         <!-- ヘッダー -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700 flex-shrink-0">
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-gray-700 flex-shrink-0"
+        >
           <h2 class="text-xl font-bold text-white">プレイリストに追加</h2>
           <button
             @click="handleClose"
@@ -126,7 +138,9 @@ const handleKeyDown = (e: KeyboardEvent) => {
                 class="w-16 h-12 object-cover rounded flex-shrink-0"
               />
               <div class="flex-1 min-w-0">
-                <h3 class="font-semibold text-white truncate">{{ song.title }}</h3>
+                <h3 class="font-semibold text-white truncate">
+                  {{ song.title }}
+                </h3>
                 <p class="text-sm text-gray-400 truncate">{{ song.artist }}</p>
               </div>
             </div>
@@ -147,15 +161,22 @@ const handleKeyDown = (e: KeyboardEvent) => {
                 class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500 focus:ring-2"
               />
               <div class="flex-1 min-w-0">
-                <div class="font-medium text-white truncate">{{ playlist.name }}</div>
-                <div class="text-sm text-gray-400">{{ playlist.items.length }}曲</div>
+                <div class="font-medium text-white truncate">
+                  {{ playlist.name }}
+                </div>
+                <div class="text-sm text-gray-400">
+                  {{ playlist.items.length }}曲
+                </div>
               </div>
             </label>
           </div>
 
           <!-- プレイリストが空の場合 -->
           <div v-else class="text-center py-8 text-gray-400">
-            <Icon name="mdi:playlist-music" class="w-16 h-16 mx-auto mb-3 text-gray-600" />
+            <Icon
+              name="mdi:playlist-music"
+              class="w-16 h-16 mx-auto mb-3 text-gray-600"
+            />
             <p>プレイリストがありません</p>
             <p class="text-sm mt-1">新しいプレイリストを作成してください</p>
           </div>
@@ -171,7 +192,9 @@ const handleKeyDown = (e: KeyboardEvent) => {
         </div>
 
         <!-- フッター -->
-        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-700 flex-shrink-0">
+        <div
+          class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-700 flex-shrink-0"
+        >
           <button
             type="button"
             @click="handleClose"
@@ -185,7 +208,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
             class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             :disabled="loading || !selectedPlaylistId"
           >
-            <span v-if="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+            <span
+              v-if="loading"
+              class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"
+            ></span>
             <Icon v-else name="mdi:plus" class="w-5 h-5" />
             追加
           </button>
