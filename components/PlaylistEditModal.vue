@@ -124,7 +124,19 @@
             class="p-2 rounded-md hover:bg-gray-700 transition-colors text-gray-400 hover:text-white"
             aria-label="閉じる"
           >
-            <Icon name="mdi:close" class="w-5 h-5" />
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
         </div>
 
@@ -151,7 +163,19 @@
               v-if="nameError"
               class="mt-1 text-sm text-red-400 flex items-center gap-1"
             >
-              <Icon name="mdi:alert-circle" class="w-4 h-4" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
               {{ nameError }}
             </div>
             <div class="mt-1 text-xs text-gray-400 text-right">
@@ -199,7 +223,20 @@
                 v-if="loading"
                 class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"
               ></span>
-              <Icon v-else name="mdi:content-save" class="w-5 h-5" />
+              <svg
+                v-else
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+                />
+              </svg>
               保存
             </button>
           </div>
