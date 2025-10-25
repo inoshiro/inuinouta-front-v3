@@ -78,7 +78,7 @@ export const useLocalPlaylist = () => {
 
     try {
       const newPlaylist: LocalPlaylist = {
-        id: `local_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        id: crypto.randomUUID(),
         name: data.name,
         description: data.description || "",
         items: [],
@@ -182,7 +182,7 @@ export const useLocalPlaylist = () => {
 
       // 新しい曲を追加
       const newItem: LocalPlaylistItem = {
-        id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        id: crypto.randomUUID(),
         song_id: songId,
         order: playlist.items.length,
         added_at: new Date().toISOString(),

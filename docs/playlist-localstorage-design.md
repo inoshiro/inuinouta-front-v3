@@ -83,7 +83,7 @@ const STORAGE_KEY = "inuinouta_playlists";
 
 ```typescript
 interface LocalPlaylist {
-  id: string; // UUID v4 または timestamp ベース
+  id: string; // UUID v4
   name: string;
   description?: string;
   created_at: string; // ISO 8601 形式
@@ -92,7 +92,7 @@ interface LocalPlaylist {
 }
 
 interface LocalPlaylistItem {
-  id: string; // アイテム固有のID（UUID）
+  id: string; // UUID v4
   song_id: number; // 楽曲ID（Djangoのデータベースと一致）
   order: number; // 並び順（0始まり）
   added_at: string; // ISO 8601 形式
@@ -115,20 +115,20 @@ interface LocalPlaylistsData {
   "lastModified": "2025-10-25T12:00:00+09:00",
   "playlists": [
     {
-      "id": "uuid-1234-5678",
+      "id": "550e8400-e29b-41d4-a716-446655440000",
       "name": "お気に入りのオリジナル曲",
       "description": "戌亥とこのオリジナル曲まとめ",
       "created_at": "2025-10-20T10:00:00+09:00",
       "updated_at": "2025-10-25T11:30:00+09:00",
       "items": [
         {
-          "id": "item-uuid-1",
+          "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
           "song_id": 659,
           "order": 0,
           "added_at": "2025-10-20T10:05:00+09:00"
         },
         {
-          "id": "item-uuid-2",
+          "id": "6ba7b811-9dad-11d1-80b4-00c04fd430c8",
           "song_id": 123,
           "order": 1,
           "added_at": "2025-10-21T15:20:00+09:00"
