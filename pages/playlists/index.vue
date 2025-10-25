@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { mockPlaylists, getPlaylistSongs } from "~/utils/mockPlaylists";
+import { mockPlaylists } from "~/utils/mockPlaylists";
 
 // ダミーデータを使用
 const playlists = ref(mockPlaylists);
 
-// 各プレイリストのサムネイルを取得
-const getPlaylistThumbnails = (playlist: any) => {
-  const songs = getPlaylistSongs(playlist);
-  return songs
-    .slice(0, 4)
-    .map((song) => song.video.thumbnail_path)
-    .filter((url): url is string => !!url);
+// 日付のフォーマット
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
 };
 </script>
 
@@ -69,25 +70,92 @@ const getPlaylistThumbnails = (playlist: any) => {
     </div>
 
     <!-- プレイリスト一覧 -->
-    <div v-if="playlists.length > 0">
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-      >
-        <PlaylistCard
+    <div
+      v-if="playlists.length > 0"
+      class="bg-gray-800 rounded-lg overflow-hidden"
+    >
+      <div class="divide-y divide-gray-700">
+        <NuxtLink
           v-for="playlist in playlists"
           :key="playlist.id"
-          :playlist="playlist"
-          :song-count="playlist.items.length"
-          :thumbnails="getPlaylistThumbnails(playlist)"
-        />
+          :to="`/playlists/${playlist.id}`"
+          class="flex items-center gap-4 p-4 hover:bg-gray-700 transition-colors group"
+        >
+          <!-- アイコン -->
+          <div class="flex-shrink-0">
+            <svg
+              class="w-10 h-10 text-blue-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+              />
+            </svg>
+          </div>
+
+          <!-- プレイリスト情報 -->
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-lg mb-1 truncate">
+              {{ playlist.name }}
+            </h3>
+            <p
+              v-if="playlist.description"
+              class="text-sm text-gray-400 truncate"
+            >
+              {{ playlist.description }}
+            </p>
+          </div>
+
+          <!-- メタ情報 -->
+          <div class="flex items-center gap-6 text-sm text-gray-400">
+            <div class="flex items-center gap-2">
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                />
+              </svg>
+              <span>{{ playlist.items.length }}曲</span>
+            </div>
+            <div class="hidden sm:block">
+              {{ formatDate(playlist.created_at) }}
+            </div>
+          </div>
+
+          <!-- 矢印アイコン -->
+          <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg
+              class="w-5 h-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </div>
+        </NuxtLink>
       </div>
     </div>
 
     <!-- 空の状態 -->
-    <div
-      v-else
-      class="text-center py-20"
-    >
+    <div v-else class="text-center py-20">
       <svg
         class="w-24 h-24 text-gray-600 mx-auto mb-4"
         fill="none"
