@@ -8,7 +8,7 @@
 
   // Meta設定
   definePageMeta({
-    keepalive: false, // プレイリスト詳細画面では常に最新データを取得
+    keepalive: true, // ページの状態を保持
   });
 
   const route = useRoute();

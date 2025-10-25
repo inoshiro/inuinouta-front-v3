@@ -193,7 +193,19 @@
             @click="handleShowCreateModal"
             class="w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-gray-600 rounded-lg hover:border-blue-500 hover:bg-gray-700/30 text-gray-300 hover:text-blue-400 transition-colors"
           >
-            <Icon name="mdi:plus-circle" class="w-5 h-5" />
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
             <span class="font-medium">新しいプレイリストを作成</span>
           </button>
         </div>
@@ -219,7 +231,20 @@
               v-if="loading"
               class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"
             ></span>
-            <Icon v-else name="mdi:plus" class="w-5 h-5" />
+            <svg
+              v-else
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
             追加
           </button>
         </div>

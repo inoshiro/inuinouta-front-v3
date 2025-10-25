@@ -204,7 +204,20 @@
                 v-if="loading"
                 class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"
               ></span>
-              <Icon v-else name="mdi:plus" class="w-5 h-5" />
+              <svg
+                v-else
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
               作成
             </button>
           </div>
