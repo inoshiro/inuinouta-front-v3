@@ -51,9 +51,7 @@
 
   // 個別削除処理
   const removeItem = (index: number) => {
-    if (window.confirm("この楽曲をキューから削除しますか？")) {
-      playerQueue.removeFromQueue(index);
-    }
+    playerQueue.removeFromQueue(index);
   };
 
   // 全削除処理
@@ -270,9 +268,7 @@
             fill="currentColor"
             viewBox="0 0 24 24"
           >
-            <path
-              d="M6 6h2v12H6V6zm3.5 6l8.5 6V6l-8.5 6z"
-            />
+            <path d="M6 6h2v12H6V6zm3.5 6l8.5 6V6l-8.5 6z" />
           </svg>
           前へ
         </button>
@@ -287,9 +283,7 @@
             fill="currentColor"
             viewBox="0 0 24 24"
           >
-            <path
-              d="M6 18l8.5-6L6 6v12zm10-12v12h2V6h-2z"
-            />
+            <path d="M6 18l8.5-6L6 6v12zm10-12v12h2V6h-2z" />
           </svg>
         </button>
       </div>
