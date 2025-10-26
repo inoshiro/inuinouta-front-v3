@@ -13,6 +13,7 @@
 
   const { updatePlaylist, loading } = useLocalPlaylist();
   const toast = useToast();
+  const analytics = useAnalytics();
 
   // フォームデータ
   const name = ref("");
@@ -66,6 +67,9 @@
         name: name.value.trim(),
         description: description.value.trim() || undefined,
       });
+
+      // アナリティクス: プレイリスト編集を追跡
+      analytics.trackPlaylistAction("edit", updatedPlaylist.id, undefined);
 
       toast.success("プレイリストを更新しました");
       emit("updated", updatedPlaylist);

@@ -155,6 +155,7 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center justify-center gap-2 whitespace-nowrap"
+                @click="handleYouTubeClick"
               >
                 <svg
                   class="w-5 h-5"
@@ -275,6 +276,7 @@
 
   const queue = usePlayerQueue();
   const player = usePlayerStore();
+  const analytics = useAnalytics();
   const copied = ref(false);
 
   // 戻るボタンの処理
@@ -409,6 +411,9 @@
   const playNow = async () => {
     if (!song.value) return;
 
+    // アナリティクス: 楽曲再生を追跡
+    analytics.trackSongPlay(song.value);
+
     player.setUserInteracted(true);
     queue.setQueue([song.value]);
     queue.play(0);
@@ -430,9 +435,20 @@
 
   const addToQueue = () => {
     if (!song.value) return;
+
+    // アナリティクス: キューに追加を追跡
+    analytics.trackAddToQueue(song.value);
+
     queue.addToQueue(song.value);
     // TODO: トースト通知などでユーザーにフィードバックを提供
     console.log("キューに追加しました:", song.value.title);
+  };
+
+  const handleYouTubeClick = () => {
+    // アナリティクス: YouTubeリンククリックを追跡
+    if (song.value?.video) {
+      analytics.trackYouTubeClick(song.value.id, song.value.video.id);
+    }
   };
 
   const selectPermalink = (event: Event) => {
@@ -446,6 +462,12 @@
     try {
       await navigator.clipboard.writeText(permalink.value);
       copied.value = true;
+
+      // アナリティクス: パーマリンクコピーを追跡
+      if (song.value) {
+        analytics.trackPermalinkCopy(song.value.id);
+      }
+
       setTimeout(() => {
         copied.value = false;
       }, 2000);
@@ -460,6 +482,12 @@
           input.select();
           document.execCommand("copy");
           copied.value = true;
+
+          // アナリティクス: パーマリンクコピーを追跡
+          if (song.value) {
+            analytics.trackPermalinkCopy(song.value.id);
+          }
+
           setTimeout(() => {
             copied.value = false;
           }, 2000);

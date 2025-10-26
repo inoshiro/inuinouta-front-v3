@@ -228,6 +228,7 @@
 
   // Composables
   const { songs, loading, error, fetchSongs } = useSongs();
+  const analytics = useAnalytics();
   // Stores（表示情報のみ必要）
   // const { addToQueue } = usePlayerQueue();
 
@@ -329,6 +330,8 @@
 
   // ソート変更時のみAPI再取得
   const handleSortChange = () => {
+    // アナリティクス: ソート変更を追跡
+    analytics.trackSortChange("songs", sortOrder.value);
     loadSongs();
   };
 
@@ -360,7 +363,36 @@
 
   const handleArtistSelect = (artistName) => {
     selectedArtist.value = artistName;
+    // アナリティクス: アーティストフィルター適用を追跡
+    if (artistName) {
+      analytics.trackFilterApply("artist", artistName);
+    }
   };
+
+  // 検索クエリの変更を監視してアナリティクスに送信
+  let searchDebounceTimer = null;
+  watch(searchQuery, (newQuery) => {
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+    }
+
+    if (newQuery.trim()) {
+      searchDebounceTimer = setTimeout(() => {
+        // アナリティクス: 検索を追跡
+        analytics.trackSearch(newQuery, displayedSongs.value.length);
+      }, 1000); // 1秒後に送信（ユーザーが入力を続けている間は送信しない）
+    }
+  });
+
+  // フィルター変更を監視
+  watch([songTypeFilter, videoTypeFilter], ([newSongType, newVideoType]) => {
+    if (newSongType !== "all") {
+      analytics.trackFilterApply("song_type", newSongType);
+    }
+    if (newVideoType !== "all") {
+      analytics.trackFilterApply("video_type", newVideoType);
+    }
+  });
 
   // ライフサイクル
   onMounted(() => {

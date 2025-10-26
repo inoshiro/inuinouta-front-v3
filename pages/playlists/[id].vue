@@ -24,6 +24,7 @@
   const playerStore = usePlayerStore();
   const queueStore = usePlayerQueue();
   const toast = useToast();
+  const analytics = useAnalytics();
 
   // プレイリストIDを取得
   const playlistId = route.params.id as string;
@@ -92,6 +93,10 @@
 
   // 楽曲をクリックしたときの処理（今すぐ再生）
   const handlePlaySong = (song: Song) => {
+    // アナリティクス: プレイリストから楽曲再生を追跡
+    analytics.trackSongPlay(song);
+    analytics.trackPlaylistAction("play", playlistId, song.id);
+
     // ユーザーインタラクション記録
     playerStore.setUserInteracted(true);
 
@@ -110,6 +115,9 @@
 
   // キューに追加
   const handleAddToQueue = (song: Song) => {
+    // アナリティクス: キューに追加を追跡
+    analytics.trackAddToQueue(song);
+
     queueStore.addToQueue(song);
   };
 
@@ -143,6 +151,9 @@
     if (songs.value.length === 0) {
       return;
     }
+
+    // アナリティクス: プレイリスト全曲再生を追跡
+    analytics.trackPlaylistAction("play", playlistId, undefined);
 
     // ユーザーインタラクション記録
     playerStore.setUserInteracted(true);
@@ -180,6 +191,10 @@
     if (confirm(`「${playlist.value.name}」を削除しますか？`)) {
       try {
         await deletePlaylist(playlistId);
+
+        // アナリティクス: プレイリスト削除を追跡
+        analytics.trackPlaylistAction("delete", playlistId, undefined);
+
         toast.success("プレイリストを削除しました");
         router.push("/playlists");
       } catch (e) {
