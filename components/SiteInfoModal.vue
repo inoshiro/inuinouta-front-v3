@@ -96,7 +96,10 @@
             </h3>
             <ul class="text-sm space-y-2 list-disc list-inside">
               <li>楽曲・歌枠配信の検索と視聴</li>
-              <li>連続再生機能</li>
+              <li>アーティスト、楽曲タイプ、動画タイプでのフィルタリング</li>
+              <li>お気に入りプレイリストの作成・管理</li>
+              <li>連続再生機能（キュー管理）</li>
+              <li>ランダム歌枠再生</li>
             </ul>
           </section>
 
@@ -194,6 +197,34 @@
                   wavebox.me/wave/4v3755rdt2e2otd5
                 </a>
               </div>
+            </div>
+          </section>
+
+          <!-- プライバシー・アナリティクス -->
+          <section>
+            <h3
+              class="text-lg font-semibold text-white mb-3 flex items-center gap-2"
+            >
+              <span>📊</span>
+              <span>アクセス解析について</span>
+            </h3>
+            <div class="text-sm leading-relaxed space-y-3">
+              <p>
+                当サイトでは、サービス改善のためGoogle Analytics
+                4を使用してアクセス解析を行っています。
+              </p>
+              <p class="text-gray-400">
+                収集される情報には、ページビュー、楽曲の再生・検索履歴、プレイリスト操作などの統計データが含まれます。これらの情報は個人を特定するものではなく、サイトの機能改善や利用傾向の把握のみに使用されます。
+              </p>
+              <p class="text-gray-400">
+                詳しくは<a
+                  href="https://policies.google.com/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-blue-400 hover:text-blue-300 transition-colors"
+                  >Googleプライバシーポリシー</a
+                >をご確認ください。
+              </p>
             </div>
           </section>
 

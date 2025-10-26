@@ -18,6 +18,7 @@ export default defineNuxtConfig({
       siteUrl:
         process.env.NUXT_PUBLIC_SITE_URL ||
         "https://inuinouta-front-v3.vercel.app",
+      gaId: process.env.NUXT_PUBLIC_GA_ID || "", // Google Analytics 測定ID (G-XXXXXXXXXX)
     },
   },
   vite: {

@@ -245,7 +245,7 @@
           :href="youtubeUrl"
           target="_blank"
           rel="noopener noreferrer"
-          @click="closeMenu"
+          @click="handleYouTubeClick"
           :class="SONG_ROW_STYLES.contextMenu.menuItem"
         >
           <svg
@@ -293,6 +293,7 @@
   // Stores
   const queue = usePlayerQueue();
   const player = usePlayerStore();
+  const analytics = useAnalytics();
 
   // Emits（外部との互換性を保持）
   const emit = defineEmits(["play-now", "add-to-queue", "add-to-playlist"]);
@@ -417,6 +418,9 @@
 
   // 直接再生（前プロジェクトのclickSongを参考）
   const playNow = () => {
+    // アナリティクス: 楽曲再生を追跡
+    analytics.trackSongPlay(props.song);
+
     // ユーザーインタラクション記録（モバイル対応強化）
     player.setUserInteracted(true);
 
@@ -442,6 +446,10 @@
   // キューに追加
   const addToQueue = () => {
     console.log("Adding to queue:", props.song.title);
+
+    // アナリティクス: キューに追加を追跡
+    analytics.trackAddToQueue(props.song);
+
     queue.addToQueue(props.song);
     emit("add-to-queue", props.song);
   };
@@ -455,8 +463,21 @@
   // プレイリスト追加完了ハンドラ
   const handlePlaylistAdded = (playlistId) => {
     console.log("Song added to playlist:", playlistId);
+
+    // アナリティクス: プレイリストに追加を追跡
+    analytics.trackPlaylistAction("add_song", playlistId, props.song.id);
+
     showAddToPlaylistModal.value = false;
     emit("add-to-playlist", { song: props.song, playlistId });
+  };
+
+  // YouTubeリンククリックハンドラ
+  const handleYouTubeClick = () => {
+    // アナリティクス: YouTubeリンククリックを追跡
+    if (props.song.video) {
+      analytics.trackYouTubeClick(props.song.id, props.song.video.id);
+    }
+    closeMenu();
   };
 
   // 現在再生中の楽曲かどうか（シンプルな判定）

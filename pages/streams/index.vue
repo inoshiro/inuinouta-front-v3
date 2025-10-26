@@ -95,6 +95,7 @@
 
   // リアクティブな状態
   const { videos, loading, error, fetchVideos } = useVideos();
+  const analytics = useAnalytics();
   const searchQuery = ref("");
   const sortOrder = ref("-published_at");
 
@@ -203,6 +204,9 @@
 
         queueStore.setQueue(songsWithVideoInfo);
 
+        // アナリティクス: ランダム歌枠キューを追跡
+        analytics.trackPlaylistAction("play", randomStream.id, undefined);
+
         console.log(
           `ランダム歌枠「${videoWithSongs.title}」の${videoWithSongs.songs.length}曲をキューに設定しました`
         );
@@ -265,6 +269,9 @@
           queueStore.addToQueue(songWithVideo);
         });
 
+        // アナリティクス: 歌枠全体をキューに追加
+        analytics.trackPlaylistAction("add_song", stream.id, undefined);
+
         console.log(
           `歌枠「${videoWithSongs.title}」の${videoWithSongs.songs.length}曲をキューに追加しました`
         );
@@ -275,6 +282,27 @@
       console.error("歌枠をキューに追加する際にエラーが発生しました:", error);
     }
   };
+
+  // 検索クエリの変更を監視してアナリティクスに送信
+  let searchDebounceTimer: NodeJS.Timeout | null = null;
+  watch(searchQuery, (newQuery) => {
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+    }
+
+    if (newQuery.trim()) {
+      searchDebounceTimer = setTimeout(() => {
+        // アナリティクス: 検索を追跡
+        analytics.trackSearch(newQuery, filteredStreams.value.length);
+      }, 1000);
+    }
+  });
+
+  // ソート変更を監視
+  watch(sortOrder, (newOrder) => {
+    // アナリティクス: ソート変更を追跡
+    analytics.trackSortChange("streams", newOrder);
+  });
 
   // 初期データ取得
   onMounted(() => {

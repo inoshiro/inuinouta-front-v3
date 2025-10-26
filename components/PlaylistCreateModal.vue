@@ -12,6 +12,7 @@
 
   const { createPlaylist, loading } = useLocalPlaylist();
   const toast = useToast();
+  const analytics = useAnalytics();
 
   // フォームデータ
   const name = ref("");
@@ -55,6 +56,9 @@
         name: name.value.trim(),
         description: description.value.trim() || undefined,
       });
+
+      // アナリティクス: プレイリスト作成を追跡
+      analytics.trackPlaylistAction('create', playlist.id, undefined);
 
       toast.success(`プレイリスト「${playlist.name}」を作成しました`);
       emit("created", playlist);
