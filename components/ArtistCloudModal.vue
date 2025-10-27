@@ -94,34 +94,32 @@
   </Teleport>
 </template>
 
-<script setup>
-  const props = defineProps({
-    isOpen: {
-      type: Boolean,
-      required: true,
-    },
-    selectedArtist: {
-      type: String,
-      default: "",
-    },
-    artists: {
-      type: Array,
-      required: true,
-    },
-    songs: {
-      type: Array,
-      required: true,
-    },
-  });
+<script setup lang="ts">
+  import type { Song } from "~/types/song";
 
-  const emit = defineEmits(["close", "select"]);
+  interface ArtistWithCount {
+    name: string;
+    count: number;
+  }
+
+  const props = defineProps<{
+    isOpen: boolean;
+    selectedArtist?: string;
+    artists: string[];
+    songs: readonly any[] | any[];
+  }>();
+
+  const emit = defineEmits<{
+    close: [];
+    select: [artistName: string];
+  }>();
 
   // リアクティブデータ
   const searchQuery = ref("");
 
   // 各アーティストの楽曲数を計算
   const artistsWithCount = computed(() => {
-    const countMap = {};
+    const countMap: Record<string, number> = {};
     props.songs.forEach((song) => {
       const artist = song.artist;
       countMap[artist] = (countMap[artist] || 0) + 1;
@@ -151,7 +149,7 @@
   });
 
   // 楽曲数に応じたサイズクラスを返す
-  const getSizeClass = (count) => {
+  const getSizeClass = (count: number) => {
     const maxCount = Math.max(...artistsWithCount.value.map((a) => a.count));
     const ratio = count / maxCount;
 
@@ -172,14 +170,14 @@
     emit("close");
   };
 
-  const selectArtist = (artistName) => {
+  const selectArtist = (artistName: string) => {
     emit("select", artistName);
     closeModal();
   };
 
   // ESCキーでモーダルを閉じる
   onMounted(() => {
-    const handleEscape = (e) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && props.isOpen) {
         closeModal();
       }

@@ -75,29 +75,24 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   // Props
-  defineProps({
-    currentPage: {
-      type: Number,
-      required: true,
-    },
-    totalPages: {
-      type: Number,
-      required: true,
-    },
-    visiblePages: {
-      type: Array,
-      required: true,
-    },
-  });
+  defineProps<{
+    currentPage: number;
+    totalPages: number;
+    visiblePages: (number | string)[];
+  }>();
 
   // Emits
-  const emit = defineEmits(["go-to-page"]);
+  const emit = defineEmits<{
+    "go-to-page": [page: number];
+  }>();
 
   // Methods
-  const goToPage = (page) => {
-    emit("go-to-page", page);
+  const goToPage = (page: number | string) => {
+    if (typeof page === "number") {
+      emit("go-to-page", page);
+    }
   };
 </script>
 

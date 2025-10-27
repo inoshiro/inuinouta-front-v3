@@ -58,7 +58,7 @@
       });
 
       // アナリティクス: プレイリスト作成を追跡
-      analytics.trackPlaylistAction('create', playlist.id, undefined);
+      analytics.trackPlaylistAction("create", playlist.id, playlist.name);
 
       toast.success(`プレイリスト「${playlist.name}」を作成しました`);
       emit("created", playlist);

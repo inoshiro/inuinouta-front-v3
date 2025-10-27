@@ -75,46 +75,41 @@
   </div>
 </template>
 
-<script setup>
-// Props
-defineProps({
-  currentPage: {
-    type: Number,
-    required: true,
-  },
-  totalPages: {
-    type: Number,
-    required: true,
-  },
-  visiblePages: {
-    type: Array,
-    required: true,
-  },
-});
+<script setup lang="ts">
+  // Props
+  defineProps<{
+    currentPage: number;
+    totalPages: number;
+    visiblePages: (number | string)[];
+  }>();
 
-// Emits
-const emit = defineEmits(['go-to-page']);
+  // Emits
+  const emit = defineEmits<{
+    "go-to-page": [page: number];
+  }>();
 
-// Methods
-const goToPage = (page) => {
-  emit('go-to-page', page);
-};
+  // Methods
+  const goToPage = (page: number | string) => {
+    if (typeof page === "number") {
+      emit("go-to-page", page);
+    }
+  };
 </script>
 
 <style scoped>
-/* ページネーションボタンのホバー効果 */
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+  /* ページネーションボタンのホバー効果 */
+  button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
-/* アニメーション効果 */
-button {
-  transition: all 0.2s ease;
-}
+  /* アニメーション効果 */
+  button {
+    transition: all 0.2s ease;
+  }
 </style>

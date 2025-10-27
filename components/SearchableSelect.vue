@@ -104,44 +104,27 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   // Props
-  const props = defineProps({
-    modelValue: {
-      type: String,
-      default: "",
-    },
-    options: {
-      type: Array,
-      required: true,
-    },
-    placeholder: {
-      type: String,
-      default: "選択してください...",
-    },
-    allOptionText: {
-      type: String,
-      default: "全て",
-    },
-    showAllOption: {
-      type: Boolean,
-      default: true,
-    },
-    inputClass: {
-      type: String,
-      default:
-        "w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-    },
-  });
+  const props = defineProps<{
+    modelValue?: string;
+    options: string[];
+    placeholder?: string;
+    allOptionText?: string;
+    showAllOption?: boolean;
+    inputClass?: string;
+  }>();
 
   // Emits
-  const emit = defineEmits(["update:modelValue"]);
+  const emit = defineEmits<{
+    "update:modelValue": [value: string];
+  }>();
 
   // リアクティブデータ
   const isOpen = ref(false);
   const searchQuery = ref("");
   const focusedIndex = ref(-1);
-  const selectRef = ref(null);
+  const selectRef = ref<HTMLElement | null>(null);
 
   // 計算プロパティ
   const filteredOptions = computed(() => {
@@ -185,7 +168,7 @@
     }
   };
 
-  const selectOption = (option) => {
+  const selectOption = (option: string) => {
     emit("update:modelValue", option);
     searchQuery.value = option;
     closeDropdown();
@@ -204,7 +187,7 @@
     focusedIndex.value = -1;
   };
 
-  const handleKeydown = (event) => {
+  const handleKeydown = (event: KeyboardEvent) => {
     if (
       !isOpen.value &&
       ["ArrowDown", "ArrowUp", "Enter"].includes(event.key)
@@ -251,8 +234,8 @@
   };
 
   // 外部クリック検出
-  const handleClickOutside = (event) => {
-    if (selectRef.value && !selectRef.value.contains(event.target)) {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (selectRef.value && !selectRef.value.contains(event.target as Node)) {
       closeDropdown();
     }
   };

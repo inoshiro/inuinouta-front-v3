@@ -447,7 +447,11 @@
   const handleYouTubeClick = () => {
     // アナリティクス: YouTubeリンククリックを追跡
     if (song.value?.video) {
-      analytics.trackYouTubeClick(song.value.id, song.value.video.id);
+      analytics.trackYouTubeClick(
+        song.value.id,
+        song.value.title,
+        song.value.video.id
+      );
     }
   };
 
@@ -465,7 +469,7 @@
 
       // アナリティクス: パーマリンクコピーを追跡
       if (song.value) {
-        analytics.trackPermalinkCopy(song.value.id);
+        analytics.trackPermalinkCopy(song.value.id, song.value.title);
       }
 
       setTimeout(() => {
@@ -485,7 +489,7 @@
 
           // アナリティクス: パーマリンクコピーを追跡
           if (song.value) {
-            analytics.trackPermalinkCopy(song.value.id);
+            analytics.trackPermalinkCopy(song.value.id, song.value.title);
           }
 
           setTimeout(() => {

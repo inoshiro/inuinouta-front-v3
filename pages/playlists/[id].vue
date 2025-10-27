@@ -95,7 +95,13 @@
   const handlePlaySong = (song: Song) => {
     // アナリティクス: プレイリストから楽曲再生を追跡
     analytics.trackSongPlay(song);
-    analytics.trackPlaylistAction("play", playlistId, song.id);
+    analytics.trackPlaylistAction(
+      "play",
+      playlistId,
+      playlist.value?.name,
+      song.id,
+      song.title
+    );
 
     // ユーザーインタラクション記録
     playerStore.setUserInteracted(true);
@@ -153,7 +159,7 @@
     }
 
     // アナリティクス: プレイリスト全曲再生を追跡
-    analytics.trackPlaylistAction("play", playlistId, undefined);
+    analytics.trackPlaylistAction("play", playlistId, playlist.value?.name);
 
     // ユーザーインタラクション記録
     playerStore.setUserInteracted(true);
@@ -193,7 +199,11 @@
         await deletePlaylist(playlistId);
 
         // アナリティクス: プレイリスト削除を追跡
-        analytics.trackPlaylistAction("delete", playlistId, undefined);
+        analytics.trackPlaylistAction(
+          "delete",
+          playlistId,
+          playlist.value?.name
+        );
 
         toast.success("プレイリストを削除しました");
         router.push("/playlists");

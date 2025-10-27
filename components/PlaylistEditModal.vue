@@ -69,7 +69,11 @@
       });
 
       // アナリティクス: プレイリスト編集を追跡
-      analytics.trackPlaylistAction("edit", updatedPlaylist.id, undefined);
+      analytics.trackPlaylistAction(
+        "edit",
+        updatedPlaylist.id,
+        updatedPlaylist.name
+      );
 
       toast.success("プレイリストを更新しました");
       emit("updated", updatedPlaylist);

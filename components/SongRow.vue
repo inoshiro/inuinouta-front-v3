@@ -272,23 +272,24 @@
   </Teleport>
 </template>
 
-<script setup>
+<script setup lang="ts">
   import { computed, ref, onMounted, onBeforeUnmount } from "vue";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
   import { usePlayerStore } from "~/stores/player";
   import { SONG_ROW_STYLES, SONG_ROW_ICONS } from "~/constants/songRowStyles";
+  import type { Song } from "~/types/song";
 
   // グローバルな現在開いているメニューの管理
   // （他のSongRowインスタンスと共有される）
-  const globalOpenMenuId = useState("songRowOpenMenuId", () => null);
+  const globalOpenMenuId = useState<string | null>(
+    "songRowOpenMenuId",
+    () => null
+  );
 
   // Props
-  const props = defineProps({
-    song: {
-      type: Object,
-      required: true,
-    },
-  });
+  const props = defineProps<{
+    song: Song;
+  }>();
 
   // Stores
   const queue = usePlayerQueue();
@@ -296,7 +297,11 @@
   const analytics = useAnalytics();
 
   // Emits（外部との互換性を保持）
-  const emit = defineEmits(["play-now", "add-to-queue", "add-to-playlist"]);
+  const emit = defineEmits<{
+    "play-now": [song: Song];
+    "add-to-queue": [song: Song];
+    "add-to-playlist": [payload: { song: Song; playlistId: string }];
+  }>();
 
   // プレイリストモーダル
   const showAddToPlaylistModal = ref(false);
@@ -308,11 +313,11 @@
   const showMenu = computed(() => globalOpenMenuId.value === instanceId.value);
 
   // メニューボタンの参照
-  const mobileMenuButton = ref(null);
-  const desktopMenuButton = ref(null);
+  const mobileMenuButton = ref<HTMLButtonElement | null>(null);
+  const desktopMenuButton = ref<HTMLButtonElement | null>(null);
 
   // メニューの位置
-  const menuPosition = ref({});
+  const menuPosition = ref<Record<string, string>>({});
 
   // メニューの位置を計算
   const calculateMenuPosition = () => {
@@ -387,13 +392,13 @@
   };
 
   // メニューアクション実行後に閉じる
-  const handleMenuAction = (action) => {
+  const handleMenuAction = (action: () => void) => {
     action();
     closeMenu();
   };
 
   // メニュー外クリックで閉じる
-  const handleClickOutside = (event) => {
+  const handleClickOutside = (event: MouseEvent) => {
     if (showMenu.value) {
       closeMenu();
     }
@@ -461,11 +466,22 @@
   };
 
   // プレイリスト追加完了ハンドラ
-  const handlePlaylistAdded = (playlistId) => {
+  const handlePlaylistAdded = (playlistId: string) => {
     console.log("Song added to playlist:", playlistId);
 
+    // プレイリスト名を取得
+    const { getPlaylistById } = useLocalPlaylist();
+    const playlist = getPlaylistById(playlistId);
+    const playlistName = playlist?.name || undefined;
+
     // アナリティクス: プレイリストに追加を追跡
-    analytics.trackPlaylistAction("add_song", playlistId, props.song.id);
+    analytics.trackPlaylistAction(
+      "add_song",
+      playlistId,
+      playlistName,
+      props.song.id,
+      props.song.title
+    );
 
     showAddToPlaylistModal.value = false;
     emit("add-to-playlist", { song: props.song, playlistId });
@@ -475,7 +491,11 @@
   const handleYouTubeClick = () => {
     // アナリティクス: YouTubeリンククリックを追跡
     if (props.song.video) {
-      analytics.trackYouTubeClick(props.song.id, props.song.video.id);
+      analytics.trackYouTubeClick(
+        props.song.id,
+        props.song.title,
+        props.song.video.id
+      );
     }
     closeMenu();
   };
@@ -518,8 +538,9 @@
   );
 
   // 画像読み込みエラーハンドリング
-  const handleImageError = (event) => {
-    event.target.style.display = "none";
+  const handleImageError = (event: Event) => {
+    const target = event.target as HTMLImageElement;
+    target.style.display = "none";
   };
 </script>
 
