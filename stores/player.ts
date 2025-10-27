@@ -31,9 +31,11 @@ export const usePlayerStore = defineStore("player", {
       | null, // 遷移理由
     retryCount: 0, // リトライ回数
     maxRetries: 3, // 最大リトライ回数
-    // 新機能：リピート・シャッフル機能
+    // 新機能:リピート・シャッフル機能
     repeatMode: "none" as "none" | "one" | "all", // リピートモード
     isShuffled: false, // シャッフル状態
+    // YouTubeプレイヤー表示状態
+    showYouTubePlayer: false, // YouTubeプレイヤーを前面に表示するか
   }),
   getters: {
     // 現在の楽曲の進行率（0-100）
@@ -254,6 +256,16 @@ export const usePlayerStore = defineStore("player", {
     },
     toggleShuffle() {
       this.setShuffled(!this.isShuffled);
+    },
+    // YouTubeプレイヤー表示制御
+    toggleYouTubePlayer() {
+      this.showYouTubePlayer = !this.showYouTubePlayer;
+      console.log(
+        `YouTubeプレイヤー表示: ${this.showYouTubePlayer ? "ON" : "OFF"}`
+      );
+    },
+    setShowYouTubePlayer(show: boolean) {
+      this.showYouTubePlayer = show;
     },
   },
 });

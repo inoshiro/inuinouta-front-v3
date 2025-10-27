@@ -162,6 +162,11 @@
     )}`;
     window.open(tweetUrl, "_blank");
   };
+
+  // YouTubeプレイヤー表示切り替え
+  const toggleYouTubePlayer = () => {
+    playerStore.toggleYouTubePlayer();
+  };
 </script>
 
 <template>
@@ -340,6 +345,43 @@
 
         <!-- 右側: 追加コントロール (1/3) -->
         <div class="flex items-center gap-3 justify-end min-w-0 w-1/3">
+          <!-- YouTubeプレイヤー表示ボタン -->
+          <button
+            v-if="currentTrack"
+            @click="toggleYouTubePlayer"
+            :class="[
+              'p-2 rounded-full transition-colors flex-shrink-0',
+              playerStore.showYouTubePlayer
+                ? 'text-red-500 bg-red-900/30'
+                : 'text-gray-400 hover:text-red-500 hover:bg-gray-700',
+            ]"
+            title="動画を表示"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <rect
+                x="2"
+                y="3"
+                width="20"
+                height="14"
+                rx="2"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M8 21h8M12 17v4"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+
           <!-- YouTubeリンク -->
           <a
             v-if="currentTrack?.video?.url"
@@ -560,6 +602,46 @@
             <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
               <path
                 d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"
+              />
+            </svg>
+          </button>
+
+          <!-- YouTubeプレイヤー表示ボタン -->
+          <button
+            v-if="currentTrack"
+            @click="
+              toggleYouTubePlayer();
+              showMobileMenu = false;
+            "
+            :class="[
+              'p-3 rounded-xl transition-colors',
+              playerStore.showYouTubePlayer
+                ? 'text-red-500 bg-red-900/30'
+                : 'text-gray-400 hover:text-red-500 hover:bg-gray-700',
+            ]"
+            title="動画を表示"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <rect
+                x="2"
+                y="3"
+                width="20"
+                height="14"
+                rx="2"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M8 21h8M12 17v4"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
               />
             </svg>
           </button>

@@ -59,13 +59,13 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
     previousSongId = null;
 
     const player = new window.YT.Player(playerId, {
-      height: "0",
-      width: "0",
+      height: "360",
+      width: "640",
       videoId: "",
       playerVars: {
         autoplay: 1, // モバイル対応のため有効化
-        controls: 0,
-        disablekb: 1,
+        controls: 0, // コントロールを非表示
+        disablekb: 1, // キーボード操作を無効化
         enablejsapi: 1,
         fs: 0,
         iv_load_policy: 3,
@@ -74,6 +74,7 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
         showinfo: 0,
         playsinline: 1, // iOS対応（旧プロジェクトと同じ設定）
         origin: window.location.origin, // モバイル対応強化
+        vq: "tiny", // 初期画質を最低品質に設定
       },
       events: {
         onReady: onPlayerReady,
@@ -109,6 +110,10 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
         volume: playerStore.volume,
         muted: playerStore.isMuted,
       });
+
+      // 初期画質を最低品質に設定
+      playerStore.ytPlayer.setPlaybackQuality("tiny");
+      console.log("初期画質をtinyに設定");
     }
 
     // 現在時刻の更新を開始（旧プロジェクトと同じ1秒間隔）
@@ -634,6 +639,44 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
     }
   );
 
+  // YouTubeプレイヤー表示状態の変更を監視して画質を切り替え
+  watch(
+    () => playerStore.showYouTubePlayer,
+    (isVisible) => {
+      if (!playerStore.ytPlayer || !playerStore.isPlayerReady) {
+        return;
+      }
+
+      if (isVisible) {
+        // 全面表示時は高画質に切り替え
+        console.log("プレイヤー表示: 画質を高解像度に変更");
+        // 利用可能な画質を取得
+        const availableQualities =
+          playerStore.ytPlayer.getAvailableQualityLevels();
+        console.log("利用可能な画質:", availableQualities);
+
+        // 優先順位: hd1080 > hd720 > large > medium
+        if (availableQualities.includes("hd1080")) {
+          playerStore.ytPlayer.setPlaybackQuality("hd1080");
+          console.log("画質をhd1080に設定");
+        } else if (availableQualities.includes("hd720")) {
+          playerStore.ytPlayer.setPlaybackQuality("hd720");
+          console.log("画質をhd720に設定");
+        } else if (availableQualities.includes("large")) {
+          playerStore.ytPlayer.setPlaybackQuality("large");
+          console.log("画質をlargeに設定");
+        } else if (availableQualities.includes("medium")) {
+          playerStore.ytPlayer.setPlaybackQuality("medium");
+          console.log("画質をmediumに設定");
+        }
+      } else {
+        // 非表示時は最低画質に戻す
+        console.log("プレイヤー非表示: 画質をtinyに変更");
+        playerStore.ytPlayer.setPlaybackQuality("tiny");
+      }
+    }
+  );
+
   onMounted(async () => {
     await nextTick();
 
@@ -661,10 +704,66 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
 </script>
 
 <template>
-  <!-- 非表示のYouTubeプレイヤー（音声のみ） -->
-  <div class="hidden">
-    <div ref="playerContainer">
-      <div :id="playerId"></div>
+  <!-- プレイヤーコンテナ（常に存在、表示状態で切り替え） -->
+  <div>
+    <!-- フルスクリーン表示オーバーレイ（z-30でフッターより下） -->
+    <div
+      v-show="playerStore.showYouTubePlayer"
+      class="fixed inset-0 z-30 flex items-center justify-center bg-black/80 pt-20 pb-50"
+      @click.self="playerStore.toggleYouTubePlayer()"
+    >
+      <div class="relative w-full max-w-5xl mx-4 my-auto">
+        <!-- YouTubeプレイヤーコンテナ（フッター分の下マージンを確保） -->
+        <div
+          class="relative w-full bg-black rounded-lg overflow-hidden shadow-2xl"
+          style="padding-bottom: 56.25%"
+        >
+          <div class="absolute inset-0">
+            <div ref="playerContainer" class="w-full h-full">
+              <div :id="playerId" class="w-full h-full"></div>
+            </div>
+            <!-- 透明なオーバーレイでマウスイベントをブロック -->
+            <div
+              class="absolute inset-0 bg-transparent pointer-events-auto"
+            ></div>
+          </div>
+
+          <!-- 閉じるボタン（プレイヤーの右上に配置） -->
+          <button
+            @click="playerStore.toggleYouTubePlayer()"
+            class="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors p-2 rounded-full bg-gray-800/70 hover:bg-gray-800 shadow-lg"
+            title="閉じる"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- 楽曲情報 -->
+        <div
+          v-if="queueStore.nowPlaying"
+          class="mt-4 text-white text-center bg-gray-900/80 rounded-lg p-4"
+        >
+          <h3 class="text-xl font-bold">{{ queueStore.nowPlaying.title }}</h3>
+          <p class="text-gray-300 mt-1">
+            {{ queueStore.nowPlaying.artist || "Unknown Artist" }}
+          </p>
+        </div>
+      </div>
     </div>
+
+    <!-- 非表示時のプレイヤー位置（playerContainerとplayerIdを共有） -->
+    <!-- v-showがfalseの時はここには何も表示されない（上のオーバーレイ内に存在） -->
   </div>
 </template>
