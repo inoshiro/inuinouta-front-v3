@@ -8,14 +8,14 @@ import type { Song } from "~/types/song";
  * analytics.trackSongPlay(song)
  */
 export const useAnalytics = () => {
-  const { $gtag } = useNuxtApp();
+  const { gtag } = useGtag();
 
   /**
    * イベントを送信する内部メソッド
    */
   const sendEvent = (eventName: string, eventParams?: Record<string, any>) => {
-    if (typeof $gtag === "function") {
-      $gtag("event", eventName, eventParams);
+    if (typeof gtag === "function") {
+      gtag("event", eventName, eventParams);
     } else {
       // 開発環境などでGA4が無効な場合はコンソールに出力
       console.log("Analytics Event:", eventName, eventParams);
@@ -74,21 +74,30 @@ export const useAnalytics = () => {
   const trackPlaylistAction = (
     action: "create" | "edit" | "delete" | "play" | "add_song",
     playlistId?: string,
-    songId?: number
+    playlistName?: string,
+    songId?: number,
+    songTitle?: string
   ) => {
     sendEvent("playlist_action", {
       action,
       playlist_id: playlistId,
+      playlist_name: playlistName,
       song_id: songId,
+      song_title: songTitle,
     });
   };
 
   /**
    * YouTubeリンククリックを追跡
    */
-  const trackYouTubeClick = (songId: number, videoId: string) => {
+  const trackYouTubeClick = (
+    songId: number,
+    songTitle: string,
+    videoId: string
+  ) => {
     sendEvent("youtube_click", {
       song_id: songId,
+      song_title: songTitle,
       video_id: videoId,
     });
   };
@@ -96,9 +105,10 @@ export const useAnalytics = () => {
   /**
    * パーマリンクコピーを追跡
    */
-  const trackPermalinkCopy = (songId: number) => {
+  const trackPermalinkCopy = (songId: number, songTitle: string) => {
     sendEvent("permalink_copy", {
       song_id: songId,
+      song_title: songTitle,
     });
   };
 

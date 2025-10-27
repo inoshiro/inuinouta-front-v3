@@ -5,7 +5,10 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
   css: ["~/assets/css/main.css"],
-  modules: ["@nuxt/eslint", "@pinia/nuxt"],
+  modules: ["@nuxt/eslint", "@pinia/nuxt", "nuxt-gtag"],
+  gtag: {
+    id: process.env.NUXT_PUBLIC_GA_ID || "",
+  },
   components: {
     global: true,
     dirs: ["~/components", "~/components/layout"],

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { computed } from "vue";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
   import PlayerControls from "~/components/PlayerControls.vue";

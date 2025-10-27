@@ -82,20 +82,27 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   import { ref, computed, watch } from "vue";
   import BasePagination from "~/components/BasePagination.vue";
+  import type { Song } from "~/types/song";
 
   // Props
-  const props = defineProps({
-    songs: {
-      type: Array,
-      default: () => [],
-    },
-  });
+  const props = withDefaults(
+    defineProps<{
+      songs?: readonly any[];
+    }>(),
+    {
+      songs: () => [],
+    }
+  );
 
   // Emits
-  defineEmits(["play-now", "add-to-queue", "add-to-playlist"]);
+  defineEmits<{
+    "play-now": [song: Song];
+    "add-to-queue": [song: Song];
+    "add-to-playlist": [payload: { song: Song; playlistId: string }];
+  }>();
 
   // ページネーションの設定
   const ITEMS_PER_PAGE = 20; // デフォルト値
@@ -158,7 +165,7 @@
   });
 
   // ページ移動
-  const goToPage = (page) => {
+  const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page;
       // ページトップにスクロール

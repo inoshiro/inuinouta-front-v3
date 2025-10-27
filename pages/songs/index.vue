@@ -217,7 +217,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
   // Meta設定
   definePageMeta({
     title: "楽曲一覧",
@@ -316,7 +316,7 @@
 
   // メソッド
   const loadSongs = async () => {
-    const query = {};
+    const query: Record<string, any> = {};
 
     // API呼び出しするのはソートのみ
     if (sortOrder.value) query.ordering = sortOrder.value;
@@ -361,7 +361,7 @@
     // ここでは追加処理のみを行う（将来的にはトースト通知など）
   };
 
-  const handleArtistSelect = (artistName) => {
+  const handleArtistSelect = (artistName: string) => {
     selectedArtist.value = artistName;
     // アナリティクス: アーティストフィルター適用を追跡
     if (artistName) {
@@ -370,7 +370,7 @@
   };
 
   // 検索クエリの変更を監視してアナリティクスに送信
-  let searchDebounceTimer = null;
+  let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   watch(searchQuery, (newQuery) => {
     if (searchDebounceTimer) {
       clearTimeout(searchDebounceTimer);

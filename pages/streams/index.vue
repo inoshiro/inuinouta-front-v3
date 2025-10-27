@@ -205,7 +205,11 @@
         queueStore.setQueue(songsWithVideoInfo);
 
         // アナリティクス: ランダム歌枠キューを追跡
-        analytics.trackPlaylistAction("play", randomStream.id, undefined);
+        analytics.trackPlaylistAction(
+          "play",
+          randomStream.id,
+          randomStream.title
+        );
 
         console.log(
           `ランダム歌枠「${videoWithSongs.title}」の${videoWithSongs.songs.length}曲をキューに設定しました`
@@ -270,7 +274,7 @@
         });
 
         // アナリティクス: 歌枠全体をキューに追加
-        analytics.trackPlaylistAction("add_song", stream.id, undefined);
+        analytics.trackPlaylistAction("add_song", stream.id, stream.title);
 
         console.log(
           `歌枠「${videoWithSongs.title}」の${videoWithSongs.songs.length}曲をキューに追加しました`
