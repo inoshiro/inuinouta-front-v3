@@ -8,14 +8,14 @@
         <div class="flex items-center space-x-2">
           <label class="text-sm text-gray-600">表示件数:</label>
           <select
-            v-model="itemsPerPage"
+            v-model.number="itemsPerPage"
             class="text-sm border border-gray-300 rounded px-2 py-1"
             @change="onItemsPerPageChange"
           >
-            <option value="10">10件</option>
-            <option value="20">20件</option>
-            <option value="50">50件</option>
-            <option value="100">100件</option>
+            <option :value="10">10件</option>
+            <option :value="20">20件</option>
+            <option :value="50">50件</option>
+            <option :value="100">100件</option>
           </select>
         </div>
         <div v-if="totalPages > 1" class="text-sm text-gray-600">
