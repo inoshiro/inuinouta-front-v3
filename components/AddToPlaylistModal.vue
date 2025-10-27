@@ -154,7 +154,7 @@
                 v-if="song.video?.thumbnail_path"
                 :src="song.video.thumbnail_path"
                 :alt="song.title"
-                class="w-16 h-12 object-cover rounded flex-shrink-0"
+                class="w-[5.33rem] h-12 object-cover rounded flex-shrink-0"
               />
               <div class="flex-1 min-w-0">
                 <h3 class="font-semibold text-white truncate">

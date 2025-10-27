@@ -9,7 +9,7 @@
       <div class="block md:hidden p-3">
         <div class="flex items-start space-x-3">
           <!-- サムネイル（モバイル） -->
-          <div class="flex-shrink-0 w-16 h-12">
+          <div class="flex-shrink-0 w-[4.44rem] h-10">
             <div
               class="w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center overflow-hidden"
             >
@@ -28,7 +28,7 @@
           <!-- 歌枠情報（モバイル） -->
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between">
-              <h3 class="text-sm font-medium text-gray-900 truncate mb-1">
+              <h3 class="text-xs font-medium text-gray-900 truncate mb-1">
                 {{ stream.title }}
               </h3>
               <!-- 展開アイコン -->
@@ -131,7 +131,7 @@
       <div class="hidden md:block p-4">
         <div class="flex items-center space-x-4">
           <!-- サムネイル（デスクトップ） -->
-          <div class="flex-shrink-0 w-20 h-15">
+          <div class="flex-shrink-0 w-[6.67rem] h-[3.75rem]">
             <div
               class="w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center overflow-hidden"
             >
@@ -150,7 +150,7 @@
           <!-- 歌枠情報（デスクトップ） -->
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-medium text-gray-900 mb-2">
+              <h3 class="text-base font-medium text-gray-900 mb-2">
                 {{ stream.title }}
               </h3>
               <!-- 展開アイコン -->

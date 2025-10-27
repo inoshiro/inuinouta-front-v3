@@ -20,7 +20,7 @@
     :class="['flex items-center min-w-0', isMobile ? 'gap-2' : 'gap-3 w-80']"
   >
     <!-- アルバムアート（サムネイル）- モバイルでは小さく -->
-    <div :class="['flex-shrink-0', isMobile ? 'w-10 h-10' : 'w-14 h-14']">
+    <div :class="['flex-shrink-0', isMobile ? 'w-[3.56rem] h-8' : 'w-[6.22rem] h-14']">
       <div
         class="w-full h-full bg-gray-700 rounded-md flex items-center justify-center overflow-hidden"
       >

@@ -32,9 +32,9 @@ export const SONG_ROW_STYLES = {
   // サムネイル
   thumbnail: {
     wrapperMobile:
-      "flex-shrink-0 w-12 h-9 my-auto ml-3 relative cursor-pointer",
+      "flex-shrink-0 w-16 h-9 my-auto ml-3 relative cursor-pointer",
     wrapperDesktop:
-      "flex-shrink-0 w-16 h-12 my-auto ml-4 mr-4 relative cursor-pointer",
+      "flex-shrink-0 w-[5.33rem] h-12 my-auto ml-4 mr-4 relative cursor-pointer",
     container:
       "w-full h-full bg-gray-200 rounded border border-gray-300 flex items-center justify-center overflow-hidden",
     image: "w-full h-full object-cover",

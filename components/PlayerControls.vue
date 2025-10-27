@@ -197,12 +197,12 @@
               v-if="currentTrack?.video?.thumbnail_path"
               :src="currentTrack.video.thumbnail_path"
               :alt="currentTrack.title"
-              class="w-14 h-14 rounded object-cover"
+              class="w-[6.22rem] h-14 rounded object-cover"
               @error="(e) => { (e.target as HTMLImageElement).style.display = 'none' }"
             />
             <div
               v-else
-              class="w-14 h-14 bg-gray-700 rounded flex items-center justify-center"
+              class="w-[6.22rem] h-14 bg-gray-700 rounded flex items-center justify-center"
             >
               <svg
                 class="w-6 h-6 text-gray-400"

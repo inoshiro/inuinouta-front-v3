@@ -59,7 +59,7 @@
           <!-- サムネイル（320x180に最適化） -->
           <div class="md:flex-shrink-0 md:border-r md:border-gray-200">
             <div
-              class="relative bg-gray-900 h-48 md:h-auto md:w-80 flex items-center justify-center border-b md:border-b-0 border-gray-200"
+              class="relative bg-gray-900 h-45 md:h-auto md:w-80 flex items-center justify-center border-b md:border-b-0 border-gray-200"
             >
               <img
                 v-if="song.video?.thumbnail_path"
