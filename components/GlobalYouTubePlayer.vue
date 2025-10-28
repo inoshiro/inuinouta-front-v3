@@ -722,32 +722,7 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
             <div ref="playerContainer" class="w-full h-full">
               <div :id="playerId" class="w-full h-full"></div>
             </div>
-            <!-- 透明なオーバーレイでマウスイベントをブロック -->
-            <div
-              class="absolute inset-0 bg-transparent pointer-events-auto"
-            ></div>
           </div>
-
-          <!-- 閉じるボタン（プレイヤーの右上に配置） -->
-          <button
-            @click="playerStore.toggleYouTubePlayer()"
-            class="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors p-2 rounded-full bg-gray-800/70 hover:bg-gray-800 shadow-lg"
-            title="閉じる"
-          >
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
         </div>
 
         <!-- 楽曲情報 -->

@@ -609,10 +609,7 @@
           <!-- YouTubeプレイヤー表示ボタン -->
           <button
             v-if="currentTrack"
-            @click="
-              toggleYouTubePlayer();
-              showMobileMenu = false;
-            "
+            @click="toggleYouTubePlayer()"
             :class="[
               'p-3 rounded-xl transition-colors',
               playerStore.showYouTubePlayer
