@@ -5,8 +5,12 @@
 }
 
 body {
-  @apply bg-cream-50 text-charcoal-900;
-  background-image: theme("backgroundImage.melon-wave");
+  background-color: #fbfff5; /* cream-50 */
+  color: #0d1715; /* charcoal-900 */
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(168, 255, 222, 0.35), transparent 60%),
+    radial-gradient(circle at 80% 0%, rgba(103, 217, 177, 0.25), transparent 55%),
+    radial-gradient(circle at 50% 100%, rgba(210, 248, 138, 0.3), transparent 60%);
   background-attachment: fixed;
   background-size: cover;
 }
