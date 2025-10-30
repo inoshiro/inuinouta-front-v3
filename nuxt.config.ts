@@ -5,11 +5,6 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
 
-  // Nuxt 4の機能をオプトイン
-  future: {
-    compatibilityVersion: 4,
-  },
-
   css: ["~/assets/css/main.css"],
   modules: ["@nuxt/eslint", "@pinia/nuxt", "nuxt-gtag"],
   gtag: {
