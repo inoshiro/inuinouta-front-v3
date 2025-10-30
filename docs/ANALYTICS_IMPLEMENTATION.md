@@ -181,12 +181,13 @@ Google Analytics 4 (GA4) を使用したユーザーアクティビティ計測�
 ### アーキテクチャ
 
 ```
-plugins/gtag.client.ts
-├── Google Analytics スクリプト読み込み
-├── gtag 関数の初期化
+nuxt.config.ts
+├── nuxt-gtag モジュールの設定
+├── Google Analytics 測定 ID の設定
 └── ページビューの自動トラッキング
 
 composables/useAnalytics.ts
+├── useGtag() からの gtag 関数取得
 ├── カスタムイベント送信のラッパー
 ├── 各種トラッキングメソッド
 └── 開発環境対応（コンソール出力）
