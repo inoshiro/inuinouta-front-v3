@@ -1,8 +1,8 @@
-# Nuxt2→Nuxt3 移行ガイド（inuinouta-front→inuinouta-front-v3）
+# Nuxt2→Nuxt 4 移行ガイド（inuinouta-front→inuinouta-front-v3）
 
 ## 目的
 
-旧フロントエンド（Nuxt2/Bulma/Sass/Vuex）を、Nuxt3/TypeScript/Pinia/Tailwind CSS/Composition API などモダンな構成で再構築する際の実践ガイドです。
+旧フロントエンド（Nuxt2/Bulma/Sass/Vuex）を、Nuxt 4/TypeScript/Pinia/Tailwind CSS/Composition API などモダンな構成で再構築する際の実践ガイドです。
 
 ---
 
@@ -36,7 +36,7 @@ store/           ... Piniaストア（必要に応じて）
 
 ### API 通信
 
-- Nuxt2: `@nuxtjs/axios` → Nuxt3: `useFetch`や`$fetch`、型定義を活用
+- Nuxt2: `@nuxtjs/axios` → Nuxt 4: `useFetch`や`$fetch`、型定義を活用
 - 例:
   ```ts
   // composables/useVideos.ts
@@ -45,7 +45,7 @@ store/           ... Piniaストア（必要に応じて）
 
 ### 状態管理
 
-- Nuxt2: Vuex → Nuxt3: Pinia
+- Nuxt2: Vuex → Nuxt 4: Pinia
 - 例:
   ```ts
   // store/usePlaylist.ts
@@ -55,7 +55,7 @@ store/           ... Piniaストア（必要に応じて）
 
 ### UI/スタイル
 
-- Nuxt2: Bulma/Sass → Nuxt3: Tailwind CSS
+- Nuxt2: Bulma/Sass → Nuxt 4: Tailwind CSS
 - クラス設計をユーティリティベースに刷新
 
 ### コンポーネント設計
@@ -80,7 +80,7 @@ store/           ... Piniaストア（必要に応じて）
 
 ---
 
-## 4. Nuxt3 流のベストプラクティス
+## 4. Nuxt 4 流のベストプラクティス
 
 - SSR/CSR の切り替えや SEO も意識
 - useHead でメタ情報を柔軟に設定
@@ -91,7 +91,7 @@ store/           ... Piniaストア（必要に応じて）
 
 ## 5. 旧コードからの移植手順例
 
-1. 旧`components/`・`pages/`の UI/ロジックを Nuxt3 流に分割・移植
+1. 旧`components/`・`pages/`の UI/ロジックを Nuxt 4 流に分割・移植
 2. API 通信部分を`composables/`に集約し、型定義を付与
 3. 状態管理を Pinia で再設計
 4. Tailwind CSS でスタイルを再設計
@@ -140,13 +140,13 @@ store/           ... Piniaストア（必要に応じて）
 - API 通信がプラグインで即時実行される設計（useFetch/useAsyncData ＋ Composable で柔軟に）
 - 型定義がなく、すべて JavaScript
 
-### Nuxt3 での改善方針
+### Nuxt 4 での改善方針
 
 - **Pinia ＋ Composable で状態・ロジックを分離・型安全に再設計**
 - **inject/app.$xxx の乱用を避け、明示的な import/provide/inject や Composable、Pinia ストアで管理**
 - **API 通信は useFetch/useAsyncData ＋型定義でページ/Composable 単位に**
 - **DOM 操作は ref や watchEffect 等 Vue3 の機能でより自然に**
-- **FontAwesome や YouTube 等の外部ライブラリは Nuxt3 用の公式/推奨プラグインを利用**
+- **FontAwesome や YouTube 等の外部ライブラリは Nuxt 4 用の公式/推奨プラグインを利用**
 - **S3 画像パス生成等も Composable 化し、型付きで再利用性向上**
 - **全体的に TypeScript 化し、型安全・保守性・テスト性を向上**
 
@@ -154,6 +154,6 @@ store/           ... Piniaストア（必要に応じて）
 
 ## まとめ
 
-「UI/UX の再設計」「型安全」「ロジックの分離・再利用」「API 通信の最適化」「モダンな状態管理」「スタイリング刷新」を意識し、Nuxt3 の強みを最大限活かして再実装してください。
+「UI/UX の再設計」「型安全」「ロジックの分離・再利用」「API 通信の最適化」「モダンな状態管理」「スタイリング刷新」を意識し、Nuxt 4 の強みを最大限活かして再実装してください。
 
 具体的な移植例やサンプルコードが必要な場合は、どの部分かご指定ください。

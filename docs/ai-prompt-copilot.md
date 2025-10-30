@@ -1,12 +1,12 @@
-# いぬいのうた Nuxt3 リニューアル開発用 GitHub Copilot プロンプト
+# いぬいのうた Nuxt 4 リニューアル開発用 GitHub Copilot プロンプト
 
 ## 目的
 
-- 「いぬいのうた」Web アプリの Nuxt2→Nuxt3 リニューアル開発において、Copilot が品質の高い実装・リファクタ・型安全・保守性・テスト性を重視してサポートするためのプロンプトです。
+- 「いぬいのうた」Web アプリの Nuxt2→Nuxt 4 リニューアル開発において、Copilot が品質の高い実装・リファクタ・型安全・保守性・テスト性を重視してサポートするためのプロンプトです。
 
 ## 指針
 
-- Nuxt3 ＋ TypeScript ＋ Pinia ＋ Tailwind CSS ＋ Django REST API ＋ VSCode ＋ Copilot agent 環境を前提に、最適な設計・実装例・リファクタ案を提案してください。
+- Nuxt 4 ＋ TypeScript ＋ Pinia ＋ Tailwind CSS ＋ Django REST API ＋ VSCode ＋ Copilot agent 環境を前提に、最適な設計・実装例・リファクタ案を提案してください。
 - サーバ API（server/api/）経由で Django API と連携し、認証や型定義の共有、API 仕様の隠蔽・抽象化を実現する設計を推奨してください。
 - inject/app.$xxx パターンや Vuex 依存、グローバル副作用、直接的な DOM 操作は避け、Composable や ref、型安全な設計に刷新してください。
 - コード例・設計例は常に型定義・エラーハンドリング・アクセシビリティ・テスト性・保守性を意識してください。
@@ -15,17 +15,17 @@
 
 ---
 
-## いぬいのうた Nuxt3 リニューアル開発用 Copilot 向け追加プロンプト
+## いぬいのうた Nuxt 4 リニューアル開発用 Copilot 向け追加プロンプト
 
 ### プロジェクト背景・全体像
 
 - 「いぬいのうた」は、バーチャルライバー戌亥とこの歌動画・楽曲を快適に視聴・管理できる Web サービス。
-- バックエンドは Django REST API、フロントエンドは Nuxt2（旧）→Nuxt3（新）で構築。
-- Nuxt3 移行では、UI/UX・保守性・拡張性・型安全性の大幅な向上を目指す。
+- バックエンドは Django REST API、フロントエンドは Nuxt2（旧）→Nuxt 4（新）で構築。
+- Nuxt 4 移行では、UI/UX・保守性・拡張性・型安全性の大幅な向上を目指す。
 
 ### 実装・品質重視のサポート方針
 
-- Nuxt3 ＋ TypeScript ＋ Pinia ＋ Tailwind CSS ＋ Django REST API ＋ VSCode ＋ Copilot agent 環境を前提に、最適な設計・実装例・リファクタ案を提案してください。
+- Nuxt 4 ＋ TypeScript ＋ Pinia ＋ Tailwind CSS ＋ Django REST API ＋ VSCode ＋ Copilot agent 環境を前提に、最適な設計・実装例・リファクタ案を提案してください。
 - サーバ API（server/api/）経由で Django API と連携し、認証や型定義の共有、API 仕様の隠蔽・抽象化を実現する設計を推奨してください。
 - inject/app.$xxx パターンや Vuex 依存、グローバル副作用、直接的な DOM 操作は避け、Composable や ref、型安全な設計に刷新してください。
 - コード例・設計例は常に型定義・エラーハンドリング・アクセシビリティ・テスト性・保守性を意識してください。
@@ -36,7 +36,7 @@
 
 - 本プロジェクトは **VSCode** および **GitHub Copilot/Copilot agent** を活用して開発を進めています。
 - OS は Linux、デフォルトシェルは bash です。
-- パッケージ管理は pnpm、主要技術は Nuxt3 ＋ TypeScript ＋ Pinia ＋ Tailwind CSS です。
+- パッケージ管理は pnpm、主要技術は Nuxt 4 ＋ TypeScript ＋ Pinia ＋ Tailwind CSS です。
 
 ### 追加インプット例
 
@@ -74,7 +74,7 @@
 ### 🔄 実装中・次回優先
 
 #### YouTube Player統合
-- YouTube IFrame Player API の Nuxt3 統合
+- YouTube IFrame Player API の Nuxt 4 統合
 - `components/VideoPlayer.vue` の実装
 - プレイヤー状態管理とキュー連携
 

@@ -2,11 +2,11 @@
 
 ## プロジェクト概要
 
-本プロジェクトは、バーチャルライバー戌亥とこの歌動画を快適に視聴・管理できる Web サービス「いぬいのうた」のフロントエンドを、最新の Nuxt3（TypeScript, Vite, Composition API, Tailwind CSS 等）で再構築するものです。
+本プロジェクトは、バーチャルライバー戌亥とこの歌動画を快適に視聴・管理できる Web サービス「いぬいのうた」のフロントエンドを、最新の Nuxt 4（TypeScript, Vite, Composition API, Tailwind CSS 等）で再構築するものです。
 
 - **バックエンド**: Django + Django REST Framework（`inuinouta` リポジトリ）
 - **旧フロントエンド**: Nuxt2（`inuinouta-front` リポジトリ）
-- **新フロントエンド**: Nuxt3（本プロジェクト, `inuinouta-front-v3` リポジトリ）
+- **新フロントエンド**: Nuxt 4（本プロジェクト, `inuinouta-front-v3` リポジトリ）
 
 ## 主要なデータ構造
 
@@ -64,7 +64,7 @@ Django REST API から取得する主なデータ:
     end_at: number | null;
   };
   ```
-- **旧フロントエンドの移植**: `inuinouta-front` の UI/UX や機能を参考に、Nuxt3 流に最適化して移植してください。
+- **旧フロントエンドの移植**: `inuinouta-front` の UI/UX や機能を参考に、Nuxt 4 流に最適化して移植してください。
 - **API エラー処理やローディング UI も考慮**
 
 ---

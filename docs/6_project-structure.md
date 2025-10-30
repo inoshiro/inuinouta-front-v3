@@ -18,4 +18,4 @@
 
 ## 参考リンク
 
-- [Nuxt 3 ディレクトリ構成](https://nuxt.com/docs/guide/directory-structure/nuxt)
+- [Nuxt 4 ディレクトリ構成](https://nuxt.com/docs/guide/directory-structure/nuxt)

@@ -1,4 +1,4 @@
-# Nuxt 3 の基礎ガイド
+# Nuxt 4 の基礎ガイド
 
 ## Nuxt の役割
 
@@ -22,4 +22,4 @@
 
 ## 参考リンク
 
-- [Nuxt 3 公式ガイド](https://nuxt.com/docs/getting-started/introduction)
+- [Nuxt 4 公式ガイド](https://nuxt.com/docs/getting-started/introduction)

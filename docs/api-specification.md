@@ -713,9 +713,9 @@ export interface Playlist {
 
 ---
 
-## Nuxt3 Server API プロキシ
+## Nuxt 4 Server API プロキシ
 
-Nuxt3 の `server/api/` ディレクトリで Django API をプロキシしています。
+Nuxt 4 の `server/api/` ディレクトリで Django API をプロキシしています。
 
 ### プロキシエンドポイント
 
@@ -931,7 +931,7 @@ const songs = await $fetch("/api/songs", {
 });
 ```
 
-### Nuxt3 Server API プロキシでの実装例
+### Nuxt 4 Server API プロキシでの実装例
 
 ```typescript
 // server/api/songs/index.get.ts

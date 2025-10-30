@@ -1,10 +1,10 @@
-# Nuxt3 版「いぬいのうた」実装・設計ドキュメント
+# Nuxt 4 版「いぬいのうた」実装・設計ドキュメント
 
 ## 1. プロジェクト概要
 
-- バーチャルライバー戌亥とこの歌動画を快適に視聴・管理できる Web サービスの Nuxt3 リニューアル版。
+- バーチャルライバー戌亥とこの歌動画を快適に視聴・管理できる Web サービスの Nuxt 4 リニューアル版。
 - バックエンド: Django REST Framework
-- フロントエンド: Nuxt3 (TypeScript, Pinia, Tailwind CSS, Composition API)
+- フロントエンド: Nuxt 4 (TypeScript, Pinia, Tailwind CSS, Composition API)
 
 ## 2. 実装方針・意思決定ログ
 
@@ -17,7 +17,7 @@
 
 ### 2.2 主な意思決定
 
-- Nuxt3 のベストプラクティス（Pinia, Composables, 型定義, ファイルベースルーティング）を優先。
+- Nuxt 4 のベストプラクティス（Pinia, Composables, 型定義, ファイルベースルーティング）を優先。
 - プレイリスト（永続）と再生キュー（一時）を明確に分離し、柔軟な再生体験を実現。
 - API 通信は composables/でラップし、型安全に。
 - UI は「プレイリスト一覧 → 詳細 → 再生キュー操作」の流れを重視。
@@ -101,7 +101,7 @@
 
 ### 5.1 今回の実装で得られた知見
 
-- **Nuxt3 Server API**: `/server/api/` での API プロキシ実装パターン
+- **Nuxt 4 Server API**: `/server/api/` での API プロキシ実装パターン
 - **環境変数管理**: `runtimeConfig` と `.env` の効果的な活用
 - **Composables 設計**: 型安全で再利用可能な API 通信ロジック
 - **Vue 3 + TypeScript**: script setup での効率的なコンポーネント開発
@@ -184,7 +184,7 @@ utils/
 #### 技術的な課題と解決
 
 - **ESLint 設定**: Vue 3 + TypeScript 環境での厳密な型チェック
-- **API 通信**: $fetch を使用した Nuxt3 標準の通信方式
+- **API 通信**: $fetch を使用した Nuxt 4 標準の通信方式
 - **状態管理**: composables でのリアクティブデータ管理
 
 #### 検証結果

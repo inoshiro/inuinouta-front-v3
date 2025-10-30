@@ -2,7 +2,7 @@
 
 ## 概要
 
-このドキュメントは、Nuxt3 + Vue 3 + TypeScript 環境でのコンポーネント設計原則とベストプラクティスを定義します。
+このドキュメントは、Nuxt 4 + Vue 3 + TypeScript 環境でのコンポーネント設計原則とベストプラクティスを定義します。
 
 ---
 
@@ -764,4 +764,4 @@ expect(formatDuration(125)).toBe("2:05");
 - [API 仕様書](./api-specification.md)
 - [エラーハンドリングガイド](./error-handling-guide.md)
 - [Vue 3 公式ドキュメント](https://ja.vuejs.org/)
-- [Nuxt 3 公式ドキュメント](https://nuxt.com/)
+- [Nuxt 4 公式ドキュメント](https://nuxt.com/)

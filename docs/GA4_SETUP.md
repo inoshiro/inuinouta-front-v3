@@ -197,4 +197,4 @@ NUXT_PUBLIC_GA_ID=  # 空にする
 
 - [Google Analytics 4 公式ドキュメント](https://support.google.com/analytics/answer/9304153)
 - [gtag.js リファレンス](https://developers.google.com/analytics/devguides/collection/gtagjs)
-- [Nuxt 3 ドキュメント](https://nuxt.com/docs)
+- [Nuxt 4 ドキュメント](https://nuxt.com/docs)

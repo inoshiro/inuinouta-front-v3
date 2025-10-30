@@ -41,7 +41,7 @@
 
 ### 技術的成果
 
-- **Django ↔ Nuxt3 完全連携**: API プロキシによる安全な通信
+- **Django ↔ Nuxt 4 完全連携**: API プロキシによる安全な通信
 - **楽曲一覧機能**: 検索・フィルター付きの実用的な UI
 - **コンポーネント設計**: 再利用可能な SongRow/SongList
 - **型安全性**: API〜UI まで一貫した型管理
@@ -79,7 +79,7 @@
 > ✅ **完了**: プレイリスト API が正常に動作しています。
 
 - [x] `http://localhost:8000/api/playlists/` が期待通り動作するか確認 ✅
-- [x] Nuxt3 側からの `usePlaylist()` fetch テスト（準備完了）
+- [x] Nuxt 4 側からの `usePlaylist()` fetch テスト（準備完了）
 - [x] API のテスト or `curl`, `httpie` 等で最低限の確認 ✅
 - [x] 実装ログ・設計意図の追記（`docs/implementation-log.md`）
 
@@ -126,7 +126,7 @@
 
 ### 🎬 YouTube Player API 統合（最優先）
 
-- [ ] YouTube IFrame Player API の Nuxt3 統合
+- [ ] YouTube IFrame Player API の Nuxt 4 統合
 - [ ] `components/VideoPlayer.vue` コンポーネント作成
 - [ ] プレイヤー状態管理（再生/停止/シーク）の実装
 - [ ] キュー連携（次の曲自動再生）
@@ -157,7 +157,7 @@
 
 ### 今回の実装で習得した技術
 
-- **Nuxt3 Server API**: API プロキシパターンの実装
+- **Nuxt 4 Server API**: API プロキシパターンの実装
 - **Vue 3 Composition API**: 効率的なリアクティブプログラミング
 - **TypeScript**: 型安全な API 通信とコンポーネント設計
 - **Tailwind CSS**: ユーティリティファーストのレスポンシブデザイン
