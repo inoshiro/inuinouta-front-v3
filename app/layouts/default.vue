@@ -39,7 +39,7 @@
 
 <template>
   <div
-    class="h-screen flex flex-col"
+    class="h-screen flex flex-col bg-cream-50 text-charcoal-900 bg-melon-wave bg-fixed"
     :class="{ 'has-player': hasCurrentTrack }"
   >
     <!-- グローバルYouTubeプレイヤー（非表示・音声のみ） -->
@@ -53,7 +53,7 @@
     <!-- メインコンテンツエリア（ヘッダーとフッターの間を埋める） -->
     <div class="flex-1 flex overflow-hidden">
       <!-- 中央メインコンテンツ（スクロール可能） -->
-      <main class="flex-1 overflow-y-auto bg-white">
+      <main class="flex-1 overflow-y-auto bg-cream-50/80">
         <div class="p-2 sm:p-4">
           <slot />
         </div>
@@ -69,11 +69,11 @@
     <div class="lg:hidden fixed bottom-24 right-4 z-40">
       <div class="relative">
         <button
-          class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300"
+          class="bg-melon-500 text-white p-3 rounded-full shadow-lg hover:bg-melon-600 transition-all duration-300"
           :class="{
-            'animate-bounce bg-green-600 scale-110 shadow-xl':
+            'animate-bounce bg-melon-600 scale-110 shadow-xl':
               isQueueButtonAnimating,
-            'hover:bg-green-700': isQueueButtonAnimating,
+            'hover:bg-melon-700': isQueueButtonAnimating,
           }"
           title="再生キューを表示"
           @click="toggleQueue"
@@ -99,9 +99,9 @@
         <!-- キュー数バッジ -->
         <div
           v-if="queue.queue.length > 0"
-          class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg"
+          class="absolute -top-2 -right-2 bg-bubble-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg"
           :class="{
-            'animate-pulse bg-green-500': isQueueButtonAnimating,
+            'animate-pulse bg-melon-400 text-charcoal-900': isQueueButtonAnimating,
           }"
         >
           {{ queue.queue.length }}
@@ -121,7 +121,7 @@
       <div v-if="isQueuePanelOpen" class="lg:hidden fixed inset-0 z-50">
         <!-- オーバーレイ背景 -->
         <div
-          class="absolute inset-0 bg-gradient-to-r from-black/40 to-black/20"
+          class="absolute inset-0 bg-gradient-to-r from-charcoal-900/60 to-charcoal-800/40"
           @click="toggleQueue"
         />
 
@@ -136,7 +136,7 @@
         >
           <div
             v-if="isQueuePanelOpen"
-            class="absolute right-0 top-0 h-full w-80 bg-white shadow-xl"
+            class="absolute right-0 top-0 h-full w-80 bg-cream-50 shadow-xl border-l border-melon-200"
           >
             <PlayerQueuePanel @close="toggleQueue" />
           </div>

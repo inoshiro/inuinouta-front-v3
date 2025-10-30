@@ -71,15 +71,15 @@
 
 <template>
   <div
-    class="h-full bg-gray-50 border-l border-gray-200 overflow-hidden flex flex-col relative"
+    class="h-full bg-gray-50/80 border-l border-melon-200 overflow-hidden flex flex-col relative backdrop-blur-sm"
   >
     <!-- ヘッダー -->
-    <div class="flex-shrink-0 p-4 border-b border-gray-200 bg-white">
+    <div class="flex-shrink-0 p-4 border-b border-melon-200 bg-cream-50">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-bold text-gray-800">再生キュー</h2>
+        <h2 class="text-lg font-bold text-melon-800">再生キュー</h2>
         <!-- モバイル用閉じるボタン -->
         <button
-          class="lg:hidden p-1 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+          class="lg:hidden p-1 text-melon-600 hover:text-melon-700 rounded-full hover:bg-melon-100"
           title="閉じる"
           @click="emit('close')"
         >
@@ -135,7 +135,7 @@
             v-for="(song, i) in playerQueue.queue"
             :key="`${song.id}-${i}`"
             draggable="true"
-            class="bg-white rounded-lg p-3 shadow-sm border hover:shadow-md transition-all duration-200 cursor-move"
+            class="bg-cream-50 rounded-lg p-3 shadow-sm border border-melon-100/80 hover:shadow-md transition-all duration-200 cursor-move"
             :class="{
               'ring-2 ring-blue-500 bg-blue-50':
                 i === playerQueue.nowPlayingIndex,

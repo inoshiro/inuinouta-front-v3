@@ -556,8 +556,8 @@
 
   /* 前プロジェクトのようなアクティブ状態の強調 */
   .song-row.-active {
-    background-color: rgb(239 246 255) !important; /* bg-blue-50 */
-    border-color: rgb(147 197 253); /* border-blue-300 */
+    background-color: rgb(231 255 249) !important; /* bg-blue-50 (melon soda) */
+    border-color: rgb(85 225 195); /* border-blue-300 (melon soda) */
   }
 
   /* 再生中インジケーター（前プロジェクトスタイル） */

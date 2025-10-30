@@ -30,17 +30,19 @@
 </script>
 
 <template>
-  <header class="bg-gray-800 text-white relative z-60 shrink-0">
+  <header
+    class="relative z-60 shrink-0 bg-gradient-to-r from-melon-900 via-melon-800 to-melon-900 text-cream-50 shadow-lg"
+  >
     <div class="px-4 py-3">
       <div class="flex items-center justify-between">
         <!-- 左側: ロゴ -->
         <div class="flex items-center gap-3">
           <NuxtLink
             to="/"
-            class="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            class="flex items-center gap-2 hover:opacity-90 transition-opacity"
           >
             <img src="/icon-192x192.png" alt="ロゴ" class="w-8 h-8 rounded" />
-            <span class="font-bold text-lg">いぬいのうた</span>
+            <span class="font-bold text-lg tracking-wide">いぬいのうた</span>
           </NuxtLink>
         </div>
 
@@ -50,8 +52,12 @@
             <li v-for="item in navItems" :key="item.to">
               <NuxtLink
                 :to="item.to"
-                class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-700 hover:text-white"
-                :class="{ 'bg-gray-700 text-white': $route.path === item.to }"
+                class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                :class="[
+                  $route.path === item.to
+                    ? 'bg-melon-700/80 text-cream-50 shadow-inner'
+                    : 'hover:bg-melon-700/40 text-cream-100 hover:text-white'
+                ]"
               >
                 <span class="text-base">{{ item.icon }}</span>
                 {{ item.label }}
@@ -65,7 +71,7 @@
           <!-- モバイルメニューボタン -->
           <button
             aria-label="メニューを開く"
-            class="md:hidden p-2 rounded-md hover:bg-gray-700 transition-colors"
+            class="md:hidden p-2 rounded-md hover:bg-melon-700/60 transition-colors"
             @click="toggleMenu"
           >
             <svg
@@ -93,7 +99,7 @@
 
           <!-- サイト情報ボタン -->
           <button
-            class="hidden sm:block p-2 rounded-md hover:bg-gray-700 transition-colors"
+            class="hidden sm:block p-2 rounded-md hover:bg-melon-700/60 transition-colors"
             aria-label="サイト情報"
             @click="openSiteInfoModal"
           >
@@ -135,7 +141,7 @@
     >
       <div
         v-if="isMenuOpen"
-        class="md:hidden fixed inset-0 bg-gradient-to-b from-black/40 to-black/20 z-50"
+        class="md:hidden fixed inset-0 bg-gradient-to-b from-charcoal-900/70 to-charcoal-800/30 z-50"
         @click="closeMenu"
       />
     </Transition>
@@ -151,15 +157,19 @@
     >
       <div
         v-if="isMenuOpen"
-        class="md:hidden absolute top-full left-0 right-0 bg-gray-800 border-t border-gray-700 z-60 shadow-lg"
+        class="md:hidden absolute top-full left-0 right-0 bg-melon-900/95 border-t border-melon-700 z-60 shadow-xl backdrop-blur"
       >
         <nav class="px-4 py-3">
           <ul class="space-y-1">
             <li v-for="item in navItems" :key="item.to">
               <NuxtLink
                 :to="item.to"
-                class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-700"
-                :class="{ 'bg-gray-700 text-white': $route.path === item.to }"
+                class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                :class="[
+                  $route.path === item.to
+                    ? 'bg-melon-700/80 text-cream-50 shadow-inner'
+                    : 'hover:bg-melon-700/50 text-cream-100 hover:text-white'
+                ]"
                 @click="closeMenu"
               >
                 <span class="text-base">{{ item.icon }}</span>
@@ -167,9 +177,9 @@
               </NuxtLink>
             </li>
             <!-- モバイル専用サイト情報項目 -->
-            <li class="pt-2 border-t border-gray-700 mt-2">
+            <li class="pt-2 border-t border-melon-700/60 mt-2">
               <button
-                class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-700 w-full text-left"
+                class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-melon-700/50 text-cream-100 w-full text-left"
                 @click="openSiteInfoModal"
               >
                 <span class="text-base">ℹ️</span>

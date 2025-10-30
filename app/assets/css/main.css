@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-cream-50 text-charcoal-900;
+  background-image: theme("backgroundImage.melon-wave");
+  background-attachment: fixed;
+  background-size: cover;
+}
+
 /* テキストクランプのユーティリティクラス */
 .line-clamp-2 {
   display: -webkit-box;

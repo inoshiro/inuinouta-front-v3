@@ -13,7 +13,7 @@
   <!-- 固定位置のプレイヤーコントロール -->
   <footer
     v-if="hasCurrentTrack"
-    class="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700"
+    class="fixed bottom-0 left-0 right-0 z-40 bg-melon-950/95 border-t border-melon-700/80 backdrop-blur"
   >
     <PlayerControls />
   </footer>
