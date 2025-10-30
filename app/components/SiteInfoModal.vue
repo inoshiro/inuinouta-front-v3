@@ -115,12 +115,16 @@
               <div>
                 <span class="text-gray-400">フロントエンド:</span>
                 <span class="ml-2"
-                  >Nuxt 3, Vue 3, TypeScript, Tailwind CSS</span
+                  >Nuxt 4, Vue 3, TypeScript, Tailwind CSS</span
                 >
               </div>
               <div>
                 <span class="text-gray-400">バックエンド:</span>
                 <span class="ml-2">Django, Python</span>
+              </div>
+              <div>
+                <span class="text-gray-400">ランタイム:</span>
+                <span class="ml-2">Node.js 20</span>
               </div>
             </div>
           </section>
