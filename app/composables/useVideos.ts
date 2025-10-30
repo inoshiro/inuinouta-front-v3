@@ -82,7 +82,9 @@ export const useVideos = () => {
 
   // 既存のuseFetchベースの関数も残しておく（互換性のため）
   const useFetchVideos = () => {
-    return useFetch<VideosResponse>("/api/videos");
+    return useFetch<VideosResponse>("/api/videos", {
+      deep: true
+    });
   };
 
   return {

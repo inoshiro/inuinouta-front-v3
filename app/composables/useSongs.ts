@@ -105,7 +105,9 @@ export const useSongs = () => {
 
   // 既存のuseFetchベースの関数も残しておく（互換性のため）
   const useFetchSongs = () => {
-    return useFetch<SongsResponse>("/api/songs");
+    return useFetch<SongsResponse>("/api/songs", {
+      deep: true
+    });
   };
 
   return {

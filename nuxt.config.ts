@@ -4,15 +4,28 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
+
+  // Nuxt 4の機能をオプトイン
+  future: {
+    compatibilityVersion: 4,
+  },
+
   css: ["~/assets/css/main.css"],
   modules: ["@nuxt/eslint", "@pinia/nuxt", "nuxt-gtag"],
   gtag: {
     id: process.env.NUXT_PUBLIC_GA_ID || "",
   },
-  components: {
-    global: true,
-    dirs: ["~/components", "~/components/layout"],
-  },
+  components: [
+    {
+      path: "~/components",
+      pathPrefix: false,
+    },
+    {
+      path: "~/components/layout",
+      prefix: "Layout",
+      global: true,
+    },
+  ],
   runtimeConfig: {
     // Private keys (only available on the server side)
     djangoApiUrl: process.env.DJANGO_API_URL || "http://127.0.0.1:8000/api",
