@@ -1,5 +1,6 @@
 <script setup lang="ts">
-  import { ref } from "vue";
+  import { ref, computed } from "vue";
+  import { useRoute } from "vue-router";
   import { useUIContext } from "~/stores/useUIContext";
   import PlayerQueuePanel from "./PlayerQueuePanel.vue";
   import PlaylistPanel from "./PlaylistPanel.vue";
@@ -18,10 +19,31 @@
     close: [];
   }>();
 
+  const route = useRoute();
   const uiContext = useUIContext();
+
+  // プレイリストページかどうか判定
+  const isPlaylistPage = computed(() => {
+    return route.path.startsWith("/playlists");
+  });
+
+  // プレイリストタブを無効化するかどうか
+  const isPlaylistTabDisabled = computed(() => {
+    return isPlaylistPage.value;
+  });
+
+  // プレイリストページに入ったら自動的にキュータブに切り替え
+  watch(isPlaylistPage, (isPlaylist) => {
+    if (isPlaylist && uiContext.isPlaylistMode) {
+      uiContext.setRightPanelMode("queue");
+    }
+  });
 
   // タブの切り替え
   const switchTab = (tab: "queue" | "playlist") => {
+    if (tab === "playlist" && isPlaylistTabDisabled.value) {
+      return; // プレイリストページではプレイリストタブを選択できない
+    }
     uiContext.setRightPanelMode(tab);
   };
 </script>
@@ -48,16 +70,20 @@
         </button>
         <button
           @click="switchTab('playlist')"
+          :disabled="isPlaylistTabDisabled"
           class="flex-1 px-4 py-3 text-sm font-medium transition-colors relative"
           :class="{
-            'text-purple-600 bg-purple-50': uiContext.isPlaylistMode,
+            'text-purple-600 bg-purple-50':
+              uiContext.isPlaylistMode && !isPlaylistTabDisabled,
             'text-gray-600 hover:text-gray-900 hover:bg-gray-50':
-              !uiContext.isPlaylistMode,
+              !uiContext.isPlaylistMode && !isPlaylistTabDisabled,
+            'text-gray-400 bg-gray-100 cursor-not-allowed':
+              isPlaylistTabDisabled,
           }"
         >
           <span>プレイリスト</span>
           <div
-            v-if="uiContext.isPlaylistMode"
+            v-if="uiContext.isPlaylistMode && !isPlaylistTabDisabled"
             class="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600"
           ></div>
         </button>

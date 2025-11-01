@@ -446,10 +446,10 @@
     <template v-else-if="viewMode === 'detail' && selectedPlaylist">
       <!-- ヘッダー -->
       <div class="p-4 border-b border-gray-200 bg-gray-50">
-        <div class="flex items-center gap-2 mb-2">
+        <div class="flex items-center gap-3">
           <button
             @click="backToList"
-            class="p-1 hover:bg-gray-200 rounded transition-colors"
+            class="p-1 hover:bg-gray-200 rounded transition-colors shrink-0"
             title="戻る"
           >
             <svg
@@ -469,10 +469,8 @@
           <h2 class="text-lg font-bold text-gray-900 truncate">
             {{ selectedPlaylist.name }}
           </h2>
-        </div>
-        <div class="flex items-center gap-2">
           <span
-            class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full"
+            class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full shrink-0"
           >
             {{ selectedPlaylist.items.length }}曲
           </span>
