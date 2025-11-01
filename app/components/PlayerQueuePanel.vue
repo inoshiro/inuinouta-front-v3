@@ -360,7 +360,7 @@
           </button>
         </div>
         <button
-          class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 mb-2"
           @click="handleClearQueue"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -369,6 +369,20 @@
             />
           </svg>
           キューをクリア
+        </button>
+        <button
+          class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          @click="closePanel"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+          閉じる
         </button>
       </div>
     </div>
