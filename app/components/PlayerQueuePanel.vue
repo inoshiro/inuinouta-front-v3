@@ -377,7 +377,7 @@
   <!-- デスクトップ版（サイドバー） -->
   <div
     v-if="isDesktop"
-    class="hidden lg:flex flex-col h-full bg-white border-l border-gray-200"
+    class="hidden lg:flex flex-col h-full bg-white border-l border-gray-200 pb-20"
   >
     <!-- ヘッダー -->
     <div class="p-4 border-b border-gray-200 bg-gray-50">
@@ -438,7 +438,7 @@
         animation="150"
         ghost-class="opacity-50"
         chosen-class="shadow-lg"
-        class="p-4 space-y-2"
+        class="p-4 space-y-2 pb-20"
       >
         <div
           v-for="(song, index) in draggableQueue"
