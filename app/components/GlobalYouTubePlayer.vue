@@ -165,7 +165,7 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
         playerStore.ytPlayer.pauseVideo();
       }
 
-      // 遷移理由を設定してから次の処理へ
+      // 遷移理由を設定
       playerStore.setTransitionReason("auto-jump");
 
       if (repeatMode === "all" && !queueStore.hasNext) {
@@ -173,7 +173,7 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
         console.log("Repeat all: jumping to first track");
         queueStore.play(0);
       } else if (queueStore.hasNext) {
-        // 通常の次の曲へ
+        // 通常の次の曲へ（明示的にnext()を呼び出す）
         queueStore.next();
       }
       // repeatMode === 'none' かつ最後の曲の場合は何もしない（再生停止）
@@ -226,14 +226,15 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
         return;
       }
 
+      // 遷移理由を設定
+      playerStore.setTransitionReason("auto-end");
+
       if (repeatMode === "all" && !queueStore.hasNext) {
         // 全体リピート: 最後の曲なら最初に戻る
         console.log("Repeat all: jumping to first track");
-        playerStore.setTransitionReason("auto-end");
         queueStore.play(0);
       } else if (queueStore.hasNext) {
-        // 通常の次の曲へ
-        playerStore.setTransitionReason("auto-end");
+        // 通常の次の曲へ（明示的にnext()を呼び出す）
         queueStore.next();
       }
       // repeatMode === 'none' かつ最後の曲の場合は何もしない（再生停止）
@@ -270,8 +271,7 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
     if (queueStore.hasNext) {
       console.log("Player error occurred, trying next track");
       playerStore.setTransitionReason("error");
-      queueStore.next();
-      // watchで自動的にplayCurrentTrackが呼ばれる
+      queueStore.next(); // 明示的にnext()を呼び出す
     }
   };
 
@@ -369,8 +369,7 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
       if (queueStore.hasNext) {
         console.log("Skipping invalid video, trying next track");
         playerStore.setTransitionReason("error");
-        queueStore.next();
-        // watchで自動的にplayCurrentTrackが呼ばれる
+        queueStore.next(); // 明示的にnext()を呼び出す
       }
       return;
     }
@@ -542,65 +541,6 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
     previousSongId = currentTrack.id;
   };
 
-  // キューの変更を監視
-  watch(
-    () => ({
-      track: queueStore.nowPlaying,
-      index: queueStore.nowPlayingIndex,
-    }),
-    (newValue, oldValue) => {
-      const newTrack = newValue.track;
-      const oldTrack = oldValue?.track;
-      const newIndex = newValue.index;
-      const oldIndex = oldValue?.index;
-
-      console.log("Queue nowPlaying changed:", {
-        newTrack: newTrack ? { id: newTrack.id, title: newTrack.title } : null,
-        oldTrack: oldTrack ? { id: oldTrack.id, title: oldTrack.title } : null,
-        newIndex,
-        oldIndex,
-        previousSongId,
-        transitionReason: playerStore.transitionReason,
-        isInitialLoad: oldValue === undefined,
-      });
-
-      // 初回実行（ページロード時）の場合は自動再生しない
-      // キューの復元処理で既に楽曲情報とcueVideoByIdが設定されている
-      if (oldValue === undefined) {
-        console.log(
-          "Initial load detected, skipping auto-play (queue restoration handles this)"
-        );
-        return;
-      }
-
-      if (newTrack) {
-        // 新しいトラックがある場合の条件判定
-        const trackChanged = newTrack !== oldTrack;
-        const songIdChanged = newTrack.id !== previousSongId;
-        const indexChanged = newIndex !== oldIndex;
-
-        // トラックオブジェクト、楽曲ID、またはインデックスのいずれかが変わった場合に再生
-        if (trackChanged || songIdChanged || indexChanged) {
-          // 遷移理由が設定されていない場合は手動選択とみなす
-          if (playerStore.transitionReason === null) {
-            playerStore.setTransitionReason("manual");
-          }
-
-          console.log("Triggering playCurrentTrack due to:", {
-            trackChanged,
-            songIdChanged,
-            indexChanged,
-            currentTrackId: newTrack.id,
-            previousSongId,
-          });
-
-          playCurrentTrack();
-        }
-      }
-    },
-    { immediate: true }
-  );
-
   // 音量変更を監視
   watch(
     () => playerStore.volume,
@@ -679,6 +619,12 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
 
   onMounted(async () => {
     await nextTick();
+
+    // queueStoreのplayCurrentTrack関数を設定
+    // これにより、queueStoreから明示的に再生処理を呼び出せるようになる
+    queueStore.playCurrentTrack = () => {
+      playCurrentTrack();
+    };
 
     // YouTube API の読み込みを待つ
     const checkYouTubeAPI = () => {

@@ -76,10 +76,21 @@ export const usePlayerQueue = defineStore("playerQueue", {
           console.log("Queue became empty - setting stop flag");
           this.shouldStopPlayback = true;
         } else if (this.nowPlayingIndex >= this.queue.length) {
-          // 最後の曲を削除した場合、インデックスを調整
+          // 最後の曲を削除した場合、インデックスを調整して前の曲を再生
           this.nowPlayingIndex = this.queue.length - 1;
+          const playerStore = usePlayerStore();
+          playerStore.setTransitionReason("manual");
+          this.saveQueueSettings(); // 自動保存
+          // 明示的に再生処理を実行
+          this.playCurrentTrack();
+        } else {
+          // 削除された曲の位置に新しい曲が入った場合、その曲を再生
+          const playerStore = usePlayerStore();
+          playerStore.setTransitionReason("manual");
+          this.saveQueueSettings(); // 自動保存
+          // 明示的に再生処理を実行
+          this.playCurrentTrack();
         }
-        // インデックスはそのままで次の曲が自動で再生される
       } else if (index < this.nowPlayingIndex) {
         // 現在再生中より前の曲を削除した場合、インデックスを1つ減らす
         this.queue.splice(index, 1);
@@ -119,6 +130,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
       }
       this.saveQueueSettings(); // 自動保存
     },
+    // 明示的に楽曲を選択して再生する
     play(index: number) {
       if (index >= 0 && index < this.queue.length) {
         const playerStore = usePlayerStore();
@@ -126,8 +138,13 @@ export const usePlayerQueue = defineStore("playerQueue", {
         playerStore.setTransitionReason("manual");
         this.nowPlayingIndex = index;
         this.saveQueueSettings(); // 自動保存
+
+        // 明示的に再生処理を実行
+        this.playCurrentTrack();
       }
     },
+
+    // 次の曲へ移動して再生
     next() {
       console.log("Queue next() called:", {
         currentIndex: this.nowPlayingIndex,
@@ -151,8 +168,13 @@ export const usePlayerQueue = defineStore("playerQueue", {
         }
         this.nowPlayingIndex++;
         this.saveQueueSettings(); // 自動保存
+
+        // 明示的に再生処理を実行
+        this.playCurrentTrack();
       }
     },
+
+    // 前の曲へ移動して再生
     previous() {
       console.log("Queue previous() called:", {
         currentIndex: this.nowPlayingIndex,
@@ -195,7 +217,19 @@ export const usePlayerQueue = defineStore("playerQueue", {
         }
         this.nowPlayingIndex--;
         this.saveQueueSettings(); // 自動保存
+
+        // 明示的に再生処理を実行
+        this.playCurrentTrack();
       }
+    },
+
+    // 現在のトラックを再生（GlobalYouTubePlayerの処理を呼び出す）
+    // この関数はGlobalYouTubePlayerから提供されるコールバック関数を格納
+    playCurrentTrack() {
+      // この関数は実行時にGlobalYouTubePlayerから設定される
+      console.log(
+        "playCurrentTrack called - should be overridden by GlobalYouTubePlayer"
+      );
     },
     clear() {
       // 再生停止フラグを設定
@@ -261,6 +295,9 @@ export const usePlayerQueue = defineStore("playerQueue", {
         this.nowPlayingIndex = 0; // 最初に戻る
         playerStore.setTransitionReason("auto-end");
         this.saveQueueSettings(); // 自動保存
+
+        // 明示的に再生処理を実行
+        this.playCurrentTrack();
       } else if (playerStore.repeatMode === "one") {
         // 現在の曲を再再生（インデックス変更なし）
         const currentTrack = this.nowPlaying;

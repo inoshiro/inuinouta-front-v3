@@ -45,7 +45,7 @@ export const SONG_ROW_STYLES = {
 
   // 楽曲情報
   info: {
-    wrapperMobile: "flex-1 min-w-0 cursor-pointer py-2 px-3",
+    wrapperMobile: "flex-1 min-w-0 cursor-pointer py-2 pl-3 pr-2",
     wrapperDesktop: "flex-1 min-w-0 cursor-pointer py-4",
     titleContainer: "flex items-center gap-2 mb-1",
     titleMobile: "text-sm font-medium text-gray-900 truncate",
@@ -78,7 +78,7 @@ export const SONG_ROW_STYLES = {
 
   // 3点メニューボタン
   menuButton: {
-    wrapperMobile: "flex-shrink-0 flex items-center pr-2",
+    wrapperMobile: "flex-shrink-0 flex items-center pr-3",
     wrapperDesktop: "flex-shrink-0 flex items-center py-4 pr-4",
     buttonMobile:
       "p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors",

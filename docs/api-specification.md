@@ -598,31 +598,27 @@ export interface Song {
   {
     "id": 1,
     "name": "お気に入りのオリジナル曲",
-    "description": "戌亥とこのオリジナル曲まとめ",
     "created_at": "2024-10-01T00:00:00+09:00",
-    "items": [
+    "updated_at": "2024-10-15T12:30:00+09:00",
+    "songs": [
       {
-        "id": 1,
-        "order": 0,
-        "song": {
-          "id": 10,
-          "video": {
-            "id": "abc123",
-            "title": "【歌ってみた】素敵な曲",
-            "url": "https://www.youtube.com/watch?v=abc123",
-            "thumbnail_path": "https://inuinouta.s3.ap-northeast-1.amazonaws.com/images/thumbs/abc123.jpg",
-            "is_open": true,
-            "is_member_only": false,
-            "is_stream": false,
-            "unplayable": false,
-            "published_at": "2024-01-01T00:00:00+09:00"
-          },
-          "title": "素敵な曲",
-          "artist": "戌亥とこ",
-          "is_original": true,
-          "start_at": 0,
-          "end_at": 240
-        }
+        "id": 10,
+        "video": {
+          "id": "abc123",
+          "title": "【歌ってみた】素敵な曲",
+          "url": "https://www.youtube.com/watch?v=abc123",
+          "thumbnail_path": "https://inuinouta.s3.ap-northeast-1.amazonaws.com/images/thumbs/abc123.jpg",
+          "is_open": true,
+          "is_member_only": false,
+          "is_stream": false,
+          "unplayable": false,
+          "published_at": "2024-01-01T00:00:00+09:00"
+        },
+        "title": "素敵な曲",
+        "artist": "戌亥とこ",
+        "is_original": true,
+        "start_at": 0,
+        "end_at": 240
       }
     ]
   }
@@ -632,25 +628,20 @@ export interface Song {
 **型定義** (`types/playlist.ts`):
 
 ```typescript
-export interface PlaylistItem {
-  id: number;
-  order: number;
-  song: Song;
-}
-
 export interface Playlist {
   id: number;
   name: string;
-  description?: string;
+  songs: Song[];
   created_at: string;
-  items: PlaylistItem[];
+  updated_at: string;
 }
 ```
 
 **注意**:
 
 - レスポンスは直接 `Playlist` オブジェクトの配列
-- 各アイテムに完全な楽曲情報（動画情報含む）が含まれる
+- 各プレイリストに完全な楽曲情報（動画情報含む）が含まれる
+- `songs` フィールドに楽曲が直接配列として格納される
 
 #### GET /api/playlists/:id/
 
@@ -667,19 +658,11 @@ export interface Playlist {
 ```json
 {
   "name": "新しいプレイリスト",
-  "description": "説明（任意）",
-  "items": [
-    {
-      "song_id": 10,
-      "order": 0
-    },
-    {
-      "song_id": 42,
-      "order": 1
-    }
-  ]
+  "songs": [10, 42, 55]
 }
 ```
+
+**注意**: `songs` は楽曲 ID の配列として送信します。
 
 **レスポンス**: 作成された `Playlist` オブジェクト
 
