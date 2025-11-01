@@ -105,9 +105,14 @@
       const toIndex = newOrder.indexOf(songId);
       if (toIndex === -1) return;
 
+      // API呼び出しのみ行い、UIは現在の状態を維持
       await reorderPlaylistItems(playlistId, fromIndex, toIndex);
-      // データを再読み込み
-      await loadPlaylistData();
+      
+      // 成功したら、draggableSongsの状態をsongsに反映
+      // playlistData全体を更新せずに、songs配列のみ更新
+      if (playlistData.value) {
+        playlistData.value.songs = [...draggableSongs.value];
+      }
     } catch (e) {
       console.error("Failed to reorder songs:", e);
       toast.error("曲順の変更に失敗しました");
