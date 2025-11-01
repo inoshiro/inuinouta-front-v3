@@ -154,6 +154,22 @@
     }
   };
 
+  // プレイリストを再生（キューを置き換えて再生開始）
+  const playPlaylist = (playlist: any) => {
+    const songs = currentPlaylistSongs.value;
+    if (songs.length === 0) {
+      toast.error("プレイリストに楽曲がありません");
+      return;
+    }
+
+    // キューを置き換え
+    queueStore.setQueue(songs);
+    // 最初の曲から再生開始
+    queueStore.play(0);
+
+    toast.success(`プレイリスト「${playlist.name}」を再生します`);
+  };
+
   // プレイリストをキューに追加
   const addPlaylistToQueue = (playlist: any) => {
     const songs = currentPlaylistSongs.value;
@@ -638,8 +654,23 @@
       <!-- フッター -->
       <div
         v-if="currentPlaylistSongs.length > 0"
-        class="p-4 border-t border-gray-200 bg-gray-50"
+        class="p-4 border-t border-gray-200 bg-gray-50 space-y-2"
       >
+        <button
+          @click="playPlaylist(selectedPlaylist)"
+          class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M8 5v14l11-7z"
+            />
+          </svg>
+          プレイリストを再生
+        </button>
         <button
           @click="addPlaylistToQueue(selectedPlaylist)"
           class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
