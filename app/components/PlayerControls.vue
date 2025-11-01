@@ -5,6 +5,7 @@
 
   const playerStore = usePlayerStore();
   const queueStore = usePlayerQueue();
+  const toast = useToast();
 
   // モバイルサブメニューの表示状態
   const showMobileMenu = ref(false);
@@ -137,8 +138,14 @@
 
   // シャッフル機能
   const shuffleQueue = () => {
+    if (queueStore.queue.length <= 1) {
+      toast.warning("シャッフルする曲が不足しています");
+      return;
+    }
+
     playerStore.setUserInteracted(true);
     queueStore.shuffleQueue();
+    toast.success("キューをシャッフルしました");
   };
 
   // リピート機能
