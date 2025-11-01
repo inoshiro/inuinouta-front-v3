@@ -65,7 +65,6 @@
 
       // LocalStorageに保存
       queueStore.saveQueueSettings();
-      toast.success("曲順を変更しました");
     } catch (e) {
       console.error("Failed to reorder queue:", e);
       toast.error("曲順の変更に失敗しました");

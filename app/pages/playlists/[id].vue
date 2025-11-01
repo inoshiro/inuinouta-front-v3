@@ -108,7 +108,6 @@
       await reorderPlaylistItems(playlistId, fromIndex, toIndex);
       // データを再読み込み
       await loadPlaylistData();
-      toast.success("曲順を変更しました");
     } catch (e) {
       console.error("Failed to reorder songs:", e);
       toast.error("曲順の変更に失敗しました");
