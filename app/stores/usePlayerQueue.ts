@@ -13,6 +13,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
     nowPlayingIndex: 0,
     shouldStopPlayback: false, // 再生停止要求フラグ
     originalQueue: [] as QueueItem[], // シャッフル前の元キュー保存用
+    isInitializing: false, // 初期化中フラグ(ローカルストレージ復元時)
   }),
   getters: {
     nowPlaying: (state) => state.queue[state.nowPlayingIndex] || null,
@@ -53,13 +54,70 @@ export const usePlayerQueue = defineStore("playerQueue", {
         song: { id: song.id, title: song.title },
         toTop,
         currentQueueLength: this.queue.length,
+        isInitializing: this.isInitializing,
       });
+
+      // キューが空だったかどうかを記録
+      const wasEmpty = this.queue.length === 0;
+
       if (toTop) {
         this.queue.splice(this.nowPlayingIndex + 1, 0, song);
       } else {
         this.queue.push(song);
       }
       this.saveQueueSettings(); // 自動保存
+
+      // キューが空から曲が追加された場合、先頭の曲を読み込んで再生待ち状態にする
+      // ただし、初期化中(ローカルストレージからの復元)は除く
+      if (wasEmpty && !this.isInitializing) {
+        console.log(
+          "Queue was empty, loading first track for ready state (cued)"
+        );
+        const playerStore = usePlayerStore();
+        const firstTrack = this.queue[0];
+
+        if (firstTrack) {
+          // プレイヤーストアに現在のトラックを設定
+          playerStore.setTrack(firstTrack);
+
+          // 自動再生フラグをfalseに設定(再生待ち状態)
+          playerStore.setShouldAutoPlay(false);
+
+          // YouTube Playerが準備できている場合、動画をロード
+          if (
+            playerStore.isPlayerReady &&
+            playerStore.ytPlayer &&
+            typeof playerStore.ytPlayer.cueVideoById === "function" &&
+            firstTrack.video?.url
+          ) {
+            // YouTube URLから動画IDを抽出
+            const extractVideoId = (url: string): string | null => {
+              const regExp =
+                /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+              const match = url.match(regExp);
+              return match && match[7] && match[7].length === 11
+                ? match[7]
+                : null;
+            };
+
+            const videoId = extractVideoId(firstTrack.video.url);
+            if (videoId) {
+              try {
+                const startTime = firstTrack.start_at || 0;
+                // cueVideoById を使用して動画を準備状態でロード
+                playerStore.ytPlayer.cueVideoById(videoId, startTime);
+                console.log("空キューへの追加後、動画をロードしました:", {
+                  videoId,
+                  songTitle: firstTrack.title,
+                  startAt: startTime,
+                });
+              } catch (error) {
+                console.warn("動画ロードに失敗:", error);
+              }
+            }
+          }
+        }
+      }
     },
     removeFromQueue(index: number) {
       if (index < 0 || index >= this.queue.length) return;
@@ -314,6 +372,9 @@ export const usePlayerQueue = defineStore("playerQueue", {
 
     // キューの永続化機能
     initializeQueueSettings() {
+      // 初期化開始
+      this.isInitializing = true;
+
       if (typeof localStorage !== "undefined") {
         try {
           const savedQueue = localStorage.getItem("player-queue");
@@ -381,7 +442,9 @@ export const usePlayerQueue = defineStore("playerQueue", {
                     const regExp =
                       /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
                     const match = url.match(regExp);
-                    return match && match[7].length === 11 ? match[7] : null;
+                    return match && match[7] && match[7].length === 11
+                      ? match[7]
+                      : null;
                   };
 
                   const videoId = extractVideoId(currentTrack.video.url);
@@ -418,7 +481,14 @@ export const usePlayerQueue = defineStore("playerQueue", {
           this.queue = [];
           this.nowPlayingIndex = 0;
           this.originalQueue = [];
+        } finally {
+          // 初期化完了
+          this.isInitializing = false;
+          console.log("キュー初期化完了");
         }
+      } else {
+        // localStorage が利用できない場合も初期化完了
+        this.isInitializing = false;
       }
     },
 
