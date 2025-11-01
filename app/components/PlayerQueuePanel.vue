@@ -47,19 +47,24 @@
     }
 
     try {
-      // 変更された曲のインデックスを見つける
-      const fromIndex = oldOrder.findIndex(
-        (id, index) => id !== newOrder[index]
-      );
-      if (fromIndex === -1) return;
+      // 現在再生中の曲のIDを保持
+      const currentPlayingSongId = queueStore.nowPlaying?.id;
 
-      const songId = newOrder[fromIndex];
-      if (songId === undefined) return;
+      // ドラッグ後の新しい順序で直接キューを更新
+      queueStore.queue = [...draggableQueue.value];
 
-      const toIndex = newOrder.indexOf(songId);
-      if (toIndex === -1) return;
+      // 現在再生中の曲の新しいインデックスを見つけて更新
+      if (currentPlayingSongId !== undefined) {
+        const newPlayingIndex = queueStore.queue.findIndex(
+          (song) => song.id === currentPlayingSongId
+        );
+        if (newPlayingIndex !== -1) {
+          queueStore.nowPlayingIndex = newPlayingIndex;
+        }
+      }
 
-      queueStore.moveInQueue(fromIndex, toIndex);
+      // LocalStorageに保存
+      queueStore.saveQueueSettings();
       toast.success("曲順を変更しました");
     } catch (e) {
       console.error("Failed to reorder queue:", e);
