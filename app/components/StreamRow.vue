@@ -684,6 +684,15 @@
       }
     } else {
       queueStore.addToQueue(songWithVideo);
+      
+      // トーストで追加を通知
+      const toast = useToast();
+      toast.success(`「${songWithVideo.title}」をキューに追加しました`);
+      
+      // プレイリストモードだがプレイリストが選択されていない場合、キュータブに切り替え
+      if (uiContext.isPlaylistMode) {
+        uiContext.setRightPanelMode("queue");
+      }
     }
   };
 

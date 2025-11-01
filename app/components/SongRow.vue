@@ -506,6 +506,13 @@
 
       queue.addToQueue(props.song);
       emit("add-to-queue", props.song);
+      
+      toast.success(`「${props.song.title}」をキューに追加しました`);
+
+      // プレイリストモードだがプレイリストが選択されていない場合、キュータブに切り替え
+      if (uiContext.isPlaylistMode) {
+        uiContext.setRightPanelMode("queue");
+      }
     }
   };
 
