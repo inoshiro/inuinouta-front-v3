@@ -107,7 +107,7 @@
 
       // API呼び出しのみ行い、UIは現在の状態を維持
       await reorderPlaylistItems(playlistId, fromIndex, toIndex);
-      
+
       // 成功したら、draggableSongsの状態をsongsに反映
       // playlistData全体を更新せずに、songs配列のみ更新
       if (playlistData.value) {

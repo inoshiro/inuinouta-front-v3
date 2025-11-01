@@ -154,22 +154,6 @@
     }
   };
 
-  // プレイリストを再生（キューを置き換えて再生開始）
-  const playPlaylist = (playlist: any) => {
-    const songs = currentPlaylistSongs.value;
-    if (songs.length === 0) {
-      toast.error("プレイリストに楽曲がありません");
-      return;
-    }
-
-    // キューを置き換え
-    queueStore.setQueue(songs);
-    // 最初の曲から再生開始
-    queueStore.play(0);
-
-    toast.success(`プレイリスト「${playlist.name}」を再生します`);
-  };
-
   // プレイリストをキューに追加
   const addPlaylistToQueue = (playlist: any) => {
     const songs = currentPlaylistSongs.value;
@@ -254,6 +238,12 @@
         toast.error("楽曲の削除に失敗しました");
       }
     }
+  };
+
+  // 楽曲をキューに追加
+  const addSongToQueue = (song: Song) => {
+    queueStore.addToQueue(song, false);
+    toast.success(`「${song.title}」をキューに追加しました`);
   };
 
   // 時間のフォーマット
@@ -602,6 +592,25 @@
 
                 <!-- アクションボタン -->
                 <button
+                  @click.stop="addSongToQueue(song)"
+                  class="p-2 hover:bg-blue-50 rounded-lg transition-colors text-gray-400 hover:text-blue-600 shrink-0"
+                  title="キューに追加"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                </button>
+                <button
                   @click.stop="handleRemoveSong(index)"
                   class="p-2 hover:bg-red-50 rounded-lg transition-colors text-gray-400 hover:text-red-600 shrink-0"
                   title="削除"
@@ -629,23 +638,8 @@
       <!-- フッター -->
       <div
         v-if="currentPlaylistSongs.length > 0"
-        class="p-4 border-t border-gray-200 bg-gray-50 space-y-2"
+        class="p-4 border-t border-gray-200 bg-gray-50"
       >
-        <button
-          @click="playPlaylist(selectedPlaylist)"
-          class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M8 5v14l11-7z"
-            />
-          </svg>
-          プレイリストを再生
-        </button>
         <button
           @click="addPlaylistToQueue(selectedPlaylist)"
           class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"

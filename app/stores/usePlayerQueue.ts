@@ -12,7 +12,6 @@ export const usePlayerQueue = defineStore("playerQueue", {
     queue: [] as QueueItem[],
     nowPlayingIndex: 0,
     shouldStopPlayback: false, // 再生停止要求フラグ
-    originalQueue: [] as QueueItem[], // シャッフル前の元キュー保存用
     isInitializing: false, // 初期化中フラグ(ローカルストレージ復元時)
   }),
   getters: {
@@ -304,44 +303,40 @@ export const usePlayerQueue = defineStore("playerQueue", {
     },
     // シャッフル機能（Fisher-Yatesアルゴリズム）
     shuffleQueue() {
-      const playerStore = usePlayerStore();
-
-      if (playerStore.isShuffled) {
-        // 元のキューを保存
-        this.originalQueue = [...this.queue];
-
-        // Fisher-Yatesアルゴリズムでシャッフル
-        for (let i = this.queue.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]];
-        }
-
-        // 現在再生中の楽曲のインデックスを同期
-        this.syncCurrentTrackIndex();
-        this.saveQueueSettings(); // 自動保存
-        console.log("キューをシャッフルしました");
-      } else {
-        // 元のキューに戻す
-        if (this.originalQueue.length > 0) {
-          this.queue = [...this.originalQueue];
-          this.syncCurrentTrackIndex();
-          this.saveQueueSettings(); // 自動保存
-          console.log("シャッフルを解除しました");
-        }
+      if (this.queue.length <= 1) {
+        console.log("キューが空または1曲のみのためシャッフル不要");
+        return;
       }
-    },
-    // 現在再生中の楽曲のインデックスを同期
-    syncCurrentTrackIndex() {
-      const playerStore = usePlayerStore();
-      if (playerStore.currentTrack) {
-        const index = this.queue.findIndex(
-          (item) => item.id === playerStore.currentTrack?.id
+
+      // 現在再生中の曲を記憶
+      const currentTrack = this.nowPlaying;
+
+      // Fisher-Yatesアルゴリズムでシャッフル
+      for (let i = this.queue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]];
+      }
+
+      // 現在再生中の曲がある場合、先頭に移動
+      if (currentTrack) {
+        const currentIndex = this.queue.findIndex(
+          (item) =>
+            item.id === currentTrack.id &&
+            item.video?.id === currentTrack.video?.id
         );
-        if (index !== -1) {
-          this.nowPlayingIndex = index;
-          this.saveQueueSettings(); // 自動保存
+
+        if (currentIndex !== -1 && currentIndex !== 0) {
+          // 現在の曲をキューから取り出して先頭に挿入
+          const [current] = this.queue.splice(currentIndex, 1);
+          this.queue.unshift(current);
         }
+
+        // 現在再生中のインデックスを先頭(0)に設定
+        this.nowPlayingIndex = 0;
       }
+
+      this.saveQueueSettings(); // 自動保存
+      console.log("キューをシャッフルしました（現在再生中の曲を先頭に配置）");
     },
     // リピート対応の次の曲
     nextWithRepeat() {
@@ -376,12 +371,13 @@ export const usePlayerQueue = defineStore("playerQueue", {
       this.isInitializing = true;
 
       if (typeof localStorage !== "undefined") {
+        // 旧シャッフルシステムのデータをクリーンアップ
+        localStorage.removeItem("player-original-queue");
+        localStorage.removeItem("player-is-shuffled");
+
         try {
           const savedQueue = localStorage.getItem("player-queue");
           const savedIndex = localStorage.getItem("player-queue-index");
-          const savedOriginalQueue = localStorage.getItem(
-            "player-original-queue"
-          );
 
           let queueRestored = false;
 
@@ -399,17 +395,6 @@ export const usePlayerQueue = defineStore("playerQueue", {
             if (!isNaN(index) && index >= 0 && index < this.queue.length) {
               this.nowPlayingIndex = index;
               console.log("再生位置を復元:", index);
-            }
-          }
-
-          if (savedOriginalQueue) {
-            const originalQueueData = JSON.parse(savedOriginalQueue);
-            if (Array.isArray(originalQueueData)) {
-              this.originalQueue = originalQueueData;
-              console.log(
-                "オリジナルキューを復元:",
-                originalQueueData.length + "曲"
-              );
             }
           }
 
@@ -480,7 +465,6 @@ export const usePlayerQueue = defineStore("playerQueue", {
           // エラー時は初期状態にリセット
           this.queue = [];
           this.nowPlayingIndex = 0;
-          this.originalQueue = [];
         } finally {
           // 初期化完了
           this.isInitializing = false;
@@ -500,14 +484,9 @@ export const usePlayerQueue = defineStore("playerQueue", {
             "player-queue-index",
             this.nowPlayingIndex.toString()
           );
-          localStorage.setItem(
-            "player-original-queue",
-            JSON.stringify(this.originalQueue)
-          );
           console.log("キュー設定を保存:", {
             queueLength: this.queue.length,
             index: this.nowPlayingIndex,
-            originalQueueLength: this.originalQueue.length,
           });
         } catch (error) {
           console.warn("キュー設定の保存に失敗:", error);
@@ -519,7 +498,6 @@ export const usePlayerQueue = defineStore("playerQueue", {
       if (typeof localStorage !== "undefined") {
         localStorage.removeItem("player-queue");
         localStorage.removeItem("player-queue-index");
-        localStorage.removeItem("player-original-queue");
         console.log("キュー設定をクリア");
       }
     },

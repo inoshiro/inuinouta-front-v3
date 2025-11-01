@@ -136,9 +136,8 @@
   };
 
   // シャッフル機能
-  const toggleShuffle = () => {
+  const shuffleQueue = () => {
     playerStore.setUserInteracted(true);
-    playerStore.toggleShuffle();
     queueStore.shuffleQueue();
   };
 
@@ -241,13 +240,8 @@
         <div class="flex items-center justify-center gap-3 w-1/3">
           <!-- シャッフルボタン -->
           <button
-            :class="[
-              'p-2 rounded-full transition-colors',
-              playerStore.isShuffled
-                ? 'text-blue-400 bg-blue-900/30'
-                : 'text-gray-400 hover:text-white hover:bg-gray-700',
-            ]"
-            @click="toggleShuffle"
+            class="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-gray-700"
+            @click="shuffleQueue"
             title="シャッフル"
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -556,13 +550,8 @@
         <div class="flex items-center justify-center gap-6 mb-4">
           <!-- シャッフルボタン -->
           <button
-            :class="[
-              'p-3 rounded-xl transition-colors',
-              playerStore.isShuffled
-                ? 'text-blue-400 bg-blue-900/30'
-                : 'text-gray-400 hover:text-white hover:bg-gray-700',
-            ]"
-            @click="toggleShuffle"
+            class="p-3 rounded-xl transition-colors text-gray-400 hover:text-white hover:bg-gray-700"
+            @click="shuffleQueue"
             title="シャッフル"
           >
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">

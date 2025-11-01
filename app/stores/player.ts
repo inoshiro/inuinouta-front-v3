@@ -31,9 +31,8 @@ export const usePlayerStore = defineStore("player", {
       | null, // 遷移理由
     retryCount: 0, // リトライ回数
     maxRetries: 3, // 最大リトライ回数
-    // 新機能:リピート・シャッフル機能
+    // 新機能:リピート機能
     repeatMode: "none" as "none" | "one" | "all", // リピートモード
-    isShuffled: false, // シャッフル状態
     // YouTubeプレイヤー表示状態
     showYouTubePlayer: false, // YouTubeプレイヤーを前面に表示するか
   }),
@@ -93,7 +92,6 @@ export const usePlayerStore = defineStore("player", {
         try {
           const savedTrack = localStorage.getItem("player-current-track");
           const savedRepeatMode = localStorage.getItem("player-repeat-mode");
-          const savedIsShuffled = localStorage.getItem("player-is-shuffled");
 
           if (savedTrack) {
             const trackData = JSON.parse(savedTrack);
@@ -107,11 +105,6 @@ export const usePlayerStore = defineStore("player", {
               this.repeatMode = mode;
               console.log("リピートモードを復元:", mode);
             }
-          }
-
-          if (savedIsShuffled !== null) {
-            this.isShuffled = savedIsShuffled === "true";
-            console.log("シャッフル状態を復元:", this.isShuffled);
           }
         } catch (error) {
           console.warn("プレイヤー設定の読み込みに失敗:", error);
@@ -131,14 +124,9 @@ export const usePlayerStore = defineStore("player", {
             localStorage.removeItem("player-current-track");
           }
           localStorage.setItem("player-repeat-mode", this.repeatMode);
-          localStorage.setItem(
-            "player-is-shuffled",
-            this.isShuffled.toString()
-          );
           console.log("プレイヤー設定を保存:", {
             track: this.currentTrack?.title || "なし",
             repeatMode: this.repeatMode,
-            isShuffled: this.isShuffled,
           });
         } catch (error) {
           console.warn("プレイヤー設定の保存に失敗:", error);
@@ -247,15 +235,10 @@ export const usePlayerStore = defineStore("player", {
       const modes: ("none" | "one" | "all")[] = ["none", "one", "all"];
       const currentIndex = modes.indexOf(this.repeatMode);
       const nextIndex = (currentIndex + 1) % modes.length;
-      this.setRepeatMode(modes[nextIndex]);
-    },
-    setShuffled(enabled: boolean) {
-      this.isShuffled = enabled;
-      this.savePlayerSettings(); // 自動保存
-      console.log(`シャッフル${enabled ? "有効" : "無効"}`);
-    },
-    toggleShuffle() {
-      this.setShuffled(!this.isShuffled);
+      const nextMode = modes[nextIndex];
+      if (nextMode) {
+        this.setRepeatMode(nextMode);
+      }
     },
     // YouTubeプレイヤー表示制御
     toggleYouTubePlayer() {
@@ -275,5 +258,5 @@ function extractYouTubeId(url: string): string | null {
   const regExp =
     /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
   const match = url.match(regExp);
-  return match && match[7].length === 11 ? match[7] : null;
+  return match && match[7] && match[7].length === 11 ? match[7] : null;
 }
