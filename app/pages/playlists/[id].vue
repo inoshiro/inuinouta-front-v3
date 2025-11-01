@@ -94,7 +94,9 @@
 
     try {
       // 変更された曲のインデックスを見つける
-      const fromIndex = oldOrder.findIndex((id, index) => id !== newOrder[index]);
+      const fromIndex = oldOrder.findIndex(
+        (id, index) => id !== newOrder[index]
+      );
       if (fromIndex === -1) return;
 
       const songId = newOrder[fromIndex];
