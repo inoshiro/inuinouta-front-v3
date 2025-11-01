@@ -302,8 +302,33 @@
             </p>
           </div>
 
-          <!-- コンテキストメニューボタン -->
-          <div :class="SONG_ROW_STYLES.menuButton.wrapperDesktop" @click.stop>
+          <!-- ボタングループ -->
+          <div
+            :class="SONG_ROW_STYLES.menuButton.wrapperDesktop"
+            class="flex items-center gap-2"
+            @click.stop
+          >
+            <!-- キューに追加ボタン -->
+            <button
+              @click="handleAddToQueue(song)"
+              class="p-2 hover:bg-green-50 rounded-lg transition-colors text-green-600 hover:text-green-700"
+              title="キューに追加"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+            </button>
+            <!-- コンテキストメニューボタン -->
             <button
               :class="SONG_ROW_STYLES.menuButton.buttonDesktop"
               @click.stop="openMenu(song.id, $event)"
@@ -332,27 +357,6 @@
               @click.stop
               data-song-menu
             >
-              <!-- キューに追加 -->
-              <button
-                @click="handleMenuAction(() => handleAddToQueue(song))"
-                :class="SONG_ROW_STYLES.contextMenu.menuItem"
-              >
-                <svg
-                  :class="SONG_ROW_STYLES.contextMenu.iconGreen"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    :d="SONG_ROW_ICONS.queue"
-                  />
-                </svg>
-                <span>キューに追加</span>
-              </button>
-
               <!-- プレイリストに追加 -->
               <button
                 @click="handleMenuAction(() => addToPlaylist(song))"

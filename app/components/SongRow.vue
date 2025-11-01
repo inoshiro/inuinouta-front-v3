@@ -56,24 +56,39 @@
             <h3 :class="SONG_ROW_STYLES.info.titleMobile">
               {{ song.title }}
             </h3>
-            <span
-              v-if="song.is_original"
-              :class="SONG_ROW_STYLES.info.badgeMobile"
-            >
-              オリジナル
-            </span>
           </div>
           <p :class="SONG_ROW_STYLES.info.artistMobile">
             {{ song.artist }}
           </p>
         </div>
 
-        <!-- モバイル用メニューボタン -->
-        <div :class="SONG_ROW_STYLES.menuButton.wrapperMobile" @click.stop>
+        <!-- モバイル用ボタングループ -->
+        <div class="shrink-0 flex items-center gap-0 pr-2 ml-2" @click.stop>
+          <!-- キューに追加ボタン -->
+          <button
+            @click="addToQueue"
+            class="p-2 hover:bg-green-50 rounded-lg transition-colors text-green-600 hover:text-green-700 flex items-center justify-center"
+            title="キューに追加"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </button>
+          <!-- メニューボタン -->
           <button
             ref="mobileMenuButton"
             @click="toggleMenu"
-            :class="SONG_ROW_STYLES.menuButton.buttonMobile"
+            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center"
             title="メニューを開く"
           >
             <svg
@@ -147,8 +162,33 @@
         </p>
       </div>
 
-      <!-- デスクトップ用メニューボタン -->
-      <div :class="SONG_ROW_STYLES.menuButton.wrapperDesktop" @click.stop>
+      <!-- デスクトップ用ボタングループ -->
+      <div
+        :class="SONG_ROW_STYLES.menuButton.wrapperDesktop"
+        class="flex items-center gap-2"
+        @click.stop
+      >
+        <!-- キューに追加ボタン -->
+        <button
+          @click="addToQueue"
+          class="p-2 hover:bg-green-50 rounded-lg transition-colors text-green-600 hover:text-green-700"
+          title="キューに追加"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+        </button>
+        <!-- メニューボタン -->
         <button
           ref="desktopMenuButton"
           @click="toggleMenu"
@@ -183,25 +223,6 @@
         :class="SONG_ROW_STYLES.contextMenu.container"
         @click.stop
       >
-        <button
-          @click="handleMenuAction(addToQueue)"
-          :class="SONG_ROW_STYLES.contextMenu.menuItem"
-        >
-          <svg
-            :class="SONG_ROW_STYLES.contextMenu.iconGreen"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              :d="SONG_ROW_ICONS.queue"
-            />
-          </svg>
-          <span>キューに追加</span>
-        </button>
         <button
           @click="handleMenuAction(addToPlaylist)"
           :class="SONG_ROW_STYLES.contextMenu.menuItem"
