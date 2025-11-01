@@ -189,13 +189,7 @@ export const useLocalPlaylist = () => {
         throw new Error("Playlist not found");
       }
 
-      // 既に追加済みかチェック
-      if (playlist.items.some((item) => item.song_id === songId)) {
-        error.value = "この曲は既にプレイリストに追加されています";
-        return;
-      }
-
-      // 新しい曲を追加
+      // 新しい曲を追加（重複許可）
       const newItem: LocalPlaylistItem = {
         id: crypto.randomUUID(),
         song_id: songId,
