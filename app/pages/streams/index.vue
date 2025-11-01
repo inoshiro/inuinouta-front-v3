@@ -203,6 +203,7 @@
         }));
 
         queueStore.setQueue(songsWithVideoInfo);
+        queueStore.play(0); // 最初の曲から再生開始
 
         // アナリティクス: ランダム歌枠キューを追跡
         analytics.trackPlaylistAction(

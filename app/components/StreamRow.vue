@@ -608,14 +608,7 @@
 
     // 新しいキューとして設定して即座に再生
     queueStore.setQueue([songWithVideo]);
-    queueStore.play(0);
-
-    // 再生コマンドを確実に実行
-    setTimeout(() => {
-      if (playerStore.ytPlayer && playerStore.isPlayerReady) {
-        playerStore.play();
-      }
-    }, 100);
+    queueStore.play(0); // これが内部的にplayCurrentTrack()を呼び出すため、player.play()は不要
   };
 
   // プレイリストに追加（composableのopenPlaylistModalを使用）

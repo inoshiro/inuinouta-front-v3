@@ -119,6 +119,7 @@ export const usePlayerQueue = defineStore("playerQueue", {
       }
       this.saveQueueSettings(); // 自動保存
     },
+    // 明示的に楽曲を選択して再生する
     play(index: number) {
       if (index >= 0 && index < this.queue.length) {
         const playerStore = usePlayerStore();
@@ -126,8 +127,13 @@ export const usePlayerQueue = defineStore("playerQueue", {
         playerStore.setTransitionReason("manual");
         this.nowPlayingIndex = index;
         this.saveQueueSettings(); // 自動保存
+
+        // 明示的に再生処理を実行
+        this.playCurrentTrack();
       }
     },
+
+    // 次の曲へ移動して再生
     next() {
       console.log("Queue next() called:", {
         currentIndex: this.nowPlayingIndex,
@@ -151,8 +157,13 @@ export const usePlayerQueue = defineStore("playerQueue", {
         }
         this.nowPlayingIndex++;
         this.saveQueueSettings(); // 自動保存
+
+        // 明示的に再生処理を実行
+        this.playCurrentTrack();
       }
     },
+
+    // 前の曲へ移動して再生
     previous() {
       console.log("Queue previous() called:", {
         currentIndex: this.nowPlayingIndex,
@@ -195,7 +206,19 @@ export const usePlayerQueue = defineStore("playerQueue", {
         }
         this.nowPlayingIndex--;
         this.saveQueueSettings(); // 自動保存
+
+        // 明示的に再生処理を実行
+        this.playCurrentTrack();
       }
+    },
+
+    // 現在のトラックを再生（GlobalYouTubePlayerの処理を呼び出す）
+    // この関数はGlobalYouTubePlayerから提供されるコールバック関数を格納
+    playCurrentTrack() {
+      // この関数は実行時にGlobalYouTubePlayerから設定される
+      console.log(
+        "playCurrentTrack called - should be overridden by GlobalYouTubePlayer"
+      );
     },
     clear() {
       // 再生停止フラグを設定
@@ -261,6 +284,9 @@ export const usePlayerQueue = defineStore("playerQueue", {
         this.nowPlayingIndex = 0; // 最初に戻る
         playerStore.setTransitionReason("auto-end");
         this.saveQueueSettings(); // 自動保存
+
+        // 明示的に再生処理を実行
+        this.playCurrentTrack();
       } else if (playerStore.repeatMode === "one") {
         // 現在の曲を再再生（インデックス変更なし）
         const currentTrack = this.nowPlaying;

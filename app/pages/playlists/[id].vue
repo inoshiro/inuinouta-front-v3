@@ -161,14 +161,7 @@
     // 新しいキューとして設定して即座に再生
     // オブジェクトを複製して参照共有を防ぐ
     queueStore.setQueue([{ ...song }]);
-    queueStore.play(0);
-
-    // 再生コマンドを確実に実行
-    setTimeout(() => {
-      if (playerStore.ytPlayer && playerStore.isPlayerReady) {
-        playerStore.play();
-      }
-    }, 100);
+    queueStore.play(0); // これが内部的にplayCurrentTrack()を呼び出すため、player.play()は不要
   };
 
   // キューに追加
@@ -219,14 +212,7 @@
     // プレイリストの全曲をキューに設定して最初から再生
     // 配列を複製してオブジェクトの参照共有を防ぐ
     queueStore.setQueue([...songs.value]);
-    queueStore.play(0);
-
-    // 再生コマンドを確実に実行
-    setTimeout(() => {
-      if (playerStore.ytPlayer && playerStore.isPlayerReady) {
-        playerStore.play();
-      }
-    }, 100);
+    queueStore.play(0); // これが内部的にplayCurrentTrack()を呼び出すため、player.play()は不要
   };
 
   // プレイリスト編集モーダル

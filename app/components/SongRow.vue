@@ -431,15 +431,8 @@
 
     // 新しいキューとして設定して即座に再生
     queue.setQueue([props.song]);
-    queue.play(0);
+    queue.play(0); // これが内部的にplayCurrentTrack()を呼び出すため、player.play()は不要
     emit("play-now", props.song);
-
-    // 再生コマンドを確実に実行（旧プロジェクトの手法）
-    setTimeout(() => {
-      if (player.ytPlayer && player.isPlayerReady) {
-        player.play();
-      }
-    }, 100);
   };
 
   // サムネイル・曲情報クリック時の再生（前プロジェクトスタイル）

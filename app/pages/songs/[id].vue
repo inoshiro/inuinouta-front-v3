@@ -416,21 +416,7 @@
 
     player.setUserInteracted(true);
     queue.setQueue([song.value]);
-    queue.play(0);
-
-    // プレイヤーの準備ができるまで待機（最大3秒）
-    const waitForPlayer = async (maxAttempts = 30, interval = 100) => {
-      for (let i = 0; i < maxAttempts; i++) {
-        if (player.ytPlayer && player.isPlayerReady) {
-          player.play();
-          return;
-        }
-        await new Promise((resolve) => setTimeout(resolve, interval));
-      }
-      console.warn("プレイヤーの準備がタイムアウトしました");
-    };
-
-    await waitForPlayer();
+    queue.play(0); // これが内部的にplayCurrentTrack()を呼び出すため、追加の処理は不要
   };
 
   const addToQueue = () => {

@@ -25,31 +25,18 @@
 
   // ドラッグ中の楽曲リスト（ローカル状態）
   const draggableQueue = ref<Song[]>([]);
-  
-  // ドラッグ中かどうかのフラグ
-  const isDragging = ref(false);
 
   // キューが変更されたときにdraggableQueueを更新
   watch(
     () => queueStore.queue,
     (newQueue) => {
-      // ドラッグ中は更新しない（ドラッグ終了時に同期される）
-      if (!isDragging.value) {
-        draggableQueue.value = [...newQueue];
-      }
+      draggableQueue.value = [...newQueue];
     },
     { immediate: true, deep: true }
   );
 
-  // ドラッグ開始時の処理
-  const handleDragStart = () => {
-    isDragging.value = true;
-  };
-
   // ドラッグアンドドロップ完了時の処理
   const handleDragEnd = () => {
-    isDragging.value = false;
-    
     // 元の順番と新しい順番を比較
     const oldOrder = queueStore.queue.map((s) => s.id);
     const newOrder = draggableQueue.value.map((s) => s.id);
@@ -62,7 +49,6 @@
     try {
       // 現在再生中の曲のIDを保持
       const currentPlayingSongId = queueStore.nowPlaying?.id;
-      const wasPlaying = playerStore.isPlaying;
 
       // ドラッグ後の新しい順序で直接キューを更新
       queueStore.queue = [...draggableQueue.value];
@@ -74,12 +60,6 @@
         );
         if (newPlayingIndex !== -1) {
           queueStore.nowPlayingIndex = newPlayingIndex;
-          
-          // 再生中だった場合は、再生を継続
-          // （インデックスの更新だけで、再生位置は変わらない）
-          if (wasPlaying && !playerStore.isPlaying) {
-            playerStore.play();
-          }
         }
       }
 
@@ -97,7 +77,8 @@
   // 楽曲を再生
   const handlePlaySong = (index: number) => {
     queueStore.play(index);
-    playerStore.play();
+    // queueStore.play()が内部的にplayCurrentTrack()を呼び出すため、
+    // playerStore.play()は不要
   };
 
   // 楽曲を削除
@@ -231,7 +212,6 @@
         <VueDraggableNext
           v-else
           v-model="draggableQueue"
-          @start="handleDragStart"
           @end="handleDragEnd"
           handle=".drag-handle"
           animation="150"
@@ -453,7 +433,6 @@
       <VueDraggableNext
         v-else
         v-model="draggableQueue"
-        @start="handleDragStart"
         @end="handleDragEnd"
         handle=".drag-handle"
         animation="150"
