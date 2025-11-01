@@ -5,6 +5,7 @@
     songRowUtils,
     SONG_ROW_ICONS,
   } from "~/constants/songRowStyles";
+  import { VueDraggableNext } from "vue-draggable-next";
 
   // Meta設定
   definePageMeta({
@@ -17,6 +18,7 @@
   const {
     getPlaylistWithSongs,
     removeSongFromPlaylist,
+    reorderPlaylistItems,
     deletePlaylist,
     loading,
     error,
@@ -64,6 +66,54 @@
 
   const playlist = computed(() => playlistData.value?.playlist);
   const songs = computed(() => playlistData.value?.songs || []);
+
+  // ドラッグ中の楽曲リスト（ローカル状態）
+  const draggableSongs = ref<Song[]>([]);
+
+  // songsが変更されたときにdraggableSongsを更新
+  watch(
+    songs,
+    (newSongs) => {
+      draggableSongs.value = [...newSongs];
+    },
+    { immediate: true }
+  );
+
+  // ドラッグアンドドロップ完了時の処理
+  const handleDragEnd = async () => {
+    if (!playlist.value) return;
+
+    // 元の順番と新しい順番を比較
+    const oldOrder = songs.value.map((s) => s.id);
+    const newOrder = draggableSongs.value.map((s) => s.id);
+
+    // 順番が変わっていない場合は何もしない
+    if (JSON.stringify(oldOrder) === JSON.stringify(newOrder)) {
+      return;
+    }
+
+    try {
+      // 変更された曲のインデックスを見つける
+      const fromIndex = oldOrder.findIndex((id, index) => id !== newOrder[index]);
+      if (fromIndex === -1) return;
+
+      const songId = newOrder[fromIndex];
+      if (songId === undefined) return;
+
+      const toIndex = newOrder.indexOf(songId);
+      if (toIndex === -1) return;
+
+      await reorderPlaylistItems(playlistId, fromIndex, toIndex);
+      // データを再読み込み
+      await loadPlaylistData();
+      toast.success("曲順を変更しました");
+    } catch (e) {
+      console.error("Failed to reorder songs:", e);
+      toast.error("曲順の変更に失敗しました");
+      // エラーが発生した場合は元に戻す
+      draggableSongs.value = [...songs.value];
+    }
+  };
 
   // 日付のフォーマット
   const formatDate = (dateString: string) => {
@@ -275,7 +325,7 @@
         <h1 class="text-3xl font-bold text-gray-900">
           {{ playlist.name }}
         </h1>
-        <div class="flex items-center gap-2 sm:flex-shrink-0">
+        <div class="flex items-center gap-2 sm:shrink-0">
           <button
             @click="handleEdit"
             class="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
@@ -347,12 +397,41 @@
     <div
       class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
     >
-      <div v-if="songs.length > 0" :class="SONG_ROW_STYLES.divider">
+      <VueDraggableNext
+        v-if="songs.length > 0"
+        v-model="draggableSongs"
+        :class="SONG_ROW_STYLES.divider"
+        @end="handleDragEnd"
+        handle=".drag-handle"
+        animation="150"
+        ghost-class="opacity-50"
+        chosen-class="shadow-lg"
+      >
         <div
-          v-for="(song, index) in songs"
+          v-for="(song, index) in draggableSongs"
           :key="song.id"
           :class="SONG_ROW_STYLES.container.playlist"
         >
+          <!-- ドラッグハンドル -->
+          <div
+            class="drag-handle flex items-center justify-center w-8 md:w-10 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors"
+            title="ドラッグして並び替え"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 8h16M4 16h16"
+              />
+            </svg>
+          </div>
+
           <!-- 番号（デスクトップのみ表示） -->
           <div :class="SONG_ROW_STYLES.index.wrapper" class="hidden md:flex">
             {{ index + 1 }}
@@ -431,10 +510,10 @@
             </button>
           </div>
         </div>
-      </div>
+      </VueDraggableNext>
 
       <!-- 空の状態 -->
-      <div v-else class="text-center py-16">
+      <div v-if="songs.length === 0" class="text-center py-16">
         <svg
           class="w-16 h-16 text-gray-400 mx-auto mb-4"
           fill="none"

@@ -3,6 +3,7 @@
 ## ディレクトリの役割
 
 ### コア機能
+
 - `app/components/`：Vue コンポーネント
   - `layout/`：ヘッダー・フッター・サイドバーなど共通 UI 部品
   - その他：再利用可能な機能コンポーネント
@@ -11,16 +12,19 @@
   - `default.vue`：全ページ共通のレイアウト
 
 ### アーキテクチャ層
+
 - `app/adapters/`：データ変換・アダプター層
 - `app/stores/`：Pinia による状態管理
 - `app/composables/`：再利用可能な Composition API ロジック
 - `app/utils/`：汎用ユーティリティ関数
 
 ### 型定義・定数
+
 - `app/types/`：TypeScript 型定義
 - `app/constants/`：定数定義
 
 ### その他
+
 - `app/assets/css/main.css`：Tailwind のエントリーポイント
 - `app/plugins/`：Nuxt プラグイン
 - `tailwind.config.js`：Tailwind の設定ファイル（プロジェクトルート）
