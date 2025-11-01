@@ -312,7 +312,13 @@
             <button
               @click="handleAddToQueue(song)"
               class="p-2 hover:bg-green-50 rounded-lg transition-colors text-green-600 hover:text-green-700"
-              title="キューに追加"
+              :class="{
+                'bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700':
+                  uiContext.isPlaylistMode,
+              }"
+              :title="
+                uiContext.isPlaylistMode ? 'プレイリストに追加' : 'キューに追加'
+              "
             >
               <svg
                 class="w-5 h-5"
@@ -450,6 +456,8 @@
   import { ref, watch } from "vue";
   import { usePlayerStore } from "~/stores/player";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
+  import { useUIContext } from "~/stores/useUIContext";
+  import { useLocalPlaylist } from "~/composables/useLocalPlaylist";
   import type { Song } from "~/types/song";
   import {
     SONG_ROW_STYLES,
@@ -481,6 +489,8 @@
   // ストア
   const playerStore = usePlayerStore();
   const queueStore = usePlayerQueue();
+  const uiContext = useUIContext();
+  const { addSongToPlaylist: addSongToPlaylistFn } = useLocalPlaylist();
 
   // コンテキストメニュー管理（共通化）
   const {
@@ -641,8 +651,8 @@
     return getYoutubeUrl(props.stream.url, song.start_at);
   };
 
-  // 楽曲をキューに追加
-  const handleAddToQueue = (song: Song) => {
+  // 楽曲をキューに追加（またはプレイリストに追加）
+  const handleAddToQueue = async (song: Song) => {
     // video情報を補完
     const songWithVideo = {
       ...song,
@@ -660,7 +670,30 @@
       addedFrom: "stream" as const,
     };
 
-    queueStore.addToQueue(songWithVideo);
+    // UIコンテキストに応じて追加先を切り替え
+    if (uiContext.isPlaylistMode && uiContext.selectedPlaylistId) {
+      console.log("Adding to playlist:", songWithVideo.title);
+      try {
+        await addSongToPlaylistFn(
+          uiContext.selectedPlaylistId,
+          songWithVideo.id
+        );
+      } catch (error) {
+        console.error("Failed to add to playlist:", error);
+        alert("プレイリストへの追加に失敗しました");
+      }
+    } else {
+      queueStore.addToQueue(songWithVideo);
+      
+      // トーストで追加を通知
+      const toast = useToast();
+      toast.success(`「${songWithVideo.title}」をキューに追加しました`);
+      
+      // プレイリストモードだがプレイリストが選択されていない場合、キュータブに切り替え
+      if (uiContext.isPlaylistMode) {
+        uiContext.setRightPanelMode("queue");
+      }
+    }
   };
 
   // ボタンのタイトルを動的に生成

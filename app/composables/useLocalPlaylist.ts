@@ -61,10 +61,16 @@ export const useLocalPlaylist = () => {
    */
   const savePlaylists = (): void => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(playlists.value));
+      const dataToSave = JSON.stringify(playlists.value);
+      localStorage.setItem(STORAGE_KEY, dataToSave);
+      console.log("✅ Playlists saved to localStorage:", {
+        key: STORAGE_KEY,
+        count: playlists.value.length,
+        data: playlists.value,
+      });
     } catch (e) {
       error.value = "プレイリストの保存に失敗しました";
-      console.error("Failed to save playlists:", e);
+      console.error("❌ Failed to save playlists:", e);
       throw e;
     }
   };
@@ -171,18 +177,19 @@ export const useLocalPlaylist = () => {
     error.value = null;
 
     try {
-      const playlist = playlists.value.find((p) => p.id === playlistId);
+      const playlistIndex = playlists.value.findIndex(
+        (p) => p.id === playlistId
+      );
+      if (playlistIndex === -1) {
+        throw new Error("Playlist not found");
+      }
+
+      const playlist = playlists.value[playlistIndex];
       if (!playlist) {
         throw new Error("Playlist not found");
       }
 
-      // 既に追加済みかチェック
-      if (playlist.items.some((item) => item.song_id === songId)) {
-        error.value = "この曲は既にプレイリストに追加されています";
-        return;
-      }
-
-      // 新しい曲を追加
+      // 新しい曲を追加（重複許可）
       const newItem: LocalPlaylistItem = {
         id: crypto.randomUUID(),
         song_id: songId,
@@ -190,9 +197,24 @@ export const useLocalPlaylist = () => {
         added_at: new Date().toISOString(),
       };
 
-      playlist.items.push(newItem);
-      playlist.updated_at = new Date().toISOString();
+      // 新しい配列とオブジェクトを作成（reactivityのため）
+      const updatedPlaylist: LocalPlaylist = {
+        id: playlist.id,
+        name: playlist.name,
+        description: playlist.description,
+        created_at: playlist.created_at,
+        items: [...playlist.items, newItem],
+        updated_at: new Date().toISOString(),
+      };
+
+      playlists.value[playlistIndex] = updatedPlaylist;
       savePlaylists();
+
+      console.log("✅ Song added to playlist:", {
+        playlistId,
+        songId,
+        itemsCount: updatedPlaylist.items.length,
+      });
     } catch (e) {
       error.value = "楽曲の追加に失敗しました";
       console.error("Failed to add song to playlist:", e);
@@ -252,14 +274,31 @@ export const useLocalPlaylist = () => {
     loading.value = true;
     error.value = null;
 
+    console.log("🔄 Reordering playlist items:", {
+      playlistId,
+      fromIndex,
+      toIndex,
+    });
+
     try {
       const playlist = playlists.value.find((p) => p.id === playlistId);
       if (!playlist) {
         throw new Error("Playlist not found");
       }
 
+      console.log("📝 Before reorder:", {
+        items: playlist.items.map((item) => ({
+          id: item.id,
+          song_id: item.song_id,
+          order: item.order,
+        })),
+      });
+
       // 配列を並び替え
       const [movedItem] = playlist.items.splice(fromIndex, 1);
+      if (!movedItem) {
+        throw new Error("Item not found at fromIndex");
+      }
       playlist.items.splice(toIndex, 0, movedItem);
 
       // order を再計算
@@ -268,10 +307,20 @@ export const useLocalPlaylist = () => {
       });
 
       playlist.updated_at = new Date().toISOString();
+
+      console.log("📝 After reorder:", {
+        items: playlist.items.map((item) => ({
+          id: item.id,
+          song_id: item.song_id,
+          order: item.order,
+        })),
+      });
+
       savePlaylists();
+      console.log("✅ Playlist reordered and saved");
     } catch (e) {
       error.value = "曲順の変更に失敗しました";
-      console.error("Failed to reorder playlist items:", e);
+      console.error("❌ Failed to reorder playlist items:", e);
       throw e;
     } finally {
       loading.value = false;

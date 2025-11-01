@@ -316,6 +316,9 @@
   const queue = usePlayerQueue();
   const player = usePlayerStore();
   const analytics = useAnalytics();
+  const uiContext = useUIContext();
+  const { addSongToPlaylist: addSongToPlaylistFn, getPlaylistById } =
+    useLocalPlaylist();
 
   // Emits（外部との互換性を保持）
   const emit = defineEmits<{
@@ -462,15 +465,55 @@
     playNow();
   };
 
-  // キューに追加
-  const addToQueue = () => {
-    console.log("Adding to queue:", props.song.title);
+  // キューまたはプレイリストに追加
+  const addToQueue = async () => {
+    const toast = useToast();
 
-    // アナリティクス: キューに追加を追跡
-    analytics.trackAddToQueue(props.song);
+    // UIコンテキストに応じて追加先を判定
+    if (uiContext.isPlaylistMode && uiContext.selectedPlaylistId) {
+      // プレイリストモードで、かつプレイリストが選択されている場合はプレイリストに追加
+      const playlistId = uiContext.selectedPlaylistId;
+      const playlist = getPlaylistById(playlistId);
 
-    queue.addToQueue(props.song);
-    emit("add-to-queue", props.song);
+      if (!playlist) {
+        toast.error("プレイリストが見つかりません");
+        return;
+      }
+
+      try {
+        await addSongToPlaylistFn(playlistId, props.song.id);
+        console.log("Adding to playlist:", props.song.title);
+        toast.success(`「${props.song.title}」をプレイリストに追加しました`);
+
+        // アナリティクス: プレイリストに追加を追跡
+        analytics.trackPlaylistAction(
+          "add_song",
+          playlistId,
+          playlist.name,
+          props.song.id,
+          props.song.title
+        );
+      } catch (e) {
+        console.warn("Failed to add to playlist:", e);
+        // エラーメッセージは useLocalPlaylist 内で設定されている
+      }
+    } else {
+      // キューモード、またはプレイリスト一覧表示時はキューに追加
+      console.log("Adding to queue:", props.song.title);
+
+      // アナリティクス: キューに追加を追跡
+      analytics.trackAddToQueue(props.song);
+
+      queue.addToQueue(props.song);
+      emit("add-to-queue", props.song);
+      
+      toast.success(`「${props.song.title}」をキューに追加しました`);
+
+      // プレイリストモードだがプレイリストが選択されていない場合、キュータブに切り替え
+      if (uiContext.isPlaylistMode) {
+        uiContext.setRightPanelMode("queue");
+      }
+    }
   };
 
   // プレイリストに追加
