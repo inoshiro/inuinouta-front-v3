@@ -213,15 +213,13 @@
           v-model="draggableQueue"
           @end="handleDragEnd"
           handle=".drag-handle"
-          animation="150"
-          ghost-class="opacity-50"
-          chosen-class="shadow-lg"
-          class="p-4 space-y-2"
+          animation="200"
+          class="p-4"
         >
           <div
             v-for="(song, index) in draggableQueue"
             :key="`${song.id}-${index}`"
-            class="bg-white rounded-lg border shadow-sm hover:shadow-md transition-all duration-200"
+            class="bg-white rounded-lg border shadow-sm hover:shadow-md queue-item"
             :class="{
               'ring-2 ring-blue-500 bg-blue-50':
                 index === queueStore.nowPlayingIndex,
@@ -452,15 +450,13 @@
         v-model="draggableQueue"
         @end="handleDragEnd"
         handle=".drag-handle"
-        animation="150"
-        ghost-class="opacity-50"
-        chosen-class="shadow-lg"
-        class="p-4 space-y-2 pb-20"
+        animation="200"
+        class="p-4"
       >
         <div
           v-for="(song, index) in draggableQueue"
           :key="`${song.id}-${index}`"
-          class="bg-white rounded-lg border shadow-sm hover:shadow-md transition-all duration-200"
+          class="bg-white rounded-lg border shadow-sm hover:shadow-md queue-item"
           :class="{
             'ring-2 ring-blue-500 bg-blue-50':
               index === queueStore.nowPlayingIndex,
@@ -616,5 +612,20 @@
   /* ドラッグ中のカーソルスタイル */
   .drag-handle {
     touch-action: none;
+  }
+
+  /* キューアイテムのマージン（space-y-2の代わり） */
+  .queue-item {
+    margin-bottom: 0.5rem; /* space-y-2 相当 */
+  }
+
+  .queue-item:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ホバー効果のみのトランジション（ドラッグ時は除外） */
+  .queue-item:hover:not(.sortable-chosen):not(.sortable-ghost) {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 </style>
