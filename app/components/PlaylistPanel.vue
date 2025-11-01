@@ -256,12 +256,6 @@
     }
   };
 
-  // 楽曲をキューに追加
-  const addSongToQueue = (song: Song) => {
-    queueStore.addToQueue(song, false);
-    toast.success(`「${song.title}」をキューに追加しました`);
-  };
-
   // 時間のフォーマット
   const formatDuration = (song: Song) => {
     const duration = (song.end_at || 0) - (song.start_at || 0);
@@ -607,25 +601,6 @@
                 </div>
 
                 <!-- アクションボタン -->
-                <button
-                  @click.stop="addSongToQueue(song)"
-                  class="p-2 hover:bg-blue-50 rounded-lg transition-colors text-gray-400 hover:text-blue-600 shrink-0"
-                  title="キューに追加"
-                >
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </button>
                 <button
                   @click.stop="handleRemoveSong(index)"
                   class="p-2 hover:bg-red-50 rounded-lg transition-colors text-gray-400 hover:text-red-600 shrink-0"
