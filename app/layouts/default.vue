@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { ref, computed, watch } from "vue";
-  import PlayerQueuePanel from "~/components/PlayerQueuePanel.vue";
+  import RightSidebarTabs from "~/components/RightSidebarTabs.vue";
   import GlobalYouTubePlayer from "~/components/GlobalYouTubePlayer.vue";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
 
@@ -59,9 +59,9 @@
         </div>
       </main>
 
-      <!-- キューパネル（デスクトップのみ・固定） -->
+      <!-- 右サイドバー（デスクトップのみ・固定） -->
       <div class="hidden lg:block w-96 shrink-0">
-        <PlayerQueuePanel :is-desktop="true" />
+        <RightSidebarTabs :is-desktop="true" />
       </div>
     </div>
 
@@ -138,7 +138,7 @@
             v-if="isQueuePanelOpen"
             class="absolute right-0 top-0 h-full w-80 bg-white shadow-xl"
           >
-            <PlayerQueuePanel :is-open="true" @close="toggleQueue" />
+            <RightSidebarTabs :is-open="true" @close="toggleQueue" />
           </div>
         </Transition>
       </div>
