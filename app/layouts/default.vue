@@ -46,7 +46,7 @@
     <GlobalYouTubePlayer />
 
     <!-- ヘッダー（固定・ナビゲーション付き） -->
-    <div class="flex-shrink-0">
+    <div class="shrink-0">
       <LayoutHeader />
     </div>
 
@@ -60,8 +60,8 @@
       </main>
 
       <!-- キューパネル（デスクトップのみ・固定） -->
-      <div class="hidden lg:block w-96 flex-shrink-0">
-        <PlayerQueuePanel />
+      <div class="hidden lg:block w-96 shrink-0">
+        <PlayerQueuePanel :is-desktop="true" />
       </div>
     </div>
 
@@ -121,7 +121,7 @@
       <div v-if="isQueuePanelOpen" class="lg:hidden fixed inset-0 z-50">
         <!-- オーバーレイ背景 -->
         <div
-          class="absolute inset-0 bg-gradient-to-r from-black/40 to-black/20"
+          class="absolute inset-0 bg-linear-to-r from-black/40 to-black/20"
           @click="toggleQueue"
         />
 
@@ -138,14 +138,14 @@
             v-if="isQueuePanelOpen"
             class="absolute right-0 top-0 h-full w-80 bg-white shadow-xl"
           >
-            <PlayerQueuePanel @close="toggleQueue" />
+            <PlayerQueuePanel :is-open="true" @close="toggleQueue" />
           </div>
         </Transition>
       </div>
     </Transition>
 
     <!-- フッター（固定） -->
-    <div class="flex-shrink-0">
+    <div class="shrink-0">
       <LayoutFooter />
     </div>
   </div>
