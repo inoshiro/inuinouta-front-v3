@@ -2,6 +2,7 @@
   import { ref, computed, watch, onMounted } from "vue";
   import { VueDraggableNext } from "vue-draggable-next";
   import { usePlayerQueue } from "~/stores/usePlayerQueue";
+  import { usePlayerStore } from "~/stores/player";
   import { useUIContext } from "~/stores/useUIContext";
   import type { Song } from "~/types/song";
   import type { LocalPlaylist, LocalPlaylistItem } from "~/types/playlist";
@@ -21,6 +22,7 @@
   } = useLocalPlaylist();
 
   const queueStore = usePlayerQueue();
+  const playerStore = usePlayerStore();
   const uiContext = useUIContext();
   const toast = useToast();
 
@@ -167,6 +169,25 @@
     });
 
     toast.success(`${songs.length}曲をキューに追加しました`);
+  };
+
+  // プレイリストを再生（キューを置き換えて再生開始）
+  const playPlaylist = (playlist: any) => {
+    const songs = currentPlaylistSongs.value;
+    if (songs.length === 0) {
+      toast.error("プレイリストに楽曲がありません");
+      return;
+    }
+
+    // ユーザーインタラクションを記録
+    playerStore.setUserInteracted(true);
+
+    // キューを置き換え
+    queueStore.setQueue(songs);
+    // 最初の曲から再生開始
+    queueStore.play(0);
+
+    toast.success(`プレイリスト「${playlist.name}」を再生します`);
   };
 
   // ドラッグアンドドロップ完了時の処理
@@ -592,25 +613,6 @@
 
                 <!-- アクションボタン -->
                 <button
-                  @click.stop="addSongToQueue(song)"
-                  class="p-2 hover:bg-blue-50 rounded-lg transition-colors text-gray-400 hover:text-blue-600 shrink-0"
-                  title="キューに追加"
-                >
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </button>
-                <button
                   @click.stop="handleRemoveSong(index)"
                   class="p-2 hover:bg-red-50 rounded-lg transition-colors text-gray-400 hover:text-red-600 shrink-0"
                   title="削除"
@@ -638,8 +640,17 @@
       <!-- フッター -->
       <div
         v-if="currentPlaylistSongs.length > 0"
-        class="p-4 border-t border-gray-200 bg-gray-50"
+        class="p-4 border-t border-gray-200 bg-gray-50 space-y-2"
       >
+        <button
+          @click="playPlaylist(selectedPlaylist)"
+          class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          プレイリストを再生
+        </button>
         <button
           @click="addPlaylistToQueue(selectedPlaylist)"
           class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
