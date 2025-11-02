@@ -26,6 +26,9 @@
   // クライアントサイドでマウント済みかどうかを追跡
   const isMounted = ref(false);
 
+  // プレイリスト追加モーダルの表示状態
+  const showAddToPlaylistModal = ref(false);
+
   onMounted(() => {
     isMounted.value = true;
   });
@@ -127,6 +130,16 @@
   // パネルを閉じる
   const closePanel = () => {
     emit("close");
+  };
+
+  // プレイリスト追加モーダルを開く
+  const handleShowAddToPlaylistModal = () => {
+    showAddToPlaylistModal.value = true;
+  };
+
+  // プレイリストに追加完了
+  const handleAddedToPlaylist = () => {
+    showAddToPlaylistModal.value = false;
   };
 </script>
 
@@ -586,28 +599,17 @@
       v-if="queueStore.queue.length > 0"
       class="p-4 border-t border-gray-200 bg-gray-50"
     >
-      <div class="flex gap-2 mb-2">
-        <button
-          :disabled="!queueStore.hasPrevious"
-          class="flex-1 bg-white hover:bg-gray-50 border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          @click="queueStore.previous()"
-        >
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6 6h2v12H6V6zm3.5 6l8.5 6V6l-8.5 6z" />
-          </svg>
-          前へ
-        </button>
-        <button
-          :disabled="!queueStore.hasNext"
-          class="flex-1 bg-white hover:bg-gray-50 border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          @click="queueStore.next()"
-        >
-          次へ
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6 18l8.5-6L6 6v12zm10-12v12h2V6h-2z" />
-          </svg>
-        </button>
-      </div>
+      <button
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 mb-2"
+        @click="handleShowAddToPlaylistModal"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path
+            d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+          />
+        </svg>
+        プレイリストに登録する
+      </button>
       <button
         class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
         @click="handleClearQueue"
@@ -621,6 +623,14 @@
       </button>
     </div>
   </div>
+
+  <!-- プレイリスト追加モーダル -->
+  <AddQueueToPlaylistModal
+    :is-open="showAddToPlaylistModal"
+    :songs="queueStore.queue"
+    @close="showAddToPlaylistModal = false"
+    @added="handleAddedToPlaylist"
+  />
 </template>
 
 <style scoped>
