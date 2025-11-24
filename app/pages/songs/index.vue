@@ -165,7 +165,7 @@
       <p class="text-red-800">{{ error }}</p>
       <button
         class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        @click="loadSongs"
+        @click="refresh()"
       >
         再試行
       </button>
@@ -179,19 +179,6 @@
         @play-now="handlePlayNow"
       />
 
-      <!-- ページネーション（今後実装） -->
-      <div
-        v-if="totalSongs > displayedSongs.length"
-        class="mt-8 flex justify-center"
-      >
-        <button
-          :disabled="loadingMore"
-          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-          @click="loadMoreSongs"
-        >
-          {{ loadingMore ? "読み込み中..." : "さらに読み込む" }}
-        </button>
-      </div>
     </div>
 
     <!-- 楽曲が見つからない場合 -->
@@ -218,6 +205,8 @@
 </template>
 
 <script setup lang="ts">
+  import type { Song } from "~/types/song";
+
   // Meta設定
   definePageMeta({
     title: "楽曲一覧",
@@ -227,10 +216,7 @@
   });
 
   // Composables
-  const { songs, loading, error, fetchSongs } = useSongs();
   const analytics = useAnalytics();
-  // Stores（表示情報のみ必要）
-  // const { addToQueue } = usePlayerQueue();
 
   // リアクティブデータ
   const searchQuery = ref(""); // クライアント側フィルタ
@@ -240,11 +226,37 @@
   const songTypeFilter = ref("all"); // 'all', 'original', 'cover'
   const videoTypeFilter = ref("all"); // 'all', 'music_video', 'stream'
   const sortOrder = ref("-video.published_at,start_at"); // デフォルトソート
-  const loadingMore = ref(false);
-  const totalSongs = ref(0);
 
   // スクロール位置を保存
   const savedScrollPosition = ref(0);
+
+  // SSR対応: useFetchでサーバーサイドでもデータ取得
+  const {
+    data: songsData,
+    pending: loading,
+    error: fetchError,
+    refresh,
+  } = await useFetch<{ songs: Song[] }>("/api/songs", {
+    query: computed(() => ({
+      ordering: sortOrder.value,
+      "filter{video.is_open}": true,
+      "filter{video.is_member_only}": false,
+    })),
+    watch: [sortOrder], // ソート変更時に自動再取得
+    key: "songs-list", // キャッシュキー
+    deep: false, // パフォーマンス向上
+  });
+
+  // songs配列を取得
+  const songs = computed(() => songsData.value?.songs || []);
+
+  // エラーメッセージの整形
+  const error = computed(() => {
+    if (fetchError.value) {
+      return "楽曲の取得に失敗しました";
+    }
+    return null;
+  });
 
   // スクロール位置を保存する関数
   const saveScrollPosition = () => {
@@ -312,27 +324,12 @@
     return Array.from(artists).sort();
   });
 
-  // 検索のデバウンス処理は不要（クライアント側フィルタのため）
-
   // メソッド
-  const loadSongs = async () => {
-    const query: Record<string, any> = {};
-
-    // API呼び出しするのはソートのみ
-    if (sortOrder.value) query.ordering = sortOrder.value;
-
-    // 公開動画のみ取得
-    query["filter{video.is_open}"] = true;
-    query["filter{video.is_member_only}"] = false;
-
-    const result = await fetchSongs(query);
-  };
-
-  // ソート変更時のみAPI再取得
+  // ソート変更時は自動再取得される（useFetchのwatchオプション）
   const handleSortChange = () => {
     // アナリティクス: ソート変更を追跡
     analytics.trackSortChange("songs", sortOrder.value);
-    loadSongs();
+    // sortOrderの変更でuseFetchが自動的に再取得
   };
 
   const clearFilters = () => {
@@ -341,14 +338,7 @@
     songTypeFilter.value = "all";
     videoTypeFilter.value = "all";
     sortOrder.value = "-video.published_at,start_at"; // デフォルトソートに戻す
-    loadSongs(); // ソート変更のためAPI再取得
-  };
-
-  const loadMoreSongs = async () => {
-    // TODO: ページネーション実装
-    loadingMore.value = true;
-    // 実装予定
-    loadingMore.value = false;
+    // sortOrderの変更でuseFetchが自動的に再取得
   };
 
   const handleAddToQueue = () => {
@@ -392,11 +382,6 @@
     if (newVideoType !== "all") {
       analytics.trackFilterApply("video_type", newVideoType);
     }
-  });
-
-  // ライフサイクル
-  onMounted(() => {
-    loadSongs();
   });
 
   // keepalive使用時: ページが再アクティブ化されたときに呼ばれる
