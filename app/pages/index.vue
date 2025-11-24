@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import { ref, onMounted, nextTick } from "vue";
   import type { Video, VideoWithSongs } from "~/types/video";
 
   // ページメタデータの設定（Djangoプロジェクトと統一）
@@ -22,77 +21,71 @@
     twitterImage: "https://inuinouta-front-v3.vercel.app/og-image.png",
   });
 
-  // データ取得用のcomposables
-  const { fetchVideos } = useVideos();
+  // SSR対応: 最新の歌ってみた動画を取得
+  const {
+    data: songVideoData,
+    pending: songLoading,
+    error: songError,
+  } = await useFetch<{ videos: Video[] }>("/api/videos", {
+    query: {
+      "filter{is_stream}": false,
+      "filter{is_open}": true,
+      "filter{is_member_only}": false,
+      ordering: "-published_at",
+      per_page: 1,
+    },
+    key: "latest-song-video",
+  });
 
-  // 最新動画の状態
-  const latestSongVideo = ref<Video | null>(null);
-  const latestStreamVideo = ref<Video | null>(null);
+  // SSR対応: 最新の歌配信を取得
+  const {
+    data: streamVideoData,
+    pending: streamLoading,
+    error: streamError,
+  } = await useFetch<{ videos: Video[] }>("/api/videos", {
+    query: {
+      "filter{is_stream}": true,
+      "filter{is_open}": true,
+      "filter{is_member_only}": false,
+      ordering: "-published_at",
+      per_page: 1,
+    },
+    key: "latest-stream-video",
+  });
+
+  // 最新動画を取得
+  const latestSongVideo = computed(() =>
+    songVideoData.value?.videos?.[0] || null
+  );
+  const latestStreamVideo = computed(() =>
+    streamVideoData.value?.videos?.[0] || null
+  );
+
+  // 最新歌配信の詳細データ（楽曲情報付き）を取得
   const latestStreamWithSongs = ref<VideoWithSongs | null>(null);
-  const loading = ref(true);
-  const error = ref<string | null>(null);
 
-  // 最新データの取得
-  const fetchLatestVideos = async () => {
-    try {
-      loading.value = true;
-      error.value = null;
-
-      // 最新の歌ってみた動画（is_stream=false）をサーバー側フィルタで取得
-      const songVideos = await fetchVideos({
-        "filter{is_stream}": false,
-        "filter{is_open}": true,
-        "filter{is_member_only}": false,
-        ordering: "-published_at",
-        per_page: 1,
-      });
-
-      if (songVideos.length > 0) {
-        latestSongVideo.value = songVideos[0];
-      }
-
-      // 最新の歌配信（is_stream=true）をサーバー側フィルタで取得
-      const streamVideos = await fetchVideos({
-        "filter{is_stream}": true,
-        "filter{is_open}": true,
-        "filter{is_member_only}": false,
-        ordering: "-published_at",
-        per_page: 1,
-      });
-
-      const streamVideo = streamVideos.length > 0 ? streamVideos[0] : null;
-      if (streamVideo) {
-        latestStreamVideo.value = streamVideo;
-
-        // 歌配信の詳細データ（楽曲情報付き）を取得
-        try {
-          // composableのloadingと競合しないよう独立してAPIを呼び出し
-          const streamWithSongs = await $fetch<VideoWithSongs>(
-            `/api/videos/${streamVideo.id}`
-          );
-          if (streamWithSongs && streamWithSongs.songs) {
-            latestStreamWithSongs.value = streamWithSongs;
-          }
-        } catch (songError) {
-          // エラーは無視して続行
-        }
-      }
-    } catch (err: any) {
-      error.value = err.message || "データの取得に失敗しました";
-    } finally {
-      loading.value = false;
-      await nextTick();
-    }
-  };
-
-  // ページ読み込み時にデータを取得
+  // クライアント側で歌配信の詳細を取得
   onMounted(async () => {
-    try {
-      await fetchLatestVideos();
-    } catch (mountError) {
-      loading.value = false;
-      error.value = "ページの読み込みに失敗しました";
+    if (latestStreamVideo.value) {
+      try {
+        const streamWithSongs = await $fetch<VideoWithSongs>(
+          `/api/videos/${latestStreamVideo.value.id}`
+        );
+        if (streamWithSongs && streamWithSongs.songs) {
+          latestStreamWithSongs.value = streamWithSongs;
+        }
+      } catch (err) {
+        // エラーは無視して続行
+      }
     }
+  });
+
+  // ローディング状態とエラー状態を統合
+  const loading = computed(() => songLoading.value || streamLoading.value);
+  const error = computed(() => {
+    if (songError.value) return "最新動画の取得に失敗しました";
+    if (streamError.value) return "最新配信の取得に失敗しました";
+    return null;
   });
 </script>
 
@@ -136,7 +129,7 @@
     >
       <p class="text-red-700">{{ error }}</p>
       <button
-        @click="fetchLatestVideos"
+        @click="refreshNuxtData()"
         class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
       >
         再試行

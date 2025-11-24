@@ -53,7 +53,7 @@
       <p class="text-red-600 mb-4">{{ error }}</p>
       <button
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        @click="fetchStreams"
+        @click="refresh()"
       >
         再試行
       </button>
@@ -90,18 +90,41 @@
 </template>
 
 <script setup lang="ts">
-  import type { VideoWithSongs } from "~/types/video";
+  import type { VideoWithSongs, Video } from "~/types/video";
   import type { Song } from "~/types/song";
 
   // リアクティブな状態
-  const { videos, loading, error, fetchVideos } = useVideos();
   const analytics = useAnalytics();
   const searchQuery = ref("");
   const sortOrder = ref("-published_at");
 
-  // 歌枠のフィルタリング（既にサーバー側でフィルタ済み）
-  const streams = computed(() => {
-    return videos.value; // サーバー側で歌配信のみ取得済み
+  // SSR対応: useFetchでサーバーサイドでもデータ取得
+  const {
+    data: streamsData,
+    pending: loading,
+    error: fetchError,
+    refresh,
+  } = await useFetch<{ videos: Video[] }>("/api/videos", {
+    query: computed(() => ({
+      "filter{is_stream}": true,
+      "filter{is_open}": true,
+      "filter{is_member_only}": false,
+      ordering: sortOrder.value,
+    })),
+    watch: [sortOrder], // ソート変更時に自動再取得
+    key: "streams-list",
+    deep: false,
+  });
+
+  // 歌配信データを取得
+  const streams = computed(() => streamsData.value?.videos || []);
+
+  // エラーメッセージの整形
+  const error = computed(() => {
+    if (fetchError.value) {
+      return "歌配信の取得に失敗しました";
+    }
+    return null;
   });
 
   // フィルター適用（クライアント側）
@@ -137,14 +160,11 @@
     return result;
   });
 
-  // 歌枠を取得（サーバー側で歌配信のみフィルタ）
-  const fetchStreams = async () => {
-    await fetchVideos({
-      "filter{is_stream}": true,
-      "filter{is_open}": true,
-      "filter{is_member_only}": false,
-      ordering: sortOrder.value,
-    });
+  // フィルタークリア
+  const clearFilters = () => {
+    searchQuery.value = "";
+    sortOrder.value = "-published_at";
+    // sortOrderの変更でuseFetchが自動的に再取得
   };
 
   // ランダム歌枠取得
@@ -163,6 +183,11 @@
       // ランダムに歌枠を選択
       const randomIndex = Math.floor(Math.random() * availableStreams.length);
       const randomStream = availableStreams[randomIndex];
+
+      if (!randomStream) {
+        console.log("歌枠の選択に失敗しました");
+        return;
+      }
 
       console.log(
         `ランダム選択: 「${randomStream.title}」（${randomStream.songs_count}曲）`
@@ -223,13 +248,6 @@
     } catch (error) {
       console.error("ランダム歌枠の取得中にエラーが発生しました:", error);
     }
-  };
-
-  // フィルタークリア
-  const clearFilters = () => {
-    searchQuery.value = "";
-    sortOrder.value = "-published_at";
-    // データは既に取得済みなので、クライアント側フィルタのリセットのみ
   };
 
   // 歌枠の楽曲一覧を表示
@@ -307,17 +325,7 @@
   watch(sortOrder, (newOrder) => {
     // アナリティクス: ソート変更を追跡
     analytics.trackSortChange("streams", newOrder);
-  });
-
-  // 初期データ取得
-  onMounted(() => {
-    fetchStreams();
-  });
-
-  // ソート順変更時の処理
-  watch(sortOrder, () => {
-    // クライアント側フィルタリングなので、新たにAPIを呼ぶ必要なし
-    // computed が自動的に再計算される
+    // sortOrderの変更でuseFetchが自動的に再取得
   });
 </script>
 
