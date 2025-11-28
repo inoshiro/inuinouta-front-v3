@@ -10,9 +10,7 @@
   // モバイルサブメニューの表示状態
   const showMobileMenu = ref(false);
 
-  // ドラッグ状態の管理
-  const isDragging = ref(false);
-  const wasPlayingBeforeDrag = ref(false);
+
 
   // モバイルサブメニューの切り替え
   const toggleMobileMenu = () => {
@@ -35,29 +33,7 @@
     }`;
   });
 
-  // 楽曲範囲での進行状況計算
-  const trackProgress = computed(() => {
-    if (!currentTrack.value || !playerStore.duration) return 0;
 
-    const startTime = currentTrack.value.start_at || 0;
-    const endTime = currentTrack.value.end_at || playerStore.duration;
-    const trackDuration = endTime - startTime;
-    const currentProgress = Math.max(0, playerStore.currentTime - startTime);
-
-    return trackDuration > 0 ? (currentProgress / trackDuration) * 100 : 0;
-  });
-
-  // より細かい進行状況計算（1000分割）
-  const trackProgressDetailed = computed(() => {
-    if (!currentTrack.value || !playerStore.duration) return 0;
-
-    const startTime = currentTrack.value.start_at || 0;
-    const endTime = currentTrack.value.end_at || playerStore.duration;
-    const trackDuration = endTime - startTime;
-    const currentProgress = Math.max(0, playerStore.currentTime - startTime);
-
-    return trackDuration > 0 ? (currentProgress / trackDuration) * 1000 : 0;
-  });
 
   // 楽曲の表示時間計算
   const trackCurrentTime = computed(() => {
@@ -92,43 +68,7 @@
     queueStore.next();
   };
 
-  // シークバーの操作（楽曲範囲内）
-  const onSeek = (event: Event) => {
-    if (!currentTrack.value) return;
 
-    const input = event.target as HTMLInputElement;
-    const progressRatio = parseFloat(input.value) / 1000; // 1000分割に対応
-
-    const startTime = currentTrack.value.start_at || 0;
-    const endTime = currentTrack.value.end_at || playerStore.duration;
-    const trackDuration = endTime - startTime;
-
-    const seekTime = startTime + trackDuration * progressRatio;
-    playerStore.seek(seekTime);
-  };
-
-  // ドラッグ開始
-  const onSeekStart = () => {
-    if (!currentTrack.value) return;
-
-    isDragging.value = true;
-    wasPlayingBeforeDrag.value = playerStore.isPlaying;
-
-    if (playerStore.isPlaying) {
-      playerStore.pause();
-    }
-  };
-
-  // ドラッグ終了
-  const onSeekEnd = () => {
-    if (!currentTrack.value) return;
-
-    isDragging.value = false;
-
-    if (wasPlayingBeforeDrag.value) {
-      playerStore.play();
-    }
-  };
 
   // 音量調整
   const onVolumeChange = (event: Event) => {
@@ -179,23 +119,8 @@
   <!-- プレイヤーコントロール -->
   <div class="bg-gray-900 text-white border-t border-gray-700">
     <!-- プログレスバー（上部）- インタラクティブシークバー -->
-    <div class="w-full bg-gray-700 h-2 relative overflow-hidden">
-      <input
-        type="range"
-        min="0"
-        max="1000"
-        step="1"
-        :value="trackProgressDetailed"
-        class="absolute inset-0 w-full h-full bg-transparent appearance-none cursor-pointer progress-slider"
-        :style="{ '--progress': `${trackProgress}%` }"
-        @input="onSeek"
-        @mousedown="onSeekStart"
-        @mouseup="onSeekEnd"
-        @touchstart="onSeekStart"
-        @touchend="onSeekEnd"
-        :disabled="!currentTrack"
-      />
-    </div>
+    <!-- プログレスバー（上部）- インタラクティブシークバー -->
+    <PlayerProgressBar />
 
     <!-- デスクトップ版 -->
     <div class="hidden md:block px-4 py-3">
@@ -717,59 +642,7 @@
 
 <style scoped>
   /* プログレスバー専用スタイル */
-  .progress-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    background: linear-gradient(
-      to right,
-      #3b82f6 0%,
-      #3b82f6 var(--progress, 0%),
-      #4b5563 var(--progress, 0%),
-      #4b5563 100%
-    );
-    outline: none;
-    border: none;
-    margin: 0;
-    padding: 0;
-    vertical-align: top;
-  }
 
-  /* つまみを非表示にする */
-  .progress-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 0;
-    height: 0;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-  }
-
-  .progress-slider::-moz-range-thumb {
-    width: 0;
-    height: 0;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    opacity: 0;
-  }
-
-  .progress-slider::-webkit-slider-track {
-    background: transparent;
-    border-radius: 0;
-    height: 8px;
-  }
-
-  .progress-slider::-moz-range-track {
-    background: transparent;
-    border-radius: 0;
-    height: 8px;
-  }
-
-  .progress-slider:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 
   /* 音量スライダー用スタイル - デスクトップ版 */
   .volume-slider {
