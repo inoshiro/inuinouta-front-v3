@@ -87,8 +87,9 @@
 
 ## 🤖 AI アシスタント向けプロンプト
 
-- [ai-prompt-chatgpt.md](ai-prompt-chatgpt.md) - ChatGPT 用の開発サポートプロンプト（全体計画、学習、メンタルケア）
-- [ai-prompt-copilot.md](ai-prompt-copilot.md) - GitHub Copilot 用の実装サポートプロンプト（型安全、保守性、品質重視）
+- [ai-prompts/](ai-prompts/) - AI開発アシスタント用のプロンプト集
+  - [chatgpt.md](ai-prompts/chatgpt.md) - ChatGPT 用の開発サポートプロンプト（全体計画、学習、メンタルケア）
+  - [copilot.md](ai-prompts/copilot.md) - GitHub Copilot 用の実装サポートプロンプト（型安全、保守性、品質重視）
 
 ---
 
