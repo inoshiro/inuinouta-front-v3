@@ -2,7 +2,7 @@
 
 ## プロジェクト概要
 
-「いぬいのうた」は、バーチャルライバー戌亥とこの歌動画・楽曲を快適に視聴・管理できるWebサービスです。本プロジェクトは、Nuxt2からNuxt 4への完全リニューアルを行っています。
+「いぬいのうた」は、バーチャルライバー戌亥とこの歌動画・楽曲を快適に視聴・管理できる Web サービスです。本プロジェクトは、Nuxt2 から Nuxt 4 への完全リニューアルを行っています。
 
 - **技術スタック**: Nuxt 4 + Vue 3 + TypeScript + Pinia + Tailwind CSS + Vite
 - **バックエンド**: Django REST Framework（別リポジトリ `inuinouta`）
@@ -87,10 +87,10 @@ docs/
 
 ### 重要なファイルの役割
 
-- **`server/api/`**: Django REST APIへのプロキシ層（セキュリティ・型安全性向上）
-- **`utils/api.ts`**: Django API通信用の共通ユーティリティ
-- **`composables/`**: API通信、状態管理、ビジネスロジックの再利用可能な関数
-- **`components/layout/`**: `Layout`プレフィックスでグローバル登録される共通UIコンポーネント
+- **`server/api/`**: Django REST API へのプロキシ層（セキュリティ・型安全性向上）
+- **`utils/api.ts`**: Django API 通信用の共通ユーティリティ
+- **`composables/`**: API 通信、状態管理、ビジネスロジックの再利用可能な関数
+- **`components/layout/`**: `Layout`プレフィックスでグローバル登録される共通 UI コンポーネント
 
 ---
 
@@ -106,40 +106,13 @@ docs/
 ### Vue 3 / Nuxt 4
 
 - **Composition API + `<script setup>`** を必ず使用（Options API は使用禁止）
-- **単一責任の原則**: 1コンポーネント = 1つの責務
+- **単一責任の原則**: 1 コンポーネント = 1 つの責務
 - Props は `defineProps<T>()` で型定義
 - Emits は `defineEmits<T>()` で型定義
 - `inject/provide` やグローバル状態の乱用を避ける
-- 直接的なDOM操作は禁止（Vue のリアクティブシステムを使用）
+- 直接的な DOM 操作は禁止（Vue のリアクティブシステムを使用）
 
-**良いコンポーネント例**:
-
-```vue
-<script setup lang="ts">
-interface Props {
-  title: string;
-  count: number;
-}
-
-interface Emits {
-  (e: 'update', value: number): void;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
-
-const handleClick = () => {
-  emit('update', props.count + 1);
-};
-</script>
-
-<template>
-  <div>
-    <h2>{{ title }}</h2>
-    <button @click="handleClick">Count: {{ count }}</button>
-  </div>
-</template>
-```
+**コンポーネント作成時**: `@create-vue-component` スキルを参照
 
 ### Pinia 状態管理
 
@@ -147,64 +120,23 @@ const handleClick = () => {
 - ストアは機能単位で分割（`usePlayerStore`, `useQueueStore` など）
 - ストア内のアクションで副作用を集約
 - Composables とストアの使い分け:
-  - **Composables**: API通信、再利用可能なロジック
+  - **Composables**: API 通信、再利用可能なロジック
   - **Stores**: アプリケーション横断的な状態管理
 
-### API連携
+### API 連携
 
-- **必ず `server/api/` を経由**: クライアントから直接Django APIを呼ばない
+- **必ず `server/api/` を経由**: クライアントから直接 Django API を呼ばない
 - エラーハンドリングは一貫性を保つ（try-catch + エラーメッセージ表示）
 - ローディング状態の管理を適切に行う
-- `composables/` 内でAPI通信ロジックをラップ
+- `composables/` 内で API 通信ロジックをラップ
 
-**API プロキシパターン**:
-
-```typescript
-// server/api/songs/index.get.ts
-export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
-  const query = getQuery(event);
-  
-  const response = await fetch(
-    `${config.djangoApiUrl}/songs/?${new URLSearchParams(query)}`
-  );
-  
-  return response.json();
-});
-```
-
-**Composable パターン**:
-
-```typescript
-// composables/useSongs.ts
-export const useSongs = () => {
-  const songs = ref<Song[]>([]);
-  const loading = ref(false);
-  const error = ref<string | null>(null);
-
-  const fetchSongs = async (params?: SongSearchParams) => {
-    loading.value = true;
-    error.value = null;
-    
-    try {
-      const data = await $fetch('/api/songs', { query: params });
-      songs.value = data.results;
-    } catch (e) {
-      error.value = 'データの取得に失敗しました';
-      console.error(e);
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  return { songs, loading, error, fetchSongs };
-};
-```
+**API エンドポイント作成時**: `@create-api-endpoint` スキルを参照  
+**Composable 作成時**: `@create-composable` スキルを参照
 
 ### Tailwind CSS
 
 - ユーティリティファーストで記述
-- カスタムCSSは最小限（`@apply` の乱用を避ける）
+- カスタム CSS は最小限（`@apply` の乱用を避ける）
 - レスポンシブデザインは `sm:`, `md:`, `lg:` プレフィックスを使用
 - 再利用可能なスタイルはコンポーネントに集約
 
@@ -268,21 +200,21 @@ interface PlaylistItem {
 
 ## 移行に関する注意事項
 
-### 避けるべきパターン（Nuxt2の古い書き方）
+### 避けるべきパターン（Nuxt2 の古い書き方）
 
 - ❌ Options API (`data()`, `methods`, `computed`)
 - ❌ `inject`/`app.$xxx` パターン
 - ❌ Vuex（代わりに Pinia を使用）
 - ❌ `@nuxtjs/axios`（代わりに `$fetch` または `useFetch` を使用）
-- ❌ グローバル副作用や直接的なDOM操作
+- ❌ グローバル副作用や直接的な DOM 操作
 - ❌ Bulma CSS（代わりに Tailwind CSS を使用）
 
-### 推奨パターン（Nuxt 4の新しい書き方）
+### 推奨パターン（Nuxt 4 の新しい書き方）
 
 - ✅ Composition API + `<script setup>`
 - ✅ Composables による再利用可能なロジック
 - ✅ Pinia による状態管理
-- ✅ `$fetch`, `useFetch`, `useAsyncData` によるAPI通信
+- ✅ `$fetch`, `useFetch`, `useAsyncData` による API 通信
 - ✅ TypeScript strict モード
 - ✅ Tailwind CSS によるユーティリティファーストなスタイリング
 
@@ -296,7 +228,7 @@ interface PlaylistItem {
 2. **ESLint チェック**: コードの品質を保つため、警告・エラーを解消
 3. **エラーハンドリング**: すべての非同期処理に try-catch を実装
 4. **ローディング状態**: データ取得中は適切にローディング表示
-5. **アクセシビリティ**: セマンティックHTML、適切な aria 属性、キーボード操作対応
+5. **アクセシビリティ**: セマンティック HTML、適切な aria 属性、キーボード操作対応
 
 ### パフォーマンス最適化
 
@@ -321,7 +253,7 @@ interface PlaylistItem {
 - **初学者向け**: `docs/getting-started/` - プロジェクトの基礎知識
 - **設計ガイド**: `docs/guides/component-design.md` - コンポーネント設計原則
 - **状態管理**: `docs/guides/state-management.md` - Pinia アーキテクチャ
-- **API仕様**: `docs/guides/api-specification.md` - Django REST API 詳細
+- **API 仕様**: `docs/guides/api-specification.md` - Django REST API 詳細
 - **移行ガイド**: `docs/migration/guide.md` - Nuxt2→Nuxt4 移行のベストプラクティス
 
 ---
@@ -370,4 +302,11 @@ interface PlaylistItem {
 
 ---
 
-このインストラクションに従って、型安全で保守性の高い、モダンなNuxt 4アプリケーションを構築してください。
+このインストラクションに従って、型安全で保守性の高い、モダンな Nuxt 4 アプリケーションを構築してください。
+実装時のスキル活用
+
+- **コンポーネント作成**: `@create-vue-component` スキルを使用
+- **Composable 作成**: `@create-composable` スキルを使用  
+- **API エンドポイント作成**: `@create-api-endpoint` スキルを使用
+
+これらのスキルには詳細なテンプレート、実装パターン、チェックリストが含まれています。
