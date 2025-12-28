@@ -61,7 +61,10 @@
 
 ### 実装記録
 - [implementation-log.md](implementation-log.md) - 実装・設計の意思決定ログと進捗記録
-- [work-log-2025-06-25.md](work-log-2025-06-25.md) - 日々の開発作業記録とタスク管理
+
+### 作業ログ
+- [work-logs/](work-logs/) - 日々の開発作業記録
+  - [2025-06-25.md](work-logs/2025-06-25.md) - 2025年6月25日の作業記録
 
 ---
 
