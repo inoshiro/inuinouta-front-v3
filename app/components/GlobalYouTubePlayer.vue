@@ -192,11 +192,11 @@ autoJumpによる時間ベース監視で確実な連続再生を実現 * -
     } as const;
 
     const newState = states[event.data as keyof typeof states] || "UNSTARTED";
-    playerStore.setPlayerState(newState);
+    const oldState = playerStore.playerState;
 
-    console.log(
-      `Player state changed: ${playerStore.playerState} -> ${newState}`
-    );
+    console.log(`Player state changed: ${oldState} -> ${newState}`);
+
+    playerStore.setPlayerState(newState);
 
     // CUED状態から自動的にPLAYINGに移行（モバイル対応）
     if (newState === "CUED" && playerStore.shouldAutoPlay) {
