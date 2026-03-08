@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { ref } from "vue";
+  import type { IconProp } from "@fortawesome/fontawesome-svg-core";
 
   const isMenuOpen = ref(false);
   const isSiteInfoModalOpen = ref(false);
@@ -21,12 +22,12 @@
   };
 
   // ナビゲーションアイテム
-  const navItems = [
-    { to: "/", label: "ホーム", icon: "🏠" },
-    { to: "/songs", label: "楽曲一覧", icon: "🎶" },
-    { to: "/streams", label: "歌枠一覧", icon: "📺" },
-    { to: "/playlists", label: "プレイリスト", icon: "📝" },
-    { to: "/timeline", label: "タイムライン", icon: "📅" },
+  const navItems: Array<{ to: string; label: string; icon: IconProp }> = [
+    { to: "/", label: "ホーム", icon: ["fad", "house"] },
+    { to: "/songs", label: "楽曲一覧", icon: ["fad", "music-note"] },
+    { to: "/streams", label: "歌枠一覧", icon: ["fad", "tv"] },
+    { to: "/playlists", label: "プレイリスト", icon: ["fad", "list-music"] },
+    { to: "/timeline", label: "タイムライン", icon: ["fad", "list-timeline"] },
   ];
 </script>
 
@@ -54,7 +55,7 @@
                 class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-700 hover:text-white"
                 :class="{ 'bg-gray-700 text-white': $route.path === item.to }"
               >
-                <span class="text-base">{{ item.icon }}</span>
+                <FontAwesomeIcon :icon="item.icon" class="w-4 h-4" />
                 {{ item.label }}
               </NuxtLink>
             </li>
@@ -163,7 +164,7 @@
                 :class="{ 'bg-gray-700 text-white': $route.path === item.to }"
                 @click="closeMenu"
               >
-                <span class="text-base">{{ item.icon }}</span>
+                <FontAwesomeIcon :icon="item.icon" class="w-4 h-4" />
                 {{ item.label }}
               </NuxtLink>
             </li>
@@ -173,7 +174,10 @@
                 class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-gray-700 w-full text-left"
                 @click="openSiteInfoModal"
               >
-                <span class="text-base">ℹ️</span>
+                <FontAwesomeIcon
+                  :icon="['fad', 'circle-info']"
+                  class="w-4 h-4"
+                />
                 サイト情報
               </button>
             </li>

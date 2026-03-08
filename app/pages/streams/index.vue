@@ -34,7 +34,7 @@
             title="ランダムな歌枠の楽曲をキューに設定"
             @click="fetchRandomStream"
           >
-            🎲 ランダムキュー
+            <FontAwesomeIcon :icon="['fad', 'shuffle']" class="mr-1" /> ランダムキュー
           </button>
         </div>
       </div>
@@ -74,7 +74,9 @@
 
     <!-- 結果が見つからない場合 -->
     <div v-else class="text-center py-8">
-      <div class="text-gray-400 text-6xl mb-4">🎤</div>
+      <div class="text-gray-400 text-6xl mb-4">
+        <FontAwesomeIcon :icon="['fad', 'microphone']" />
+      </div>
       <h3 class="text-xl font-semibold text-gray-700 mb-2">
         歌枠が見つかりませんでした
       </h3>

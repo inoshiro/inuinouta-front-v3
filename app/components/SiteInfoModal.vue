@@ -63,7 +63,7 @@
             <h3
               class="text-lg font-semibold text-white mb-3 flex items-center gap-2"
             >
-              <span>🎵</span>
+              <FontAwesomeIcon :icon="['fad', 'music-note']" class="w-4 h-4" />
               <span>いぬいのうたについて</span>
             </h3>
             <div class="text-sm leading-relaxed space-y-3">
@@ -91,7 +91,7 @@
             <h3
               class="text-lg font-semibold text-white mb-3 flex items-center gap-2"
             >
-              <span>✨</span>
+              <FontAwesomeIcon :icon="['fad', 'sparkles']" class="w-4 h-4" />
               <span>主な機能</span>
             </h3>
             <ul class="text-sm space-y-2 list-disc list-inside">
@@ -108,7 +108,7 @@
             <h3
               class="text-lg font-semibold text-white mb-3 flex items-center gap-2"
             >
-              <span>⚙️</span>
+              <FontAwesomeIcon :icon="['fad', 'gear']" class="w-4 h-4" />
               <span>技術スタック</span>
             </h3>
             <div class="text-sm space-y-2">
@@ -134,7 +134,7 @@
             <h3
               class="text-lg font-semibold text-white mb-3 flex items-center gap-2"
             >
-              <span>🔗</span>
+              <FontAwesomeIcon :icon="['fad', 'link']" class="w-4 h-4" />
               <span>関連リンク</span>
             </h3>
             <div class="space-y-2 text-sm">
@@ -144,7 +144,7 @@
                 rel="noopener noreferrer"
                 class="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
               >
-                <span>📺</span>
+                <FontAwesomeIcon :icon="['fab', 'youtube']" class="w-4 h-4" />
                 <span>戌亥とこ YouTubeチャンネル</span>
               </a>
               <a
@@ -153,7 +153,7 @@
                 rel="noopener noreferrer"
                 class="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
               >
-                <span>🐦</span>
+                <FontAwesomeIcon :icon="['fab', 'x-twitter']" class="w-4 h-4" />
                 <span>戌亥とこ Twitter</span>
               </a>
             </div>
@@ -164,7 +164,7 @@
             <h3
               class="text-lg font-semibold text-white mb-3 flex items-center gap-2"
             >
-              <span>📧</span>
+              <FontAwesomeIcon :icon="['fad', 'envelope']" class="w-4 h-4" />
               <span>連絡先</span>
             </h3>
             <div class="space-y-2 text-sm">
@@ -209,7 +209,7 @@
             <h3
               class="text-lg font-semibold text-white mb-3 flex items-center gap-2"
             >
-              <span>📊</span>
+              <FontAwesomeIcon :icon="['fad', 'chart-bar']" class="w-4 h-4" />
               <span>アクセス解析について</span>
             </h3>
             <div class="text-sm leading-relaxed space-y-3">

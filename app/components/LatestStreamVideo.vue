@@ -1,7 +1,9 @@
 <template>
   <section class="bg-white rounded-lg shadow-md overflow-hidden">
     <div class="bg-gradient-to-r from-slate-500 to-slate-600 text-white p-4">
-      <h2 class="text-xl font-bold flex items-center">📺 最新の歌配信</h2>
+      <h2 class="text-xl font-bold flex items-center gap-2">
+        <FontAwesomeIcon :icon="['fad', 'tv']" class="w-5 h-5" />最新の歌配信
+      </h2>
     </div>
 
     <div v-if="video" class="p-4">

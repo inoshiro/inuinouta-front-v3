@@ -21,7 +21,7 @@
                 loading="lazy"
                 @error="handleImageError"
               />
-              <span v-else class="text-sm text-gray-400">🎤</span>
+              <span v-else class="text-sm text-gray-400"><FontAwesomeIcon :icon="['fad', 'microphone']" /></span>
             </div>
           </div>
 
@@ -67,7 +67,7 @@
                 非公開
               </span>
               <span v-if="stream.unplayable" class="text-xs text-red-500">
-                ⚠️ 再生不可
+                <FontAwesomeIcon :icon="['fad', 'triangle-exclamation']" class="mr-0.5" />再生不可
               </span>
             </div>
             <!-- 日時情報（モバイル） -->
@@ -143,7 +143,7 @@
                 loading="lazy"
                 @error="handleImageError"
               />
-              <span v-else class="text-gray-400">🎤</span>
+              <span v-else class="text-gray-400"><FontAwesomeIcon :icon="['fad', 'microphone']" /></span>
             </div>
           </div>
 
@@ -193,7 +193,7 @@
                     非公開
                   </span>
                   <span v-if="stream.unplayable" class="text-sm text-red-500">
-                    ⚠️ 再生不可
+                    <FontAwesomeIcon :icon="['fad', 'triangle-exclamation']" class="mr-0.5" />再生不可
                   </span>
                 </div>
 

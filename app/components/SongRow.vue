@@ -18,7 +18,7 @@
               @error="handleImageError"
             />
             <span v-else :class="SONG_ROW_STYLES.thumbnail.placeholder"
-              >🎵</span
+              ><FontAwesomeIcon :icon="['fad', 'music-note']" /></span
             >
           </div>
           <!-- 再生状態インジケーター -->
@@ -116,7 +116,7 @@
             loading="lazy"
             @error="handleImageError"
           />
-          <span v-else :class="SONG_ROW_STYLES.thumbnail.placeholder">🎵</span>
+          <span v-else :class="SONG_ROW_STYLES.thumbnail.placeholder"><FontAwesomeIcon :icon="['fad', 'music-note']" /></span>
         </div>
         <!-- 再生状態インジケーター -->
         <div
