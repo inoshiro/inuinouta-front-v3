@@ -85,6 +85,14 @@
             </li>
             <li>
               <NuxtLink
+                to="/timeline"
+                class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1 transition-colors"
+              >
+                <span aria-hidden="true">📅</span> タイムライン
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink
                 to="/playlists"
                 class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1 transition-colors"
               >
