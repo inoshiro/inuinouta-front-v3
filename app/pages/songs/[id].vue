@@ -71,7 +71,7 @@
                 v-else
                 class="w-full h-full flex items-center justify-center text-gray-400 text-6xl"
               >
-                🎵
+                <FontAwesomeIcon :icon="['fad', 'music-note']" />
               </div>
             </div>
           </div>

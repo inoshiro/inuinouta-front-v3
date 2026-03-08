@@ -151,7 +151,7 @@
     <!-- ナビゲーションセクション -->
     <section class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
-        🎵 コンテンツを探す
+        <FontAwesomeIcon :icon="['fad', 'music-note']" class="mr-2" />コンテンツを探す
       </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -160,7 +160,9 @@
           class="group bg-gradient-to-br from-slate-600 to-slate-700 text-white p-6 rounded-lg hover:from-slate-700 hover:to-slate-800 transition-all transform hover:scale-105"
         >
           <div class="text-center space-y-2">
-            <div class="text-3xl">🎤</div>
+            <div class="text-3xl">
+              <FontAwesomeIcon :icon="['fad', 'microphone']" />
+            </div>
             <h3 class="font-bold text-lg">楽曲一覧</h3>
             <p class="text-sm opacity-90">すべての楽曲を検索・再生</p>
           </div>
@@ -171,7 +173,9 @@
           class="group bg-gradient-to-br from-slate-500 to-slate-600 text-white p-6 rounded-lg hover:from-slate-600 hover:to-slate-700 transition-all transform hover:scale-105"
         >
           <div class="text-center space-y-2">
-            <div class="text-3xl">📺</div>
+            <div class="text-3xl">
+              <FontAwesomeIcon :icon="['fad', 'tv']" />
+            </div>
             <h3 class="font-bold text-lg">配信一覧</h3>
             <p class="text-sm opacity-90">歌配信・動画アーカイブ</p>
           </div>
@@ -182,7 +186,9 @@
           class="group bg-gradient-to-br from-slate-400 to-slate-500 text-white p-6 rounded-lg hover:from-slate-500 hover:to-slate-600 transition-all transform hover:scale-105"
         >
           <div class="text-center space-y-2">
-            <div class="text-3xl">📝</div>
+            <div class="text-3xl">
+              <FontAwesomeIcon :icon="['fad', 'list-music']" />
+            </div>
             <h3 class="font-bold text-lg">プレイリスト</h3>
             <p class="text-sm opacity-90">お気に入りの楽曲をまとめて</p>
           </div>

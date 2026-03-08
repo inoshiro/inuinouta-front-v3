@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import type { Video } from "~/types/video";
+  import type { IconProp } from "@fortawesome/fontawesome-svg-core";
 
   useSeoMeta({
     title: "タイムライン | いぬいのうた",
@@ -240,7 +241,12 @@
   <div class="container mx-auto px-4 py-8 pb-32">
     <!-- ページヘッダー -->
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">📅 タイムライン</h1>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <FontAwesomeIcon
+          :icon="['fad', 'list-timeline']"
+          class="mr-2"
+        />タイムライン
+      </h1>
       <p class="text-gray-600">
         全{{ filteredVideos.length }}件の動画を時系列で表示
       </p>
@@ -251,9 +257,21 @@
         <div class="flex gap-2">
           <button
             v-for="f in [
-              { key: 'all' as VideoFilter, label: 'すべて', icon: '🎬' },
-              { key: 'song' as VideoFilter, label: '歌動画', icon: '🎵' },
-              { key: 'stream' as VideoFilter, label: '歌枠', icon: '🎤' },
+              {
+                key: 'all' as VideoFilter,
+                label: 'すべて',
+                icon: ['fad', 'film'] as IconProp,
+              },
+              {
+                key: 'song' as VideoFilter,
+                label: '歌動画',
+                icon: ['fad', 'music-note'] as IconProp,
+              },
+              {
+                key: 'stream' as VideoFilter,
+                label: '歌枠',
+                icon: ['fad', 'microphone'] as IconProp,
+              },
             ]"
             :key="f.key"
             class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
@@ -264,7 +282,7 @@
             "
             @click="activeFilter = f.key"
           >
-            {{ f.icon }} {{ f.label }}
+            <FontAwesomeIcon :icon="f.icon" class="mr-1" /> {{ f.label }}
           </button>
         </div>
 
@@ -403,7 +421,11 @@
                       <span
                         class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-black/70 text-white"
                       >
-                        🎵 {{ video.songs_count }}
+                        <FontAwesomeIcon
+                          :icon="['fad', 'music-note']"
+                          class="mr-0.5"
+                        />
+                        {{ video.songs_count }}
                       </span>
                     </div>
 
@@ -451,7 +473,9 @@
 
     <!-- データなし -->
     <div v-else class="text-center py-16">
-      <div class="text-gray-400 text-6xl mb-4">📅</div>
+      <div class="text-gray-400 text-6xl mb-4">
+        <FontAwesomeIcon :icon="['fad', 'calendar-days']" />
+      </div>
       <h3 class="text-xl font-semibold text-gray-700 mb-2">
         該当する動画がありません
       </h3>

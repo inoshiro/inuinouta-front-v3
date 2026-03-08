@@ -64,7 +64,7 @@
                 to="/"
                 class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1 transition-colors"
               >
-                <span aria-hidden="true">🏠</span> ホーム
+                <FontAwesomeIcon :icon="['fad', 'house']" class="w-4 h-4" aria-hidden="true" /> ホーム
               </NuxtLink>
             </li>
             <li>
@@ -72,7 +72,7 @@
                 to="/songs"
                 class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1 transition-colors"
               >
-                <span aria-hidden="true">🎶</span> 楽曲一覧
+                <FontAwesomeIcon :icon="['fad', 'music-note']" class="w-4 h-4" aria-hidden="true" /> 楽曲一覧
               </NuxtLink>
             </li>
             <li>
@@ -80,7 +80,7 @@
                 to="/streams"
                 class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1 transition-colors"
               >
-                <span aria-hidden="true">🎤</span> 歌枠一覧
+                <FontAwesomeIcon :icon="['fad', 'microphone']" class="w-4 h-4" aria-hidden="true" /> 歌枠一覧
               </NuxtLink>
             </li>
             <li>
@@ -88,7 +88,7 @@
                 to="/timeline"
                 class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1 transition-colors"
               >
-                <span aria-hidden="true">📅</span> タイムライン
+                <FontAwesomeIcon :icon="['fad', 'calendar-days']" class="w-4 h-4" aria-hidden="true" /> タイムライン
               </NuxtLink>
             </li>
             <li>
@@ -96,7 +96,7 @@
                 to="/playlists"
                 class="flex items-center gap-2 hover:bg-gray-600 rounded px-2 py-1 transition-colors"
               >
-                <span aria-hidden="true">🎵</span> プレイリスト
+                <FontAwesomeIcon :icon="['fad', 'list-music']" class="w-4 h-4" aria-hidden="true" /> プレイリスト
               </NuxtLink>
             </li>
           </ul>

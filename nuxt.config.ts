@@ -5,7 +5,18 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
 
-  css: ["~/assets/css/main.css"],
+  css: [
+    "~/assets/css/main.css",
+    "@fortawesome/fontawesome-svg-core/styles.css",
+  ],
+  build: {
+    transpile: [
+      "@fortawesome/fontawesome-svg-core",
+      "@fortawesome/vue-fontawesome",
+      "@fortawesome/pro-duotone-svg-icons",
+      "@fortawesome/free-brands-svg-icons",
+    ],
+  },
   modules: ["@nuxt/eslint", "@pinia/nuxt", "nuxt-gtag"],
   gtag: {
     id: process.env.NUXT_PUBLIC_GA_ID || "",
