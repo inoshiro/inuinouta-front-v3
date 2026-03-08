@@ -106,9 +106,15 @@
 
   const scrollToYear = (year: number) => {
     const el = document.getElementById(`year-${year}`);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    // scrollIntoView はモバイルブラウザで window レベルのスクロールも引き起こし
+    // ヘッダーが画面外に消える問題があるため、scrollContainer.scrollTo を使って
+    // <main> のスクロールのみに限定する
+    if (!el || !scrollContainer) return;
+    const containerRect = scrollContainer.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const targetScrollTop =
+      scrollContainer.scrollTop + (elRect.top - containerRect.top);
+    scrollContainer.scrollTo({ top: targetScrollTop, behavior: "smooth" });
   };
 
   // 動画の日付フォーマット
